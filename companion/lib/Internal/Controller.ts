@@ -51,6 +51,7 @@ import { InternalControls } from './Controls.js'
 import { InternalCustomVariables } from './CustomVariables.js'
 import { InternalInstance } from './Instance.js'
 import { InternalPage } from './Page.js'
+import { upgradeInternalPageReference } from './PageReference.js'
 import { InternalSurface } from './Surface.js'
 import { InternalSystem } from './System.js'
 import { InternalTime } from './Time.js'
@@ -220,6 +221,9 @@ export class InternalController {
 	#actionUpgrade(action: ActionEntityModel, controlId: string): ActionEntityModel | undefined {
 		if (!this.#initialized) throw new Error(`InternalController is not initialized`)
 
+		// Freeze legacy page numbers to the page id in that slot, before fragment-specific upgrades.
+		const pageReferenceChanged = upgradeInternalPageReference(action, this.#pageStore)
+
 		for (const fragment of this.#fragments) {
 			if ('actionUpgrade' in fragment && typeof fragment.actionUpgrade === 'function') {
 				try {
@@ -234,7 +238,7 @@ export class InternalController {
 			}
 		}
 
-		return undefined
+		return pageReferenceChanged ? action : undefined
 	}
 	/**
 	 * Perform an upgrade for a feedback
@@ -244,6 +248,8 @@ export class InternalController {
 	 */
 	#feedbackUpgrade(feedback: FeedbackEntityModel, controlId: string): FeedbackEntityModel | undefined {
 		if (!this.#initialized) throw new Error(`InternalController is not initialized`)
+
+		const pageReferenceChanged = upgradeInternalPageReference(feedback, this.#pageStore)
 
 		for (const fragment of this.#fragments) {
 			if ('feedbackUpgrade' in fragment && typeof fragment.feedbackUpgrade === 'function') {
@@ -261,7 +267,7 @@ export class InternalController {
 			}
 		}
 
-		return undefined
+		return pageReferenceChanged ? feedback : undefined
 	}
 
 	entityUpdate(entity: SomeEntityModel, controlId: string): void {

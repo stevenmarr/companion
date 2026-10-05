@@ -25,6 +25,7 @@ import { createStableObjectHash } from '@companion-app/shared/Util/Hash.js'
 import type { DataDatabase } from '../Data/Database.js'
 import type { ImageResult } from '../Graphics/ImageResult.js'
 import type { CompositeElementIdString } from '../Instance/Definitions.js'
+import { consumeUpgradedControlIds } from '../Internal/EntityUpgradePersistence.js'
 import LogController from '../Log/Controller.js'
 import type { ActiveLearningStore } from '../Resources/ActiveLearningStore.js'
 import { publicProcedure, router, toIterable } from '../UI/TRPC.js'
@@ -480,6 +481,13 @@ export class ControlsController {
 
 		// Initialize expression variable names map
 		this.#expressionVariableNamesMap.rebuildMap()
+
+		// Entity upgrades (including page-number -> page-id) mutate the in-memory model
+		// while the control is being constructed, before it can write itself. Persist those now.
+		for (const controlId of consumeUpgradedControlIds()) {
+			const control = this.#store.controls.get(controlId)
+			if (control) control.commitChange(false)
+		}
 	}
 
 	/**

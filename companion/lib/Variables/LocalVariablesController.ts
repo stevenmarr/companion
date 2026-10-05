@@ -17,6 +17,7 @@ import { isInternalUserValueFeedback, type ControlEntityInstance } from '../Cont
 import type { EditableEntityListPool, SomeEntityPool } from '../Controls/Entities/EntityListPoolEditingMixin.js'
 import type { IControlStore } from '../Controls/IControlStore.js'
 import type { RunActionExtras } from '../Instance/Connection/ChildHandlerApi.js'
+import { resolveInternalPage } from '../Internal/PageReference.js'
 import { ParseLocationString } from '../Internal/Util.js'
 import type { IPageStore } from '../Page/Store.js'
 
@@ -108,9 +109,10 @@ export class LocalVariablesController {
 
 	/**
 	 * Get a descriptor for the page variable identified by the provided page/name.
-	 * The page value comes from an `internal:page` picker, where `0` means "this page".
-	 * `thisPageNumber` is the page that `0` resolves to (the page of the control in context,
-	 * or `null` if it has none).
+	 * The page value comes from an `internal:page` picker. A page id follows that page
+	 * when pages are reordered. A positive number is the legacy "page in that slot".
+	 * `0` means "this page". `thisPageNumber` is the page that `0` resolves to
+	 * (the page of the control in context, or `null` if it has none).
 	 */
 	pageVariableFor(
 		page: JsonValue | undefined,
@@ -119,15 +121,11 @@ export class LocalVariablesController {
 	): LocalVariable | null {
 		if (!name) return null
 
-		let pageNumber = Number(page)
-		if (pageNumber === 0) pageNumber = thisPageNumber ?? NaN
-		if (!pageNumber || isNaN(pageNumber)) return null
-
-		const pageId = this.#pageStore.getPageId(pageNumber)
-		if (!pageId) return null
+		const resolved = resolveInternalPage(page, this.#pageStore, thisPageNumber)
+		if (resolved.kind !== 'page') return null
 
 		// eslint-disable-next-line @typescript-eslint/no-base-to-string
-		return { controlId: CreatePageControlId(pageId), name: String(name) }
+		return { controlId: CreatePageControlId(resolved.pageId), name: String(name) }
 	}
 
 	/**

@@ -32,6 +32,7 @@ import type { GraphicsController } from '../Graphics/Controller.js'
 import type { RunActionExtras } from '../Instance/Connection/ChildHandlerApi.js'
 import type { IPageStore } from '../Page/Store.js'
 import { parseColorToNumber } from '../Resources/Util.js'
+import { resolveInternalPage } from './PageReference.js'
 import type {
 	ActionForInternalExecution,
 	ActionForVisitor,
@@ -671,19 +672,16 @@ export class InternalControls extends EventEmitter<InternalModuleFragmentEvents>
 				break
 			}
 			case 'panic_page': {
-				let thePage: number | null = Number(action.options.page)
+				const resolved = resolveInternalPage(action.options.page, this.#pageStore, extras.location?.pageNumber ?? null)
+				if (resolved.kind !== 'page') break
 
-				if (thePage === 0) thePage = extras.location?.pageNumber ?? null
+				const controlIdsOnPage = this.#pageStore.getAllControlIdsOnPage(resolved.pageNumber)
+				for (const controlId of controlIdsOnPage) {
+					if (action.options.ignoreSelf && controlId === extras.controlId) continue
 
-				if (thePage !== null && !isNaN(thePage)) {
-					const controlIdsOnPage = this.#pageStore.getAllControlIdsOnPage(thePage)
-					for (const controlId of controlIdsOnPage) {
-						if (action.options.ignoreSelf && controlId === extras.controlId) continue
-
-						const control = this.#controlsStore.getControl(controlId)
-						if (control && control.supportsActions) {
-							control.abortDelayedActions(false, action.options.ignoreCurrent ? extras.abortDelayed : null)
-						}
+					const control = this.#controlsStore.getControl(controlId)
+					if (control && control.supportsActions) {
+						control.abortDelayedActions(false, action.options.ignoreCurrent ? extras.abortDelayed : null)
 					}
 				}
 				break
@@ -741,7 +739,11 @@ export class InternalControls extends EventEmitter<InternalModuleFragmentEvents>
 		return { result: undefined }
 	}
 
-	visitReferences(_visitor: InternalVisitor, _actions: ActionForVisitor[], _feedbacks: FeedbackForVisitor[]): void {
-		// Nothing to do
+	visitReferences(visitor: InternalVisitor, actions: ActionForVisitor[], _feedbacks: FeedbackForVisitor[]): void {
+		for (const action of actions) {
+			if (action.action === 'panic_page') {
+				visitor.visitPageId(action.options, 'page')
+			}
+		}
 	}
 }

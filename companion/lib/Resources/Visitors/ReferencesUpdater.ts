@@ -8,11 +8,12 @@ export class VisitorReferencesUpdater extends VisitorReferencesBase<VisitorRefer
 		internalModule: InternalController,
 		connectionLabelsRemap: Record<string, string> | undefined,
 		connectionIdRemap: Record<string, string> | undefined,
-		outboundSurfaceIdRemap: Record<string, string> | undefined
+		outboundSurfaceIdRemap: Record<string, string> | undefined,
+		pageIdRemap?: Record<string, string> | undefined
 	) {
 		super(
 			internalModule,
-			new VisitorReferencesUpdaterVisitor(connectionLabelsRemap, connectionIdRemap, outboundSurfaceIdRemap)
+			new VisitorReferencesUpdaterVisitor(connectionLabelsRemap, connectionIdRemap, outboundSurfaceIdRemap, pageIdRemap)
 		)
 	}
 
@@ -50,6 +51,12 @@ export class VisitorReferencesUpdaterVisitor {
 	readonly outboundSurfaceIdRemap: Record<string, string> | undefined
 
 	/**
+	 * Page id remapping. Used when an imported config's pages were recreated
+	 * and buttons still name the page ids from the file.
+	 */
+	readonly pageIdRemap: Record<string, string> | undefined
+
+	/**
 	 * Feedback ids that have been changed
 	 */
 	readonly changedFeedbackIds = new Set<string>()
@@ -62,11 +69,13 @@ export class VisitorReferencesUpdaterVisitor {
 	constructor(
 		connectionLabelsRemap: Record<string, string> | undefined,
 		connectionIdRemap: Record<string, string> | undefined,
-		outboundSurfaceIdRemap: Record<string, string> | undefined
+		outboundSurfaceIdRemap: Record<string, string> | undefined,
+		pageIdRemap?: Record<string, string> | undefined
 	) {
 		this.connectionLabelsRemap = connectionLabelsRemap
 		this.connectionIdRemap = connectionIdRemap
 		this.outboundSurfaceIdRemap = outboundSurfaceIdRemap
+		this.pageIdRemap = pageIdRemap
 	}
 
 	/**
@@ -87,6 +96,26 @@ export class VisitorReferencesUpdaterVisitor {
 			if (!this.outboundSurfaceIdRemap || isExpression) return oldValue // An expression can't be a plain surface id
 
 			const newId = this.outboundSurfaceIdRemap[oldValue]
+			if (newId && newId !== oldValue) {
+				this.#trackChange(feedbackId)
+				return newId
+			}
+			return oldValue
+		})
+	}
+
+	/**
+	 * Visit an internal page id property (`internal:page`).
+	 * Numbers and relative tokens are left unchanged; only a stored page id that
+	 * appears in `pageIdRemap` is rewritten.
+	 */
+	visitPageId(obj: Record<string, any>, propName: string | number, feedbackId?: string): void {
+		if (!this.pageIdRemap) return
+
+		this.#updateValue(obj, propName, (oldValue, isExpression) => {
+			if (!this.pageIdRemap || isExpression || typeof oldValue !== 'string') return oldValue
+
+			const newId = this.pageIdRemap[oldValue]
 			if (newId && newId !== oldValue) {
 				this.#trackChange(feedbackId)
 				return newId

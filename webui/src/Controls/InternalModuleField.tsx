@@ -238,7 +238,7 @@ export const InternalPageDropdown = observer(function InternalPageDropdown({
 		}
 
 		pages.data.forEach((pageInfo, i) => {
-			choices.push({ id: i + 1, label: `${i + 1} (${pageInfo.name || ''})` })
+			choices.push({ id: pageInfo.id, label: `${i + 1} (${pageInfo.name || ''})` })
 		})
 
 		return choices

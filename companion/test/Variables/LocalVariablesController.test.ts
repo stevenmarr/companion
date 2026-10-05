@@ -117,6 +117,21 @@ describe('LocalVariablesController', () => {
 			expect(controller.pageVariableFor(2, '', 1)).toBe(null)
 		})
 
+		test('a page id resolves even if that page is no longer at its old number', () => {
+			const { controller } = createController()
+
+			expect(controller.pageVariableFor('page-c', 'my_var', 1)).toEqual({
+				controlId: 'page:page-c',
+				name: 'my_var',
+			})
+		})
+
+		test('a deleted page id returns null', () => {
+			const { controller } = createController()
+
+			expect(controller.pageVariableFor('page-gone', 'my_var', 1)).toBe(null)
+		})
+
 		test('an explicit page number resolves to its page control', () => {
 			const { controller } = createController()
 

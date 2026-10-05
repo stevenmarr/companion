@@ -492,7 +492,16 @@ export class InternalVariables extends EventEmitter<InternalModuleFragmentEvents
 	/**
 	 *
 	 */
-	visitReferences(visitor: InternalVisitor, _actions: ActionForVisitor[], feedbacks: FeedbackForVisitor[]): void {
+	visitReferences(visitor: InternalVisitor, actions: ActionForVisitor[], feedbacks: FeedbackForVisitor[]): void {
+		for (const action of actions) {
+			if (
+				action.action === 'page_variable_set_value' ||
+				action.action === 'page_variable_reset_to_default' ||
+				action.action === 'page_variable_sync_to_default'
+			) {
+				visitor.visitPageId(action.options, 'page')
+			}
+		}
 		for (const feedback of feedbacks) {
 			try {
 				// check_expression.expression handled by generic options visitor

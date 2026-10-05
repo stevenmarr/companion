@@ -21,6 +21,7 @@ import {
 } from '@companion-app/shared/Model/EntityModel.js'
 import type { ExpressionableOptionsObject, ExpressionOrValue } from '@companion-app/shared/Model/Options.js'
 import { stringifyError } from '@companion-app/shared/Stringify.js'
+import { noteUpgradedControl } from '../../Internal/EntityUpgradePersistence.js'
 import type { InternalVisitor } from '../../Internal/Types.js'
 import LogController, { type Logger } from '../../Log/Controller.js'
 import { visitEntityModel } from '../../Resources/Visitors/EntityInstanceVisitor.js'
@@ -224,6 +225,7 @@ export class ControlEntityInstance {
 			const newProps = this.#internalModule.entityUpgrade(this.#data, this.#controlId)
 			if (newProps) {
 				this.replaceProps(newProps, false)
+				noteUpgradedControl(this.#controlId)
 
 				children = { ...children, ...newProps.children }
 			}

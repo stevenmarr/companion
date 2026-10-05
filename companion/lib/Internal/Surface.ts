@@ -24,6 +24,7 @@ import type { RunActionExtras } from '../Instance/Connection/ChildHandlerApi.js'
 import LogController from '../Log/Controller.js'
 import type { IPageStore } from '../Page/Store.js'
 import type { SurfaceController } from '../Surface/Controller.js'
+import { isInternalPageMissing, resolveInternalPage } from './PageReference.js'
 import type {
 	ActionForInternalExecution,
 	ActionForVisitor,
@@ -144,6 +145,12 @@ export class InternalSurface extends EventEmitter<InternalModuleFragmentEvents> 
 		this.#surfaceController.on('surface_name', () => debounceUpdateVariables())
 		this.#surfaceController.on('group_name', () => debounceUpdateVariables())
 
+		// Page ids stay valid across a reorder, but "on this page" and "page missing"
+		// both depend on the current set of pages.
+		this.#pageStore.on('pageindexchange', () => {
+			this.emit('checkFeedbacks', 'surface_on_page', 'page_missing')
+		})
+
 		this.#surfaceController.outbound.events.on('clientInfo', () => {
 			this.emit('checkFeedbacks', 'outbound_surface_enabled')
 		})
@@ -165,23 +172,21 @@ export class InternalSurface extends EventEmitter<InternalModuleFragmentEvents> 
 		extras: RunActionExtras | FeedbackForInternalExecution,
 		surfaceId: string | undefined
 	): string | 'back' | 'forward' | '+1' | '-1' | undefined {
-		let thePageNumber = options.page
+		// @ts-expect-error `location.page` is a legacy alias of `pageNumber`
+		const thisPageNumber: number | undefined = extras.location?.pageNumber ?? extras.location?.page
+		const resolved = resolveInternalPage(options.page, this.#pageStore, thisPageNumber)
 
-		if (extras.location) {
-			if (thePageNumber === 0 || thePageNumber === '0')
-				// @ts-expect-error handle non-standard page property, for backwards compatibility
-				thePageNumber = extras.location.pageNumber ?? extras.location.page
+		if (resolved.kind === 'relative') {
+			if (resolved.token === 'startup') {
+				const startupPageId = surfaceId && this.#surfaceController.devicePageGetStartup(surfaceId)
+				return startupPageId || this.#pageStore.getFirstPageId()
+			}
+			return resolved.token
 		}
 
-		if (thePageNumber === 'startup') {
-			const thePageId = surfaceId && this.#surfaceController.devicePageGetStartup(surfaceId)
-			return thePageId || this.#pageStore.getFirstPageId()
-		}
-		if (thePageNumber === 'back' || thePageNumber === 'forward' || thePageNumber === '+1' || thePageNumber === '-1') {
-			return thePageNumber
-		}
+		if (resolved.kind === 'page') return resolved.pageId
 
-		return this.#pageStore.getPageInfo(Number(thePageNumber))?.id
+		return undefined
 	}
 
 	getVariableDefinitions(): VariableDefinition[] {
@@ -727,6 +732,29 @@ export class InternalSurface extends EventEmitter<InternalModuleFragmentEvents> 
 				optionsSupportExpressions: true,
 			},
 
+			page_missing: {
+				feedbackType: FeedbackEntitySubType.Boolean,
+				label: 'Page: When target page is missing',
+				description:
+					'Change style when the selected page has been deleted. Use this on a button that jumps to a page, so the button shows it is broken instead of silently doing nothing.',
+				feedbackStyle: {
+					color: 0xffffff,
+					bgcolor: 0xff0000,
+				},
+				showInvert: true,
+				options: [
+					{
+						type: 'internal:page',
+						label: 'Page',
+						id: 'page',
+						includeStartup: false,
+						includeDirection: false,
+						default: 0,
+					},
+				],
+				optionsSupportExpressions: true,
+			},
+
 			outbound_surface_enabled: {
 				feedbackType: FeedbackEntitySubType.Boolean,
 				label: 'Remote surface: When enabled',
@@ -753,6 +781,9 @@ export class InternalSurface extends EventEmitter<InternalModuleFragmentEvents> 
 
 			return currentPage == thePage
 		}
+		if (feedback.definitionId == 'page_missing') {
+			return isInternalPageMissing(feedback.options.page, this.#pageStore, feedback.location?.pageNumber)
+		}
 		if (feedback.definitionId == 'outbound_surface_enabled') {
 			const surfaceId = stringifyVariableValue(feedback.options.surfaceId)?.trim()
 			if (!surfaceId) return false
@@ -765,11 +796,15 @@ export class InternalSurface extends EventEmitter<InternalModuleFragmentEvents> 
 		for (const action of actions) {
 			if (action.action === 'outbound_surface_set_enabled') {
 				visitor.visitOutboundSurfaceId(action.options, 'surfaceId')
+			} else if (action.action === 'set_page' || action.action === 'set_page_byindex') {
+				visitor.visitPageId(action.options, 'page')
 			}
 		}
 		for (const feedback of feedbacks) {
 			if (feedback.type === 'outbound_surface_enabled') {
 				visitor.visitOutboundSurfaceId(feedback.options, 'surfaceId', feedback.id)
+			} else if (feedback.type === 'surface_on_page' || feedback.type === 'page_missing') {
+				visitor.visitPageId(feedback.options, 'page', feedback.id)
 			}
 		}
 	}

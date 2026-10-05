@@ -86,7 +86,10 @@ export class ImportController {
 		}
 		this.#graphicsController.clearAllForPage(topage)
 
-		await this.#performPageImport(pageInfo, topage, instanceIdMap, undefined)
+		const targetPageId = this.#pagesController.store.getPageId(topage)
+		const pageIdRemap = pageInfo.id && targetPageId ? { [pageInfo.id]: targetPageId } : undefined
+
+		await this.#performPageImport(pageInfo, topage, instanceIdMap, undefined, pageIdRemap)
 
 		// Report the used remap to the ui, for future imports
 		const instanceRemap2: ConnectionRemappings = {}
@@ -165,6 +168,8 @@ export class ImportController {
 			}
 		}
 
+		const pageIdRemap = isImporting(config.buttons) ? this.#ensureImportedPageSlots(data.pages) : {}
+
 		// import custom variables
 		if (isImporting(config.customVariables)) {
 			this.#variablesController.custom.replaceCollections(data.customVariablesCollections || [])
@@ -181,7 +186,8 @@ export class ImportController {
 					this.#internalModule,
 					variableDefinition,
 					instanceIdMap,
-					outboundSurfaceIdRemap
+					outboundSurfaceIdRemap,
+					pageIdRemap
 				)
 
 				this.#controlsController.importExpressionVariable(controlId, fixedControlObj)
@@ -209,7 +215,7 @@ export class ImportController {
 					)
 				}
 
-				await this.#performPageImport(pageInfo, pageNumber, instanceIdMap, outboundSurfaceIdRemap)
+				await this.#performPageImport(pageInfo, pageNumber, instanceIdMap, outboundSurfaceIdRemap, pageIdRemap)
 
 				// Yield between pages so a large import doesn't block the event loop for its whole duration
 				await yieldToEventLoop()
@@ -325,7 +331,8 @@ export class ImportController {
 					this.#internalModule,
 					trigger,
 					instanceIdMap,
-					outboundSurfaceIdRemap
+					outboundSurfaceIdRemap,
+					pageIdRemap
 				)
 				this.#controlsController.importTrigger(controlId, fixedControlObj)
 			}
@@ -340,11 +347,42 @@ export class ImportController {
 		}
 	}
 
+	/**
+	 * Make sure every exported page number exists, and map each exported page id
+	 * onto the id of the page now sitting at that number. Import recreates pages,
+	 * so buttons that stored a page id have to be pointed at the new id.
+	 */
+	#ensureImportedPageSlots(pages: ExportFullv6['pages']): Record<string, string> {
+		const remap: Record<string, string> = {}
+		if (!pages) return remap
+
+		const entries = Object.entries(pages)
+			.map(([pageNumber, pageInfo]) => [Number(pageNumber), pageInfo] as const)
+			.filter((entry): entry is [number, ExportPageContentv6] => !!entry[1] && !isNaN(entry[0]))
+			.sort((a, b) => a[0] - b[0])
+
+		for (const [pageNumber, pageInfo] of entries) {
+			const insertPageCount = pageNumber - this.#pagesController.store.getPageCount()
+			if (insertPageCount > 0) {
+				this.#pagesController.insertPages(
+					this.#pagesController.store.getPageCount() + 1,
+					new Array(insertPageCount).fill('Page')
+				)
+			}
+
+			const targetPageId = this.#pagesController.store.getPageId(pageNumber)
+			if (pageInfo.id && targetPageId) remap[pageInfo.id] = targetPageId
+		}
+
+		return remap
+	}
+
 	#performPageImport = async (
 		pageInfo: ExportPageContentv6,
 		topage: number,
 		instanceIdMap: InstanceAppliedRemappings,
-		outboundSurfaceIdRemap: Record<string, string> | undefined
+		outboundSurfaceIdRemap: Record<string, string> | undefined,
+		pageIdRemap?: Record<string, string> | undefined
 	): Promise<void> => {
 		{
 			// Ensure the configured grid size is large enough for the import
@@ -381,7 +419,8 @@ export class ImportController {
 			this.#internalModule,
 			connectionLabelRemap,
 			connectionIdRemap,
-			outboundSurfaceIdRemap
+			outboundSurfaceIdRemap,
+			pageIdRemap
 		)
 
 		// Import the controls

@@ -24,7 +24,7 @@ function createSurface() {
 	surfaceController.getGroupIdFromDeviceId.mockReturnValue('group0')
 	surfaceController.isPinLockEnabled.mockReturnValue(true)
 	surfaceController.triggerRefreshDevices.mockResolvedValue(undefined)
-	pageStore.getPageInfo.mockReturnValue({ id: 'page-2' } as any)
+	pageStore.getPageId.mockImplementation((pageNumber: number) => (pageNumber >= 1 ? `page-${pageNumber}` : undefined))
 
 	const surface = new InternalSurface(surfaceController, controlsStore, pageStore)
 
@@ -135,8 +135,7 @@ describe('InternalSurface', () => {
 		// back/forward history navigation which should redraw immediately.
 
 		test('absolute set_page resolves the page id and defers the redraw', () => {
-			const { surface, surfaceController, pageStore } = createSurface()
-			pageStore.getPageInfo.mockReturnValue({ id: 'page-5' } as any)
+			const { surface, surfaceController } = createSurface()
 
 			surface.executeAction(makeExecAction('set_page', { surfaceId: 'surface0', page: 5 }), fakeExtras)
 
@@ -183,11 +182,42 @@ describe('InternalSurface', () => {
 
 		test('unknown absolute page is ignored', () => {
 			const { surface, surfaceController, pageStore } = createSurface()
-			pageStore.getPageInfo.mockReturnValue(undefined)
+			pageStore.getPageId.mockReturnValue(undefined)
 
 			surface.executeAction(makeExecAction('set_page', { surfaceId: 'surface0', page: 99 }), fakeExtras)
 
 			expect(surfaceController.devicePageSet).not.toHaveBeenCalled()
+		})
+
+		test('a stored page id is used directly and does not follow the slot number', () => {
+			const { surface, surfaceController, pageStore } = createSurface()
+			pageStore.isPageIdValid.mockImplementation((id) => id === 'page-ptz6')
+			pageStore.getPageNumber.mockImplementation((id) => (id === 'page-ptz6' ? 16 : null))
+
+			surface.executeAction(makeExecAction('set_page', { surfaceId: 'surface0', page: 'page-ptz6' }), fakeExtras)
+
+			expect(pageStore.getPageInfo).not.toHaveBeenCalled()
+			expect(surfaceController.devicePageSet).toHaveBeenCalledWith('group0', 'page-ptz6', true, true)
+		})
+
+		test('a deleted page id does not change the surface', () => {
+			const { surface, surfaceController, pageStore } = createSurface()
+			pageStore.isPageIdValid.mockReturnValue(false)
+
+			surface.executeAction(makeExecAction('set_page', { surfaceId: 'surface0', page: 'page-deleted' }), fakeExtras)
+
+			expect(surfaceController.devicePageSet).not.toHaveBeenCalled()
+		})
+
+		test('page 0 resolves against the control location', () => {
+			const { surface, surfaceController } = createSurface()
+
+			surface.executeAction(
+				makeExecAction('set_page', { surfaceId: 'surface0', page: 0 }),
+				makeExtras({ location: { pageNumber: 4, row: 0, column: 0 } })
+			)
+
+			expect(surfaceController.devicePageSet).toHaveBeenCalledWith('group0', 'page-4', true, true)
 		})
 
 		test('page change is skipped when the surface has no group', () => {
@@ -202,9 +232,8 @@ describe('InternalSurface', () => {
 
 	describe('executeAction: set_page_byindex', () => {
 		test('resolves the surface from its index and changes page', () => {
-			const { surface, surfaceController, pageStore } = createSurface()
+			const { surface, surfaceController } = createSurface()
 			surfaceController.getDeviceIdFromIndex.mockReturnValue('surface-idx')
-			pageStore.getPageInfo.mockReturnValue({ id: 'page-3' } as any)
 
 			surface.executeAction(makeExecAction('set_page_byindex', { surfaceIndex: 2, page: 3 }), fakeExtras)
 
@@ -462,16 +491,25 @@ describe('InternalSurface', () => {
 		}
 
 		test('surface_on_page is true when the surface is on the requested page', () => {
-			const { surface, surfaceController, pageStore } = createSurface()
-			pageStore.getPageInfo.mockReturnValue({ id: 'page-2' } as any)
+			const { surface, surfaceController } = createSurface()
 			surfaceController.devicePageGet.mockReturnValue('page-2')
 
 			expect(surface.executeFeedback(makeFeedback('surface_on_page', { surfaceId: 'surface0', page: 2 }))).toBe(true)
 		})
 
-		test('surface_on_page is false when the surface is on a different page', () => {
+		test('surface_on_page is true for a stored page id after that page moves', () => {
 			const { surface, surfaceController, pageStore } = createSurface()
-			pageStore.getPageInfo.mockReturnValue({ id: 'page-2' } as any)
+			pageStore.isPageIdValid.mockImplementation((id) => id === 'page-ptz6')
+			pageStore.getPageNumber.mockReturnValue(4)
+			surfaceController.devicePageGet.mockReturnValue('page-ptz6')
+
+			expect(
+				surface.executeFeedback(makeFeedback('surface_on_page', { surfaceId: 'surface0', page: 'page-ptz6' }))
+			).toBe(true)
+		})
+
+		test('surface_on_page is false when the surface is on a different page', () => {
+			const { surface, surfaceController } = createSurface()
 			surfaceController.devicePageGet.mockReturnValue('page-9')
 
 			expect(surface.executeFeedback(makeFeedback('surface_on_page', { surfaceId: 'surface0', page: 2 }))).toBe(false)
@@ -607,7 +645,7 @@ describe('InternalSurface', () => {
 			const { surface } = createSurface()
 
 			expect(Object.keys(surface.getFeedbackDefinitions()).sort()).toEqual(
-				['surface_on_page', 'outbound_surface_enabled'].sort()
+				['surface_on_page', 'page_missing', 'outbound_surface_enabled'].sort()
 			)
 		})
 	})
@@ -631,6 +669,42 @@ describe('InternalSurface', () => {
 			expect(visitor.visitOutboundSurfaceId).toHaveBeenCalledWith(actions[0].options, 'surfaceId')
 			expect(visitor.visitOutboundSurfaceId).toHaveBeenCalledWith(feedbacks[0].options, 'surfaceId', 'f1')
 			expect(visitor.visitOutboundSurfaceId).toHaveBeenCalledTimes(2)
+			expect(visitor.visitPageId).toHaveBeenCalledWith(feedbacks[1].options, 'page', 'f2')
+		})
+	})
+
+	describe('executeFeedback: page_missing', () => {
+		function makeFeedback(definitionId: string, options: Record<string, unknown>): FeedbackForInternalExecution {
+			return { controlId: 'ctrl1', location: undefined, id: 'fb1', definitionId, options: options as any }
+		}
+
+		test('a deleted page id is missing', () => {
+			const { surface, pageStore } = createSurface()
+			pageStore.isPageIdValid.mockReturnValue(false)
+
+			expect(surface.executeFeedback(makeFeedback('page_missing', { page: 'page-deleted' }))).toBe(true)
+		})
+
+		test('a live page id is not missing', () => {
+			const { surface, pageStore } = createSurface()
+			pageStore.isPageIdValid.mockImplementation((id) => id === 'page-ptz6')
+			pageStore.getPageNumber.mockReturnValue(4)
+
+			expect(surface.executeFeedback(makeFeedback('page_missing', { page: 'page-ptz6' }))).toBe(false)
+		})
+
+		test('this page and relative targets are not missing', () => {
+			const { surface } = createSurface()
+
+			expect(surface.executeFeedback(makeFeedback('page_missing', { page: 0 }))).toBe(false)
+			expect(surface.executeFeedback(makeFeedback('page_missing', { page: 'back' }))).toBe(false)
+		})
+
+		test('a page number with no page is missing', () => {
+			const { surface, pageStore } = createSurface()
+			pageStore.getPageId.mockReturnValue(undefined)
+
+			expect(surface.executeFeedback(makeFeedback('page_missing', { page: 16 }))).toBe(true)
 		})
 	})
 })

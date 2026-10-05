@@ -24,7 +24,8 @@ export function fixupTriggerControl(
 	internalModule: InternalController,
 	control: ExportTriggerContentv6,
 	instanceIdMap: InstanceAppliedRemappings,
-	outboundSurfaceIdRemap: Record<string, string> | undefined
+	outboundSurfaceIdRemap: Record<string, string> | undefined,
+	pageIdRemap?: Record<string, string> | undefined
 ): TriggerModel {
 	// Future: this does not feel durable
 
@@ -60,7 +61,13 @@ export function fixupTriggerControl(
 		result.localVariables = fixupEntitiesRecursive(instanceIdMap, structuredClone(control.localVariables))
 	}
 
-	new VisitorReferencesUpdater(internalModule, connectionLabelRemap, connectionIdRemap, outboundSurfaceIdRemap)
+	new VisitorReferencesUpdater(
+		internalModule,
+		connectionLabelRemap,
+		connectionIdRemap,
+		outboundSurfaceIdRemap,
+		pageIdRemap
+	)
 		.visitEntities([], [...result.localVariables, ...result.condition, ...result.actions])
 		.visitEvents(result.events || [])
 
@@ -71,7 +78,8 @@ export function fixupExpressionVariableControl(
 	internalModule: InternalController,
 	control: ExpressionVariableModel,
 	instanceIdMap: InstanceAppliedRemappings,
-	outboundSurfaceIdRemap: Record<string, string>
+	outboundSurfaceIdRemap: Record<string, string>,
+	pageIdRemap?: Record<string, string> | undefined
 ): ExpressionVariableModel {
 	// Future: this does not feel durable
 
@@ -105,7 +113,8 @@ export function fixupExpressionVariableControl(
 		internalModule,
 		connectionLabelRemap,
 		connectionIdRemap,
-		outboundSurfaceIdRemap
+		outboundSurfaceIdRemap,
+		pageIdRemap
 	).visitEntities([], result.localVariables)
 	if (result.entity) visitor.visitEntities([], [result.entity])
 

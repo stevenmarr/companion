@@ -70,6 +70,14 @@ export class VisitorReferencesCollectorVisitor {
 	}
 
 	/**
+	 * Page ids are not collected. The method exists so internal modules can visit
+	 * the same properties on both the collector and the updater.
+	 */
+	visitPageId(_obj: Record<string, any>, _propName: string | number, _feedbackId?: string): void {
+		// Nothing to collect
+	}
+
+	/**
 	 * Visit a connection id property
 	 */
 	visitConnectionId(obj: Record<string, any>, propName: string, _feedbackId?: string): void {
