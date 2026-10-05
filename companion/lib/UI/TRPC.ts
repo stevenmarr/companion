@@ -199,6 +199,7 @@ export function createTrpcRouter(registry: Registry) {
 		variables: registry.variables.createTrpcRouter(),
 		customVariables: registry.variables.custom.createTrpcRouter(),
 		pages: registry.page.createTrpcRouter(),
+		pageClasses: registry.pageClasses.createTrpcRouter(),
 		importExport: registry.importExport.createTrpcRouter(),
 		logs: LogController.createTrpcRouter(),
 

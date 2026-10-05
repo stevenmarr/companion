@@ -20,3 +20,24 @@
 		}
 	}
 }
+
+.page-classes {
+	margin-top: 2rem;
+}
+
+.page-class-list {
+	margin-top: 1rem;
+}
+
+.page-class-meta {
+	font-size: 0.85rem;
+	opacity: 0.75;
+}
+
+.page-class-actions {
+	flex: 0 0 auto;
+}
+
+.page-class-slot {
+	margin-top: 1rem;
+}

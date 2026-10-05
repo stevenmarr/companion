@@ -24,6 +24,7 @@ import { InstanceController } from './Instance/Controller.js'
 import { InternalController } from './Internal/Controller.js'
 import LogController, { type Logger } from './Log/Controller.js'
 import { PageController } from './Page/Controller.js'
+import { PageClassController } from './Page/PageClassController.js'
 import { PageStore } from './Page/Store.js'
 import { PreviewController } from './Preview/Controller.js'
 import { ActiveLearningStore } from './Resources/ActiveLearningStore.js'
@@ -115,6 +116,12 @@ export class Registry {
 	 * The core page controller
 	 */
 	readonly page: PageController
+
+	/**
+	 * Saved page snapshots that can be stamped out onto a new connection.
+	 */
+	readonly pageClasses: PageClassController
+
 	/**
 	 * The core preview controller
 	 */
@@ -324,6 +331,13 @@ export class Registry {
 			this.surfaces,
 			this.userconfig,
 			this.variables
+		)
+
+		this.pageClasses = new PageClassController(
+			this.db.getTableView('page_classes'),
+			this.page,
+			this.instance,
+			this.importExport
 		)
 
 		const serviceApi = new ServiceApi(

@@ -1,6 +1,6 @@
-import { faCompass, faEllipsis, faEraser, faFileExport, faPencil } from '@fortawesome/free-solid-svg-icons'
+import { faClone, faCompass, faEllipsis, faEraser, faFileExport, faPencil } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { PopoverActionMenu, type MenuItemProps } from '~/Components/ActionMenu.js'
 import { ConfirmExportModal, type ConfirmExportModalRef } from '~/Components/ConfirmExportModal.js'
 import { GenericConfirmModal, type GenericConfirmModalRef } from '~/Components/GenericConfirmModal.js'
@@ -9,6 +9,7 @@ import { trpc, useMutationExt } from '~/Resources/TRPC.js'
 import { makeAbsolutePath } from '~/Resources/util.js'
 import type { PagesStoreModel } from '~/Stores/PagesStore.js'
 import { EditPagePropertiesModal, type EditPagePropertiesModalRef } from './EditPageProperties.js'
+import { SavePageClassModal } from './PageClasses.js'
 
 interface ButtonGridPageMenuProps {
 	pageNumber: number
@@ -22,6 +23,7 @@ export function ButtonGridPageMenu({ pageNumber, pageInfo }: ButtonGridPageMenuP
 	const confirmRef = useRef<GenericConfirmModalRef>(null)
 	const editRef = useRef<EditPagePropertiesModalRef>(null)
 	const exportModalRef = useRef<ConfirmExportModalRef>(null)
+	const [saveClassOpen, setSaveClassOpen] = useState(false)
 
 	const clearPageMutation = useMutationExt(trpc.pages.clearPage.mutationOptions())
 	const recreateNavMutation = useMutationExt(trpc.pages.recreateNav.mutationOptions())
@@ -37,6 +39,11 @@ export function ButtonGridPageMenu({ pageNumber, pageInfo }: ButtonGridPageMenuP
 				label: 'Export page',
 				icon: faFileExport,
 				do: () => exportModalRef.current?.show(makeAbsolutePath(`/int/export/page/${pageNumber}`)),
+			},
+			{
+				label: 'Save as page class',
+				icon: faClone,
+				do: () => setSaveClassOpen(true),
 			},
 			{ isSeparator: true, label: 'Danger zone' },
 			{
@@ -79,6 +86,12 @@ export function ButtonGridPageMenu({ pageNumber, pageInfo }: ButtonGridPageMenuP
 			<GenericConfirmModal ref={confirmRef} />
 			<EditPagePropertiesModal ref={editRef} includeName />
 			<ConfirmExportModal ref={exportModalRef} title="Export Page" />
+			<SavePageClassModal
+				open={saveClassOpen}
+				onOpenChange={setSaveClassOpen}
+				pageNumber={pageNumber}
+				defaultName={pageInfo?.name ?? ''}
+			/>
 
 			<Popover.Root>
 				<Popover.Trigger color="light" className="ms-1" title="Page actions">

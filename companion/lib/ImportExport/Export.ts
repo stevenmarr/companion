@@ -533,6 +533,30 @@ export class ExportController {
 		return pageExport
 	}
 
+	/**
+	 * Capture one page and the full connection configs it uses, so the page can be stamped out later.
+	 */
+	exportPageSnapshot(pageNumber: number): { page: ExportPageContentv6; instances: ExportInstancesv6 } | null {
+		const pageInfo = this.#pagesStore.getPageInfo(pageNumber)
+		if (!pageInfo) return null
+
+		const referencedConnectionIds = new Set<string>()
+		const referencedConnectionLabels = new Set<string>()
+		const referencedVariables = new Set<string>()
+		const page = this.#generatePageExportInfo(
+			pageInfo,
+			referencedConnectionIds,
+			referencedConnectionLabels,
+			referencedVariables
+		)
+		const instances = this.#generateReferencedConnectionConfigs(referencedConnectionIds, referencedConnectionLabels, {
+			minimalExport: false,
+			includeSecrets: true,
+		})
+
+		return { page, instances }
+	}
+
 	generateCustomExport(config: ClientExportSelection | null): ExportFullv6 {
 		// Export file protocol version
 		const exp: ExportFullv6 = {

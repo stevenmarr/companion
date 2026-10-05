@@ -69,7 +69,13 @@ describe('the page menu', () => {
 
 		await openMenu(user)
 
-		for (const label of ['Edit page', 'Export page', 'Recreate navigation buttons', 'Clear page']) {
+		for (const label of [
+			'Edit page',
+			'Export page',
+			'Save as page class',
+			'Recreate navigation buttons',
+			'Clear page',
+		]) {
 			expect(screen.getByText(label)).toBeInTheDocument()
 		}
 	})

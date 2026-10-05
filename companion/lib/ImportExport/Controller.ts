@@ -15,7 +15,7 @@ import { nanoid } from 'nanoid'
 import workerPool from 'workerpool'
 import z from 'zod'
 import type { SomeButtonModel } from '@companion-app/shared/Model/ButtonModel.js'
-import type { ExportFullv6, ExportPageContentv6 } from '@companion-app/shared/Model/ExportModel.js'
+import type { ExportFullv6, ExportInstancesv6, ExportPageContentv6 } from '@companion-app/shared/Model/ExportModel.js'
 import {
 	zodClientImportOrResetSelection,
 	type ClientImportObject,
@@ -297,6 +297,23 @@ export class ImportExportController {
 		// Initialize with current user config for backups
 		const backupRules = this.#userConfigController.getKey('backups')
 		this.#backupController.initializeWithConfig(backupRules || [])
+	}
+
+	/** Snapshot one page and the connections it uses. Used by page classes. */
+	capturePageForClass(pageNumber: number): { page: ExportPageContentv6; instances: ExportInstancesv6 } | null {
+		return this.#exportController.exportPageSnapshot(pageNumber)
+	}
+
+	/** Copy a captured page onto an existing page, remapping connections the same way an import does. */
+	async importPageForClass(
+		instances: ExportInstancesv6 | undefined,
+		connectionIdRemapping: Record<string, string | undefined>,
+		pageInfo: ExportPageContentv6,
+		topage: number
+	): Promise<unknown> {
+		return this.#checkOrRunImportTask('import', async () =>
+			this.#importController.importSinglePage(instances, connectionIdRemapping, pageInfo, topage)
+		)
 	}
 
 	/**

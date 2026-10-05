@@ -13,12 +13,14 @@ import { trpc, useMutationExt } from '~/Resources/TRPC.js'
 import type { PagesStoreModel } from '~/Stores/PagesStore.js'
 import { RootAppStoreContext } from '~/Stores/RootAppStore.js'
 import { EditPagePropertiesModal, type EditPagePropertiesModalRef } from './EditPageProperties.js'
+import { PageClassesSection } from './PageClasses.js'
 
 interface PagesListProps {
+	pageNumber: number
 	setPageNumber: (page: number) => void
 }
 
-export const PagesList = observer(function PagesList({ setPageNumber }: PagesListProps): React.JSX.Element {
+export const PagesList = observer(function PagesList({ pageNumber, setPageNumber }: PagesListProps): React.JSX.Element {
 	const { pages } = useContext(RootAppStoreContext)
 
 	const deleteRef = useRef<GenericConfirmModalRef>(null)
@@ -154,6 +156,7 @@ export const PagesList = observer(function PagesList({ setPageNumber }: PagesLis
 							/>
 						))}
 					</div>
+					<PageClassesSection pageNumber={pageNumber} setPageNumber={setPageNumber} />
 				</Grid.Col>
 			</Grid.Row>
 		</div>
