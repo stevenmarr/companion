@@ -10,5 +10,8 @@ export interface AddInstanceService {
 
 	performAddInstance: (moduleInfo: FuzzyProduct, label: string, versionId: string) => Promise<string>
 
+	/** Labels that will be created, skipping any that are already in use. */
+	allocateLabels(startLabel: string, count: number): string[]
+
 	findNextLabel(moduleInfo: FuzzyProduct): string
 }

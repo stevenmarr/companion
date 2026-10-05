@@ -1,7 +1,7 @@
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { observer } from 'mobx-react-lite'
-import { forwardRef, useCallback, useContext, useEffect, useId, useImperativeHandle, useState } from 'react'
+import { forwardRef, useCallback, useContext, useEffect, useId, useImperativeHandle, useRef, useState } from 'react'
 import { ModuleInstanceType } from '@companion-app/shared/Model/Instance.js'
 import type { ClientModuleVersionInfo } from '@companion-app/shared/Model/ModuleInfo.js'
 import { StaticAlert } from '~/Components/Alert.js'
@@ -10,6 +10,7 @@ import { SimpleDropdownInputField } from '~/Components/DropdownInputFieldSimple.
 import { Form, FormLabel } from '~/Components/Form.js'
 import { Grid } from '~/Components/Grid'
 import { Modal } from '~/Components/Modal.js'
+import { NumberInputField } from '~/Components/NumberInputField.js'
 import { TextInputField } from '~/Components/TextInputField.js'
 import type { FuzzyProduct } from '~/Hooks/useFilteredProducts.js'
 import { PreventDefaultHandler } from '~/Resources/util.js'
@@ -38,6 +39,9 @@ export const AddInstanceModal = observer(
 		const [moduleInfo, setModuleInfo] = useState<FuzzyProduct | null>(null)
 		const [selectedVersion, setSelectedVersion] = useState<string | null>(null)
 		const [instanceLabel, setInstanceLabel] = useState<string>('')
+		const [instanceCount, setInstanceCount] = useState(1)
+		const [busy, setBusy] = useState(false)
+		const busyRef = useRef(false)
 
 		const isModuleOnStore = !!moduleInfo && !!modules.getStoreInfo(moduleInfo.moduleType, moduleInfo.moduleId)
 
@@ -46,25 +50,52 @@ export const AddInstanceModal = observer(
 				setModuleInfo(null)
 				setSelectedVersion(null)
 				setInstanceLabel('')
+				setInstanceCount(1)
+				setBusy(false)
+				busyRef.current = false
 			}
 		}, [])
 
-		const doAction = () => {
-			if (!moduleInfo || !instanceLabel || !selectedVersion) return
+		const labels = service.allocateLabels(instanceLabel, instanceCount)
 
-			service
-				.performAddInstance(moduleInfo, instanceLabel, selectedVersion)
-				.then((id) => {
-					console.log('NEW INSTANCE', id)
+		const doAction = () => {
+			if (!moduleInfo || labels.length === 0 || !selectedVersion || busyRef.current) return
+
+			busyRef.current = true
+			setBusy(true)
+			const created: string[] = []
+			const addAll = async () => {
+				for (const label of labels) {
+					created.push(await service.performAddInstance(moduleInfo, label, selectedVersion))
+				}
+			}
+
+			addAll()
+				.then(() => {
 					setShow(false)
-					setTimeout(() => {
-						// Wait a bit to let the server catch up
-						openConfigureInstance(id)
-					}, 1000)
+					if (created.length === 1) {
+						setTimeout(() => {
+							// Wait a bit to let the server catch up
+							openConfigureInstance(created[0])
+						}, 1000)
+					} else {
+						const noun = service.moduleType === ModuleInstanceType.Connection ? 'connections' : 'integrations'
+						notifier.show('Added', `Added ${created.length} ${noun}`, 4000)
+						service.closeAddInstance()
+					}
 				})
 				.catch((e) => {
-					notifier.show(`Failed to create instance`, `Failed: ${e}`)
+					const message = created.length ? `Added ${created.length} of ${labels.length}. ${e}` : `Failed: ${e}`
+					notifier.show('Failed to create instance', message)
 					console.error('Failed to create instance:', e)
+					if (created.length > 0) {
+						setShow(false)
+						service.closeAddInstance()
+					}
+				})
+				.finally(() => {
+					busyRef.current = false
+					setBusy(false)
 				})
 		}
 
@@ -78,6 +109,7 @@ export const AddInstanceModal = observer(
 					// There is a useEffect below that ensures this is valid
 					setSelectedVersion(null)
 					setInstanceLabel(service.findNextLabel(info))
+					setInstanceCount(1)
 				},
 			}),
 			[service]
@@ -136,6 +168,7 @@ export const AddInstanceModal = observer(
 		}, [helpViewer, moduleInfo?.moduleType, moduleInfo?.moduleId, selectedVersionInfo])
 
 		const labelFieldId = useId()
+		const countFieldId = useId()
 		const versionFieldId = useId()
 
 		return (
@@ -167,6 +200,29 @@ export const AddInstanceModal = observer(
 												setValue={setInstanceLabel}
 												immediateValue
 											/>
+										</Grid.Col>
+
+										<FormLabel htmlFor={countFieldId} sm={4} column="sm">
+											Count&nbsp;
+										</FormLabel>
+										<Grid.Col sm={8}>
+											<NumberInputField
+												id={countFieldId}
+												min={1}
+												max={50}
+												step={1}
+												value={instanceCount}
+												setValue={(value) => {
+													if (!Number.isFinite(value)) return
+													setInstanceCount(Math.min(50, Math.max(1, Math.round(value))))
+												}}
+												immediateValue
+											/>
+											{instanceCount > 1 && (
+												<div className="form-text">
+													Creates {labels.join(', ')}. A label that ends with a number counts up from there.
+												</div>
+											)}
 										</Grid.Col>
 
 										<FormLabel htmlFor={versionFieldId} sm={4} column="sm" className="pe-0">
@@ -233,9 +289,9 @@ export const AddInstanceModal = observer(
 								<Button
 									color="primary"
 									onClick={doAction}
-									disabled={!moduleInfo || !instanceLabel || !selectedVersion || !versionChoices.length}
+									disabled={busy || !moduleInfo || labels.length === 0 || !selectedVersion || !versionChoices.length}
 								>
-									Add
+									{instanceCount > 1 ? `Add ${labels.length}` : 'Add'}
 								</Button>
 							</Modal.Footer>
 						</Modal.Popup>

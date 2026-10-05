@@ -1,11 +1,13 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import { observer } from 'mobx-react-lite'
-import { useMemo } from 'react'
+import { useContext, useMemo } from 'react'
+import { allocateInstanceLabels } from '@companion-app/shared/Label.js'
 import { ModuleInstanceType } from '@companion-app/shared/Model/Instance.js'
 import { AddInstancePanel } from '~/Instances/AddInstancePanel.js'
 import type { AddInstanceService } from '~/Instances/AddInstanceService'
 import { trpc, useMutationExt } from '~/Resources/TRPC'
 import { makeAbsolutePath } from '~/Resources/util.js'
+import { RootAppStoreContext } from '~/Stores/RootAppStore.js'
 
 interface AddSurfaceInstancePanelProps {
 	isSubpanel?: boolean
@@ -55,6 +57,7 @@ export const AddSurfaceInstancePanel = observer(function AddSurfaceInstancePanel
 })
 
 function useAddSurfaceInstanceService(): AddInstanceService {
+	const { surfaceInstances } = useContext(RootAppStoreContext)
 	const addMutation = useMutationExt(trpc.instances.surfaces.add.mutationOptions())
 	const navigate = useNavigate() // from: is only needed to resolve relative paths, so not needed here...
 
@@ -79,11 +82,19 @@ function useAddSurfaceInstanceService(): AddInstanceService {
 				})
 			},
 
+			allocateLabels: (startLabel, count) => {
+				const taken = new Set<string>()
+				for (const instance of surfaceInstances.instances.values()) {
+					if (instance?.label) taken.add(instance.label)
+				}
+				return allocateInstanceLabels(startLabel, count, taken)
+			},
+
 			findNextLabel: (moduleInfo) => {
 				// There are no exclusivity rules on these (yet?)
 				return moduleInfo.shortname
 			},
 		}),
-		[navigate, addMutation]
+		[navigate, addMutation, surfaceInstances]
 	)
 }

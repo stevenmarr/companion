@@ -1,7 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import { observer } from 'mobx-react-lite'
 import { useContext, useMemo } from 'react'
-import { makeLabelSafe } from '@companion-app/shared/Label.js'
+import { allocateInstanceLabels, makeLabelSafe } from '@companion-app/shared/Label.js'
 import type { ClientConnectionConfig } from '@companion-app/shared/Model/Connections.js'
 import { ModuleInstanceType } from '@companion-app/shared/Model/Instance.js'
 import { AddInstancePanel } from '~/Instances/AddInstancePanel.js'
@@ -75,6 +75,14 @@ function useAddConnectionService(): AddInstanceService {
 					label: label,
 					versionId: versionId,
 				})
+			},
+
+			allocateLabels: (startLabel, count) => {
+				const taken = new Set<string>()
+				for (const connection of connections.connections.values()) {
+					if (connection?.label) taken.add(connection.label)
+				}
+				return allocateInstanceLabels(startLabel, count, taken)
 			},
 
 			findNextLabel: (moduleInfo) => {
