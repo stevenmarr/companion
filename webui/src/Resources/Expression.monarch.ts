@@ -41,6 +41,29 @@ export function registerCompanionExpressionLanguage(monaco: typeof Monaco): void
 		],
 		colors: {},
 	})
+
+	monaco.editor.defineTheme('companion-expression-dark', {
+		base: 'vs-dark',
+		inherit: true,
+		rules: [
+			{ token: 'variable.companion', foreground: '9CDCFE', fontStyle: 'bold' },
+			{ token: 'predefined', foreground: 'DCDCAA' },
+			{ token: 'keyword', foreground: '569CD6' },
+			{ token: 'string', foreground: 'CE9178' },
+			{ token: 'string.escape', foreground: 'D7BA7D' },
+			{ token: 'number', foreground: 'B5CEA8' },
+			{ token: 'number.hex', foreground: 'B5CEA8' },
+			{ token: 'number.octal', foreground: 'B5CEA8' },
+			{ token: 'number.binary', foreground: 'B5CEA8' },
+			{ token: 'number.float', foreground: 'B5CEA8' },
+			{ token: 'operator', foreground: 'D4D4D4' },
+			{ token: 'delimiter', foreground: 'D4D4D4' },
+			{ token: 'delimiter.bracket', foreground: 'D4D4D4' },
+			{ token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
+			{ token: 'identifier', foreground: '9CDCFE' },
+		],
+		colors: {},
+	})
 }
 
 export const builtinFunctionCompletions: Array<{

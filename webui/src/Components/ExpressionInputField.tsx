@@ -8,6 +8,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { ParseExpression } from '@companion-app/shared/Expressions.js'
 import { stringifyVariableValue } from '@companion-app/shared/Model/Variables.js'
 import type { DropdownChoiceInt } from '~/Components/DropdownChoices.js'
+import { useResolvedAdminTheme } from '~/Hooks/useAdminTheme.js'
 import { COMPANION_EXPRESSION_LANGUAGE_ID } from '~/Resources/Expression.monarch'
 import { RootAppStoreContext } from '~/Stores/RootAppStore'
 
@@ -55,6 +56,7 @@ export const ExpressionInputField = observer(function ExpressionInputField({
 	immediateValue,
 }: ExpressionInputFieldProps) {
 	const { variablesStore } = useContext(RootAppStoreContext)
+	const expressionTheme = useResolvedAdminTheme()
 
 	const outerRef = useRef<HTMLDivElement>(null)
 	const containerRef = useRef<HTMLDivElement>(null)
@@ -165,7 +167,7 @@ export const ExpressionInputField = observer(function ExpressionInputField({
 					onChange={storeValue2}
 					defaultLanguage={COMPANION_EXPRESSION_LANGUAGE_ID}
 					onMount={handleEditorDidMount}
-					theme="companion-expression-light"
+					theme={expressionTheme === 'dark' ? 'companion-expression-dark' : 'companion-expression-light'}
 					options={{
 						readOnly: disabled,
 						minimap: { enabled: false },

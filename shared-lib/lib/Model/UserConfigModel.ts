@@ -1,6 +1,8 @@
 import type { ExportFormat } from './ExportFormat.js'
 import type { ResolvedButtonGraphicsDecoration } from './StyleModel.js'
 
+export type AdminTheme = 'light' | 'dark' | 'system'
+
 export type UserConfigModel = {
 	setup_wizard: number
 	detailed_data_collection: boolean
@@ -70,6 +72,8 @@ export type UserConfigModel = {
 	gridSizePromptGrow: boolean
 
 	installName: string
+	/** Admin GUI appearance. `system` follows this computer's light or dark setting. */
+	admin_theme: AdminTheme
 	mdns_announcements_enabled: boolean
 	default_export_filename: string
 	default_export_format: ExportFormat

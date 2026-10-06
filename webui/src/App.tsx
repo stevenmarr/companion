@@ -16,6 +16,7 @@ import { ProgressBar } from './Components/ProgressBar.js'
 import { SecretTextInputField } from './Components/SecretTextInputField.js'
 import { ContextData } from './ContextData.js'
 import { EntityDragLayer } from './Controls/Components/EntityDragLayer.js'
+import { useAdminTheme } from './Hooks/useAdminTheme.js'
 import { TRPCConnectionStatus, useTRPCConnectionStatus } from './Hooks/useTRPCConnectionStatus.js'
 import { MyHeader } from './Layout/Header.js'
 import { MySidebar, SidebarStateProvider } from './Layout/Sidebar.js'
@@ -359,6 +360,8 @@ const AppAuthWrapper = observer(function AppAuthWrapper({ setUnlocked }: AppAuth
 
 const AppContent = observer(function AppContent() {
 	const { userConfig } = useContext(RootAppStoreContext)
+
+	useAdminTheme(userConfig.properties?.admin_theme)
 
 	useEffect(() => {
 		document.title =

@@ -268,6 +268,144 @@
 	--border-width: 1px;
 }
 
+/*
+ * Dark appearance. Chosen in Settings → General → Appearance, which sets data-theme on <html>.
+ * Only the tokens that are concrete colours are overridden. Mixes that already reference another
+ * token (shadows, row overlays, focus ring) follow automatically.
+ * The sidebar stays on its own always-dark tokens.
+ */
+html[data-theme='dark'] {
+	color-scheme: dark;
+	--close-btn-filter: invert(1);
+
+	--color-secondary: #4a5568;
+	--color-light: #323a49;
+	--color-dark: #e7eaee;
+
+	--color-primary-bg-subtle: #3a1520;
+	--color-primary-border-subtle: #7a3040;
+	--color-primary-text-emphasis: #f2b3b9;
+	--color-secondary-bg-subtle: #2a3140;
+	--color-secondary-border-subtle: #4a5568;
+	--color-secondary-text-emphasis: #d0d5dd;
+	--color-success-bg-subtle: #12301c;
+	--color-success-border-subtle: #1f6b38;
+	--color-success-text-emphasis: #8ee0a8;
+	--color-info-bg-subtle: #10283f;
+	--color-info-border-subtle: #1d5f99;
+	--color-info-text-emphasis: #9fd0ff;
+	--color-warning-bg-subtle: #3a2a08;
+	--color-warning-border-subtle: #8a6410;
+	--color-warning-text-emphasis: #f6d48a;
+	--color-danger-bg-subtle: #3a1515;
+	--color-danger-border-subtle: #8a3030;
+	--color-danger-text-emphasis: #f2a9a9;
+	--color-light-bg-subtle: #2a3140;
+	--color-light-border-subtle: #3d4658;
+	--color-light-text-emphasis: #c5cedb;
+	--color-dark-bg-subtle: #1a1f29;
+	--color-dark-border-subtle: #3d4658;
+	--color-dark-text-emphasis: #e7eaee;
+
+	--color-status-ok-bg: #14301c;
+	--color-status-warn-bg: #3a3008;
+	--color-status-error-bg: #3a1515;
+
+	--color-input-bg: #1a1f29;
+	--color-input-readonly-bg: #141820;
+	--color-input-invalid: #ff6b81;
+	--color-syntax-error: #ff4d8d;
+
+	--color-surface: #212631;
+	--color-surface-muted: #2a3140;
+	--color-surface-muted-hover: #323a49;
+	--color-surface-hover: #2e3646;
+	--color-surface-alt: #1c212b;
+	--color-surface-subtle: #1a1f29;
+	--color-surface-dark: #141820;
+	--color-app-bg: #181c24;
+	--color-app-frame-bg: #12151b;
+	--color-body-bg: #0e1116;
+
+	--color-border: #3d4658;
+	--color-border-alt: #3d4658;
+	--color-border-subtle: #2e3646;
+	--color-border-muted: #3a4252;
+	--color-border-medium: #5a6478;
+	--color-border-strong: #8b95a8;
+	--color-border-hover: #9aa3b5;
+	--color-line: #4a5568;
+
+	--color-text: rgba(255, 255, 255, 0.9);
+	--color-body-text: rgba(255, 255, 255, 0.9);
+	--color-code: #ff7eb3;
+	--color-text-strong: #fff;
+	--color-icon: #d0d5dd;
+	--color-text-secondary: #b0b8c6;
+	--color-muted: #9aa3b5;
+	--color-text-faint: #7d8796;
+	--color-text-disabled: #5c6573;
+
+	--color-row-hover: rgba(255, 255, 255, 0.06);
+	--color-row-overlay: #fff;
+
+	--color-drop-border: #fff;
+	--color-drop-neutral-bg: #2a3140;
+	--color-drop-hover-bg: #2d4a22;
+
+	--color-canvas-workspace: #141820;
+	--color-toolbar-bg: #1c212b;
+	--color-toolbar-fg: #d0d5dd;
+	--color-toolbar-accent: #6cb0ff;
+	--color-toolbar-accent-hover: #9cc8ff;
+	--color-resize-bar-bg-hover: #323a49;
+	--color-mode-toggle-bg: #2a3140;
+	--color-mode-toggle-border: #4a5568;
+
+	--color-selected-item-bg: #1a3350;
+	--color-selected-accent: #6cb0ff;
+
+	--color-dropdown-item-hover-bg: #243656;
+	--color-dropdown-item-selected-bg: #2c4a78;
+	--color-pill-bg: #323a49;
+	--color-pill-remove-bg: #3d4658;
+
+	--color-drag-row-bg: #262033;
+	--color-dropzone-border: #5a6478;
+	--color-tile-border: #3d4658;
+	--color-tile-handle-bg: #2a3140;
+	--color-tile-handle-bg-hover: #3d4658;
+	--color-tile-handle-bg-active: #5a6478;
+
+	--color-link-hover: #ff6b7a;
+
+	--color-tab-bg: #1c212b;
+	--color-tab-fg: #c5cedb;
+
+	--color-header-notification-bg: #111;
+	--color-panel-header-bg: #2a3140;
+	--color-panel-header-fg: #e7eaee;
+	--color-panel-header-btn: #c5cedb;
+	--color-menu-bg: #1c212b;
+
+	--color-scrollbar-thumb: #5a6478;
+	--color-text-emphasis: #d0d5dd;
+	--color-image-empty-text: #7d8796;
+	--color-preview-error-bg: #3a1515;
+	--color-preview-error-text: #f2a9a9;
+
+	--color-log-error-text: #ff6b6b;
+	--color-log-info: #6cb0ff;
+	--color-log-info-text: #9fd0ff;
+	--color-log-debug-text: rgba(220, 220, 220, 0.75);
+}
+
+html[data-theme='dark'] .modal2-header .btn-close {
+	/* The light theme inverts a white tile to get a dark ×. Dark mode wants the white × itself. */
+	background-color: transparent;
+	filter: invert(1);
+}
+
 @source '../index.html';
 @source './**/*.{ts,tsx}';
 @source not './**/*.{test,spec}.{ts,tsx}';

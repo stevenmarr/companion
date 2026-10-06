@@ -2,6 +2,19 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
+		<script>
+			/* Paint dark before the app loads, using the appearance last chosen on this browser. */
+			try {
+				var pref = localStorage.getItem('companion-admin-theme')
+				var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+				var dark = pref === 'dark' || (pref === 'system' && systemDark)
+				if (dark) {
+					document.documentElement.dataset.theme = 'dark'
+					document.documentElement.dataset.coreuiTheme = 'dark'
+					document.documentElement.style.colorScheme = 'dark'
+				}
+			} catch (e) {}
+		</script>
 
 		<!-- Cascade-layer order, declared before any stylesheet loads. Must live here: the prod build
 		     injects tailwind.css late and the CSS minifier drops an in-CSS @layer statement. Keep in

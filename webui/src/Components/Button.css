@@ -667,6 +667,35 @@
 /* ---- Dark mode overrides ---- */
 
 [data-coreui-theme='dark'] {
+	.button-secondary {
+		--btn-color: rgba(255, 255, 255, 0.9);
+		--btn-bg: #323a49;
+		--btn-border-color: #4a5568;
+		--btn-hover-color: #fff;
+		--btn-hover-bg: #3d4658;
+		--btn-hover-border-color: #5a6478;
+		--btn-focus-shadow-rgb: 90, 100, 120;
+		--btn-active-color: #fff;
+		--btn-active-bg: #2a3140;
+		--btn-active-border-color: #5a6478;
+		--btn-disabled-color: rgba(255, 255, 255, 0.4);
+		--btn-disabled-bg: #2a3140;
+		--btn-disabled-border-color: #3d4658;
+	}
+
+	.button-outline-dark {
+		--btn-color: #e7eaee;
+		--btn-border-color: #e7eaee;
+		--btn-hover-color: #080a0c;
+		--btn-hover-bg: #e7eaee;
+		--btn-hover-border-color: #e7eaee;
+		--btn-active-color: #080a0c;
+		--btn-active-bg: #e7eaee;
+		--btn-active-border-color: #e7eaee;
+		--btn-disabled-color: #e7eaee;
+		--btn-disabled-border-color: #e7eaee;
+	}
+
 	.button-primary {
 		--btn-bg: rgb(202, 13, 30);
 		--btn-border-color: rgb(202, 13, 30);
