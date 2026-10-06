@@ -5,7 +5,7 @@ import type { ControlLocation } from '@companion-app/shared/Model/Common.js'
 import type { UserConfigGridSize } from '@companion-app/shared/Model/UserConfigModel.js'
 import { trpc, useMutationExt } from '~/Resources/TRPC.js'
 import type { ButtonGridStore } from './ButtonGridStore.js'
-import { favoriteNeedsChoice, type FavoriteDragItem } from './Favorites/FavoriteDragItem.js'
+import { FAVORITE_DRAG_TYPE, favoriteNeedsChoice, type FavoriteDragItem } from './Favorites/FavoriteDragItem.js'
 import { GRID_BUTTON_DRAG_TYPE, type GridButtonDragItem } from './GridButtonDragItem.js'
 import { parseGridButtonDroppableId } from './GridButtonDroppableId.js'
 import { planGridDrop } from './GridDragDrop.js'
@@ -98,7 +98,7 @@ export function useGridDropMonitor({
 				return
 			}
 
-			if (source.type === 'favorite') {
+			if (source.type === FAVORITE_DRAG_TYPE) {
 				const location = parseGridButtonDroppableId(target.id)
 				if (!location) return
 

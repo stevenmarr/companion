@@ -29,6 +29,9 @@ export interface FavoriteDragItem {
 	favorite: ButtonFavoriteSummary
 }
 
+/** Drag type for a saved button. Grid cells must accept this or the drop is ignored. */
+export const FAVORITE_DRAG_TYPE = 'favorite'
+
 export function favoriteNeedsChoice(favorite: ButtonFavoriteSummary): boolean {
 	return favorite.connections.length > 0 || favorite.pages.length > 0 || favorite.surfaces.length > 0
 }

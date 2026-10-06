@@ -7,7 +7,12 @@ import { useContext } from 'react'
 import { ButtonPreviewBase } from '~/Components/ButtonPreview.js'
 import { queryClient, trpc, useMutationExt } from '~/Resources/TRPC.js'
 import { RootAppStoreContext } from '~/Stores/RootAppStore.js'
-import { favoriteActionLabel, type ButtonFavoriteSummary, type FavoriteDragItem } from './FavoriteDragItem.js'
+import {
+	FAVORITE_DRAG_TYPE,
+	favoriteActionLabel,
+	type ButtonFavoriteSummary,
+	type FavoriteDragItem,
+} from './FavoriteDragItem.js'
 import './Favorites.css'
 
 const FAVORITE_FEEDBACK_PLUGINS = [Feedback.configure({ feedback: 'clone', dropAnimation: null })]
@@ -46,7 +51,7 @@ function FavoriteIcon({ favorite }: { favorite: ButtonFavoriteSummary }): React.
 	const dragData: FavoriteDragItem = { favorite }
 	const { ref: drag, isDragSource } = useDraggable<FavoriteDragItem>({
 		id: `favorite:${favorite.id}`,
-		type: 'favorite',
+		type: FAVORITE_DRAG_TYPE,
 		data: dragData,
 		plugins: FAVORITE_FEEDBACK_PLUGINS,
 	})
