@@ -145,13 +145,7 @@ function ModalPopup({
 
 	return (
 		<Dialog.Popup
-			className={classNames(
-				'modal2-dialog',
-				size && `modal2-${size}`,
-				scrollable && 'modal2-dialog-scrollable',
-				pulsing && 'modal2-static-pulse',
-				className
-			)}
+			className={classNames('modal2-dialog', size && `modal2-${size}`, pulsing && 'modal2-static-pulse', className)}
 			ref={setRef}
 			onAnimationEnd={(e) => {
 				if (e.animationName === 'modal2-static-pulse') setPulsing(false)
@@ -159,7 +153,10 @@ function ModalPopup({
 			}}
 			{...props}
 		>
-			<MenuPortalContext.Provider value={ref}>{children}</MenuPortalContext.Provider>
+			{/* Menus portal onto the dialog, which does not clip. The frame inside is what scrolls. */}
+			<MenuPortalContext.Provider value={ref}>
+				<div className={classNames('modal2-dialog-frame', scrollable && 'modal2-dialog-scrollable')}>{children}</div>
+			</MenuPortalContext.Provider>
 		</Dialog.Popup>
 	)
 }

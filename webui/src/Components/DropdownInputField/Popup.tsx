@@ -66,7 +66,7 @@ export function DropdownInputPopup({
 
 	return (
 		<Combobox.Portal container={menuPortal ?? undefined}>
-			<Combobox.Positioner className="dropdown-field-positioner" sideOffset={8}>
+			<Combobox.Positioner className="dropdown-field-positioner" sideOffset={8} collisionPadding={12}>
 				<Combobox.Popup className="dropdown-field-popup">
 					<Combobox.Empty>
 						<div className="dropdown-field-empty">{noOptionsMessage || 'No options found.'}</div>

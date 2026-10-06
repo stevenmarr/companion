@@ -98,7 +98,7 @@ export const SimpleDropdownInputField = observer(function SimpleDropdownInputFie
 					</Select.Icon>
 				</Select.Trigger>
 				<Select.Portal container={menuPortal ?? undefined}>
-					<Select.Positioner className="dropdown-field-positioner" alignItemWithTrigger={false}>
+					<Select.Positioner className="dropdown-field-positioner" alignItemWithTrigger={false} collisionPadding={12}>
 						<Select.Popup className="dropdown-field-popup">
 							<Select.List className="dropdown-field-list">
 								{!options.length && (

@@ -1,3 +1,5 @@
+@import '../breakpoints.css';
+
 .pages-list-table {
 	/* The first row is the header */
 	> .collections-nesting-table-row-item:first-child {
@@ -21,6 +23,23 @@
 	}
 }
 
+@media (--bp-md-down) {
+	.pages-list-table {
+		.pages-list-number {
+			width: auto;
+			min-width: 2.5rem;
+		}
+
+		.pages-list-actions {
+			width: auto;
+		}
+
+		.collections-nesting-table-row-item-grid > .grow {
+			flex-wrap: wrap;
+		}
+	}
+}
+
 .page-classes {
 	margin-top: 2rem;
 }
@@ -40,4 +59,12 @@
 
 .page-class-slot {
 	margin-top: 1rem;
+	min-width: 0;
+}
+
+.page-class-slot .dropdown-field,
+.page-class-slot .form-input,
+.page-class-slot input {
+	width: 100%;
+	max-width: 100%;
 }

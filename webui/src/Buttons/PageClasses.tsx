@@ -265,7 +265,7 @@ interface SlotDraft {
 	host: string
 }
 
-const InstantiatePageClassModal = observer(function InstantiatePageClassModal({
+export const InstantiatePageClassModal = observer(function InstantiatePageClassModal({
 	pageClass,
 	onClose,
 	onCreated,

@@ -125,6 +125,20 @@ export class PageClassController {
 					})
 				)
 				.mutation(async ({ input }) => this.instantiate(input.classId, input.pageName, input.bindings)),
+
+			describePage: publicProcedure
+				.input(z.object({ pageNumber: z.number().int().min(1) }))
+				.query(({ input }) => this.describePage(input.pageNumber)),
+
+			duplicateFromPage: publicProcedure
+				.input(
+					z.object({
+						pageNumber: z.number().int().min(1),
+						pageName: z.string(),
+						bindings: z.array(slotBindingSchema),
+					})
+				)
+				.mutation(async ({ input }) => this.duplicateFromPage(input.pageNumber, input.pageName, input.bindings)),
 		})
 	}
 
@@ -183,7 +197,47 @@ export class PageClassController {
 
 	async instantiate(classId: string, pageNameInput: string, bindings: SlotBinding[]): Promise<{ pageNumber: number }> {
 		const stored = this.#require(classId)
-		const captured = readCapturedConnections(stored.instances)
+		const result = await this.#materialize(
+			stored.page,
+			stored.instances,
+			pageNameInput,
+			stored.name || stored.sourcePageName || 'Page',
+			bindings
+		)
+		this.#logger.info(`Instantiated page class ${classId} as page ${result.pageNumber}`)
+		return result
+	}
+
+	describePage(pageNumber: number): { sourcePageName: string; slots: PageClassSummary['slots'] } {
+		const captured = this.#capture(pageNumber)
+		return { sourcePageName: captured.sourcePageName, slots: captured.slots }
+	}
+
+	async duplicateFromPage(
+		pageNumber: number,
+		pageNameInput: string,
+		bindings: SlotBinding[]
+	): Promise<{ pageNumber: number }> {
+		const captured = this.#capture(pageNumber)
+		const result = await this.#materialize(
+			captured.page,
+			captured.instances,
+			pageNameInput,
+			captured.sourcePageName,
+			bindings
+		)
+		this.#logger.info(`Duplicated page ${pageNumber} as page ${result.pageNumber}`)
+		return result
+	}
+
+	async #materialize(
+		sourcePage: ExportPageContentv6,
+		instances: ExportInstancesv6,
+		pageNameInput: string,
+		fallbackName: string,
+		bindings: SlotBinding[]
+	): Promise<{ pageNumber: number }> {
+		const captured = readCapturedConnections(instances)
 		const bindingById = new Map(bindings.map((binding) => [binding.connectionId, binding]))
 
 		const clones: { captured: CapturedConnection; label: string; config: unknown }[] = []
@@ -244,16 +298,16 @@ export class PageClassController {
 			remap[clone.captured.connectionId] = id
 		}
 
-		const pageName = pageNameInput.trim() || stored.name || stored.sourcePageName || 'Page'
+		const pageName = pageNameInput.trim() || fallbackName || 'Page'
 		const pageNumber = this.#pages.store.getPageCount() + 1
 		const pageIds = this.#pages.insertPages(pageNumber, [pageName])
 		if (pageIds.length === 0) throw new Error('Failed to create a page')
 
-		const page = structuredClone(stored.page)
+		const page = structuredClone(sourcePage)
 		page.name = pageName
 
 		try {
-			await this.#importExport.importPageForClass(stored.instances, remap, page, pageNumber)
+			await this.#importExport.importPageForClass(instances, remap, page, pageNumber)
 		} catch (e) {
 			try {
 				this.#pages.deletePage(pageNumber)
@@ -263,7 +317,6 @@ export class PageClassController {
 			throw e
 		}
 
-		this.#logger.info(`Instantiated page class ${classId} as page ${pageNumber}`)
 		return { pageNumber }
 	}
 

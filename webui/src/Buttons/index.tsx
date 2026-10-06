@@ -7,7 +7,7 @@ import {
 	faVideoCamera,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useMatchRoute, useNavigate, type UseNavigateResult } from '@tanstack/react-router'
+import { useNavigate, useParams, type UseNavigateResult } from '@tanstack/react-router'
 import { observer } from 'mobx-react-lite'
 import { nanoid } from 'nanoid'
 import { useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
@@ -39,11 +39,9 @@ import { useGridToolActions } from './useGridToolActions.js'
 
 /** What the URL asks for, or 0 when it names no usable page - "wherever I was" */
 function useUrlPageNumber(): number {
-	const matchRoute = useMatchRoute()
-	const match = matchRoute({ to: '/buttons/$page' })
-
-	const pageIndex = match ? Number(match.page) : NaN
-	if (isNaN(pageIndex) || pageIndex <= 0) return 0
+	const { page } = useParams({ strict: false })
+	const pageIndex = Number(page)
+	if (page == null || page === '' || isNaN(pageIndex) || pageIndex <= 0) return 0
 
 	return pageIndex
 }
@@ -81,13 +79,20 @@ export const ButtonsPage = observer(function ButtonsPage() {
 	const setPageNumber = useCallback(
 		(pageNumber: number) => {
 			navigateToButtonsPage(navigate, pageNumber)
+			// On a narrow window the grid is its own tab. Jumping to a page should show that tab,
+			// not leave you looking at the list you just chose from.
+			if (!isLargeScreen) setActiveTab('grid')
 		},
-		[navigate]
+		[navigate, isLargeScreen]
 	)
 
 	useEffect(() => {
-		if (rawPageNumber !== pageNumber) navigateToButtonsPage(navigate, pageNumber)
-	}, [rawPageNumber, pageNumber, navigate])
+		if (rawPageNumber === pageNumber) return
+		// One past the end is a page that was just created and has not arrived in the list yet.
+		// Rewriting the URL here would throw that new page away.
+		if (pageCount > 0 && rawPageNumber === pageCount + 1) return
+		navigateToButtonsPage(navigate, pageNumber)
+	}, [rawPageNumber, pageNumber, pageCount, navigate])
 
 	const gridSize = userConfig.properties?.gridSize
 

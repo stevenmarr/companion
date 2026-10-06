@@ -169,3 +169,14 @@
 		overflow-y: scroll;
 	}
 }
+
+@media (--bp-md-down) {
+	.tab-area .tab-panel,
+	.tab-panel {
+		padding: 0.75rem;
+	}
+
+	.tab-area .tab-bar__tab {
+		padding-inline: 0.6rem;
+	}
+}

@@ -1,3 +1,5 @@
+@import '../breakpoints.css';
+
 .header {
 	position: relative;
 	display: flex;
@@ -56,6 +58,10 @@
 	align-content: center;
 	font-size: 1.25em;
 	font-weight: bold;
+	max-width: min(46vw, 18rem);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 /* Hamburger toggler (mobile). The icon itself is a FontAwesome glyph in Header.tsx. */
@@ -86,6 +92,23 @@
 
 .header-right {
 	margin-right: 5px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	min-width: 0;
+}
+
+@media (--bp-sm-down) {
+	.header-brand {
+		margin-inline-end: 0.5rem;
+		font-size: 1rem;
+	}
+
+	.install-name {
+		font-size: 1rem;
+		max-width: 34vw;
+	}
 }
 
 .header > .page-container {

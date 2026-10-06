@@ -9,7 +9,12 @@ const navigateMock = vi.fn()
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
 	const original = await importOriginal<Record<string, unknown>>()
-	return { ...original, useMatchRoute: () => () => routeMatch, useNavigate: () => navigateMock }
+	return {
+		...original,
+		useMatchRoute: () => () => routeMatch,
+		useNavigate: () => navigateMock,
+		useParams: () => (routeMatch ? { page: routeMatch.page } : {}),
+	}
 })
 
 /** Whether the layout has room for the grid and a panel side by side */
@@ -86,6 +91,16 @@ function setup(overrides: { pageCount?: number } = {}) {
 			// Only the first row holds buttons, so there is somewhere empty to move one to
 			getControlIdAtLocation: (location: any) => (location.row === 1 ? 'control1' : null),
 		},
+		// The favorite dialog reads these even while it is closed
+		surfaces: {
+			store: { values: () => [] },
+			outboundSurfaces: { values: () => [] },
+		},
+		connections: {
+			getAllOfModuleId: () => [],
+			sortedConnections: () => [],
+		},
+		notifier: { show: () => undefined, close: () => undefined },
 	}
 
 	const queryClient = new QueryClient()

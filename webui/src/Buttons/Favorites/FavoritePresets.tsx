@@ -1,9 +1,8 @@
 import { Feedback } from '@dnd-kit/dom'
 import { useDraggable } from '@dnd-kit/react'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useQuery } from '@tanstack/react-query'
 import { useContext } from 'react'
+import { Button } from '~/Components/Button.js'
 import { ButtonPreviewBase } from '~/Components/ButtonPreview.js'
 import { queryClient, trpc, useMutationExt } from '~/Resources/TRPC.js'
 import { RootAppStoreContext } from '~/Stores/RootAppStore.js'
@@ -65,11 +64,16 @@ function FavoriteIcon({ favorite }: { favorite: ButtonFavoriteSummary }): React.
 			<div className={`favorite-kind favorite-kind-${favorite.actionKind}`}>
 				{favoriteActionLabel(favorite.actionKind)}
 			</div>
-			<button
+			<Button
 				type="button"
+				size="sm"
+				color="light"
 				className="favorite-remove"
 				title={`Remove ${favorite.name}`}
-				onClick={() => {
+				onPointerDown={(event) => event.stopPropagation()}
+				onClick={(event) => {
+					event.stopPropagation()
+					event.preventDefault()
 					removeMutation
 						.mutateAsync({ favoriteId: favorite.id })
 						.then(refreshFavorites)
@@ -78,8 +82,8 @@ function FavoriteIcon({ favorite }: { favorite: ButtonFavoriteSummary }): React.
 						})
 				}}
 			>
-				<FontAwesomeIcon icon={faTrash} />
-			</button>
+				Remove
+			</Button>
 		</div>
 	)
 }

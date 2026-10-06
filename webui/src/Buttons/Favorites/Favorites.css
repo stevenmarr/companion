@@ -4,15 +4,17 @@
 
 .favorite-presets-grid {
 	align-items: flex-start;
+	color: #f2f4f8;
 }
 
 .favorite-card {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	width: 92px;
+	align-items: stretch;
+	width: min(100%, 120px);
 	gap: 2px;
 	position: relative;
+	padding-bottom: 2px;
 }
 
 .favorite-card-dragging {
@@ -28,31 +30,33 @@
 	font-size: 0.75rem;
 	line-height: 1.2;
 	text-align: center;
+	color: #f2f4f8;
 }
 
 .favorite-kind {
-	opacity: 0.75;
+	opacity: 0.9;
 }
 
 .favorite-kind-press,
 .favorite-kind-both {
-	color: var(--bs-primary, #20a8d8);
+	color: #8fd3ff;
 }
 
 .favorite-kind-rotary {
-	color: var(--bs-warning, #f9b115);
+	color: #ffd56a;
 }
 
-.favorite-remove {
-	border: 0;
-	background: transparent;
-	color: inherit;
-	opacity: 0.65;
-	cursor: pointer;
-	padding: 0 0.25rem;
-	line-height: 1;
-}
-
-.favorite-remove:hover {
-	opacity: 1;
+/* The preset well is always dark, so a light control is the one you can actually see and hit. */
+.favorite-card .favorite-remove {
+	margin-top: 4px;
+	width: 100%;
+	--btn-color: #111;
+	--btn-bg: #fff;
+	--btn-border-color: #fff;
+	--btn-hover-color: #111;
+	--btn-hover-bg: #e7eaee;
+	--btn-hover-border-color: #e7eaee;
+	--btn-active-color: #111;
+	--btn-active-bg: #d0d5dd;
+	--btn-active-border-color: #d0d5dd;
 }

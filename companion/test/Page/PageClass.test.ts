@@ -199,4 +199,25 @@ describe('PageClassController', () => {
 		).rejects.toThrow('import failed')
 		expect(pages.deletePage).toHaveBeenCalledWith(5)
 	})
+
+	it('duplicates a page onto a new connection without saving a template', async () => {
+		const { controller, created, imported, pages } = createController()
+
+		expect(controller.describePage(2)).toEqual({
+			sourcePageName: 'PTZ 1',
+			slots: [{ connectionId: 'cam-1', label: 'PTZ-1', moduleId: 'panasonic-ptz' }],
+		})
+
+		const result = await controller.duplicateFromPage(2, 'PTZ 2', [
+			{ connectionId: 'cam-1', mode: 'clone', label: 'PTZ-2', host: '192.168.0.22' },
+		])
+
+		expect(result).toEqual({ pageNumber: 5 })
+		expect(controller.list()).toEqual([])
+		expect(created[0]?.label).toBe('PTZ-2')
+		expect(pages.insertPages).toHaveBeenCalledWith(5, ['PTZ 2'])
+		const [, remap, page] = imported[0] as [unknown, Record<string, string>, ExportPageContentv6]
+		expect(remap).toEqual({ 'cam-1': 'new-PTZ-2' })
+		expect(page.name).toBe('PTZ 2')
+	})
 })
