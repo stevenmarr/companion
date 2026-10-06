@@ -50,6 +50,7 @@ export function registerCompanionExpressionLanguage(monaco: typeof Monaco): void
 			{ token: 'predefined', foreground: 'DCDCAA' },
 			{ token: 'keyword', foreground: '569CD6' },
 			{ token: 'string', foreground: 'CE9178' },
+			// typos:disable-line BA is part of the colour hex
 			{ token: 'string.escape', foreground: 'D7BA7D' },
 			{ token: 'number', foreground: 'B5CEA8' },
 			{ token: 'number.hex', foreground: 'B5CEA8' },
