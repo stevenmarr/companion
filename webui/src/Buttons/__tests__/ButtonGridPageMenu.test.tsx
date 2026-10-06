@@ -72,7 +72,7 @@ describe('the page menu', () => {
 		for (const label of [
 			'Edit page',
 			'Export page',
-			'Save as page class',
+			'Save page as template',
 			'Recreate navigation buttons',
 			'Clear page',
 		]) {

@@ -8,6 +8,7 @@ import { CreatePageControlId, ParseControlId } from '@companion-app/shared/Contr
 import type { ModuleInstanceType } from '@companion-app/shared/Model/Instance.js'
 import { CloudController } from './Cloud/Controller.js'
 import { ActionRunner } from './Controls/ActionRunner.js'
+import { ButtonFavoriteController } from './Controls/ButtonFavoriteController.js'
 import type { ControlCommonEvents } from './Controls/ControlDependencies.js'
 import { ControlsController } from './Controls/Controller.js'
 import { ControlStore } from './Controls/ControlStore.js'
@@ -121,6 +122,11 @@ export class Registry {
 	 * Saved page snapshots that can be stamped out onto a new connection.
 	 */
 	readonly pageClasses: PageClassController
+
+	/**
+	 * Saved buttons that can be dropped from the presets list.
+	 */
+	readonly buttonFavorites: ButtonFavoriteController
 
 	/**
 	 * The core preview controller
@@ -338,6 +344,15 @@ export class Registry {
 			this.page,
 			this.instance,
 			this.importExport
+		)
+
+		this.buttonFavorites = new ButtonFavoriteController(
+			this.db.getTableView('button_favorites'),
+			pageStore,
+			this.controls,
+			this.instance,
+			this.internalModule,
+			this.graphics
 		)
 
 		const serviceApi = new ServiceApi(

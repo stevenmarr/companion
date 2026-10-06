@@ -41,7 +41,7 @@ export function ButtonGridPageMenu({ pageNumber, pageInfo }: ButtonGridPageMenuP
 				do: () => exportModalRef.current?.show(makeAbsolutePath(`/int/export/page/${pageNumber}`)),
 			},
 			{
-				label: 'Save as page class',
+				label: 'Save page as template',
 				icon: faClone,
 				do: () => setSaveClassOpen(true),
 			},

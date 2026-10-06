@@ -25,6 +25,8 @@ import { ButtonsGridPanel } from './ButtonGridPanel.js'
 import { ButtonGridStore } from './ButtonGridStore.js'
 import { ButtonGridViewProvider, type ButtonGridView } from './ButtonGridViewContext.js'
 import { EditButton } from './EditButton/EditButton.js'
+import { PlaceFavoriteModal, type FavoriteDrop } from './Favorites/PlaceFavoriteModal.js'
+import { SaveFavoriteModal } from './Favorites/SaveFavoriteModal.js'
 import { rememberViewedPage, resolveViewedPage } from './GridPageNavigation.js'
 import { useGridZoom } from './GridZoom.js'
 import { PagesList } from './Pages.js'
@@ -66,6 +68,8 @@ export const ButtonsPage = observer(function ButtonsPage() {
 	// each subscribe to just the part that concerns them
 	const [gridStore] = useState(() => new ButtonGridStore())
 	const [selectedButton, setSelectedButton] = useState<ControlLocation | null>(null)
+	const [saveFavoriteAt, setSaveFavoriteAt] = useState<ControlLocation | null>(null)
+	const [favoriteDrop, setFavoriteDrop] = useState<FavoriteDrop | null>(null)
 
 	const navigate = useNavigate({ from: '/buttons' })
 	const rawPageNumber = useUrlPageNumber()
@@ -130,7 +134,13 @@ export const ButtonsPage = observer(function ButtonsPage() {
 		}
 	}, [isLargeScreen, activeTab])
 
-	useGridDropMonitor({ store: gridStore, gridSize, isOccupied, actions })
+	useGridDropMonitor({
+		store: gridStore,
+		gridSize,
+		isOccupied,
+		actions,
+		onFavoriteDrop: (item, location) => setFavoriteDrop({ favorite: item.favorite, location }),
+	})
 
 	const {
 		contextMenuOpen,
@@ -143,6 +153,7 @@ export const ButtonsPage = observer(function ButtonsPage() {
 		store: gridStore,
 		actions,
 		setTabResetToken,
+		onSaveFavorite: setSaveFavoriteAt,
 	})
 
 	const selectionCount = useSyncExternalStore(
@@ -196,6 +207,8 @@ export const ButtonsPage = observer(function ButtonsPage() {
 		<ButtonGridViewProvider value={gridView}>
 			<SplitPanels.Root showing={null} className="buttons-page" resize={{ storageKey: 'buttons' }}>
 				<GenericConfirmModal ref={confirmModalRef} />
+				<SaveFavoriteModal location={saveFavoriteAt} onClose={() => setSaveFavoriteAt(null)} />
+				<PlaceFavoriteModal pending={favoriteDrop} onClose={() => setFavoriteDrop(null)} />
 				<ContextMenu
 					open={contextMenuOpen}
 					onOpenChange={setContextMenuOpen}

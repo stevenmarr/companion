@@ -7,7 +7,7 @@ import {
 	STREAM_DECK_PLUS_XL_ENCODER_COLUMNS,
 } from '../PageSurfaceLayout.js'
 
-function cellsOf(id: string, kind: 'button' | 'touch' | 'encoder'): string[] {
+function cellsOf(id: string, kind: 'button' | 'touch' | 'encoder' | 'tbar'): string[] {
 	const layout = getPageSurfaceLayout(id)
 	if (!layout) throw new Error(`missing ${id}`)
 	return layout.cells.filter((cell) => cell.kind === kind).map((cell) => `${cell.row}/${cell.column}`)
@@ -21,6 +21,28 @@ describe('page surface layouts', () => {
 		expect(cellsOf('streamdeck', 'encoder')).toEqual([])
 		expect(layout?.cellKeys.has('0/4')).toBe(true)
 		expect(layout?.cellKeys.has('0/5')).toBe(false)
+	})
+
+	test('the ATEM Micro Panel uses the panel coordinates, including holes and one T-bar cell', () => {
+		const layout = getPageSurfaceLayout('atem-micro')
+		expect(layout?.bounds).toEqual({ minColumn: 0, maxColumn: 16, minRow: 0, maxRow: 3 })
+		expect(layout?.label).toBe('ATEM Micro Panel')
+
+		// program 1 is row 2 column 0, preview 10 is row 3 column 9
+		expect(layout?.cellsByKey.get('2/0')?.kind).toBe('button')
+		expect(layout?.cellsByKey.get('3/9')?.kind).toBe('button')
+		expect(cellsOf('atem-micro', 'button')).toHaveLength(50)
+		expect(cellsOf('atem-micro', 'tbar')).toEqual(['0/14'])
+
+		// The T-bar is only the top cell. The column under it, and the other gaps, are holes.
+		expect(layout?.cellKeys.has('1/14')).toBe(false)
+		expect(layout?.cellKeys.has('2/14')).toBe(false)
+		expect(layout?.cellKeys.has('3/14')).toBe(false)
+		expect(layout?.cellKeys.has('3/12')).toBe(false)
+		expect(layout?.cellKeys.has('1/10')).toBe(false)
+		expect(layout?.cellKeys.has('0/0')).toBe(false)
+		expect(layout?.cellKeys.has('0/4')).toBe(false)
+		expect(layout?.cellKeys.has('1/4')).toBe(false)
 	})
 
 	test('a Stream Deck XL is 8 columns by 4 rows of keys', () => {
@@ -68,6 +90,12 @@ describe('page surface layouts', () => {
 			maxColumn: 8,
 			minRow: 0,
 			maxRow: 5,
+		})
+		expect(gridGrowthForLayout(standard, getPageSurfaceLayout('atem-micro')!)).toEqual({
+			minColumn: 0,
+			maxColumn: 16,
+			minRow: 0,
+			maxRow: 3,
 		})
 	})
 

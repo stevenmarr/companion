@@ -122,3 +122,24 @@ export function upgradeInternalPageReference(
 	option.value = pageId
 	return true
 }
+
+/**
+ * The page id stored on an internal page picker, or null when the option is relative,
+ * numeric, an expression, or not a page picker.
+ * `0`, `startup`, `back`, `forward`, `+1` and `-1` are not a specific page.
+ */
+export function literalInternalPageId(
+	definitionId: string,
+	options: ExpressionableOptionsObject | undefined
+): string | null {
+	if (!PAGE_REFERENCE_DEFINITIONS.has(definitionId) || !options) return null
+
+	const option = options.page
+	if (!option || option.isExpression) return null
+
+	const value = option.value
+	if (typeof value !== 'string' || value === '' || value === '0' || isRelativePageToken(value)) return null
+	if (/^-?\d+$/.test(value)) return null
+
+	return value
+}

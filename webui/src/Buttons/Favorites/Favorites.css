@@ -1,0 +1,58 @@
+.favorite-presets {
+	margin-bottom: 1.5rem;
+}
+
+.favorite-presets-grid {
+	align-items: flex-start;
+}
+
+.favorite-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 92px;
+	gap: 2px;
+	position: relative;
+}
+
+.favorite-card-dragging {
+	opacity: 0.6;
+}
+
+.favorite-card-name,
+.favorite-kind {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 0.75rem;
+	line-height: 1.2;
+	text-align: center;
+}
+
+.favorite-kind {
+	opacity: 0.75;
+}
+
+.favorite-kind-press,
+.favorite-kind-both {
+	color: var(--bs-primary, #20a8d8);
+}
+
+.favorite-kind-rotary {
+	color: var(--bs-warning, #f9b115);
+}
+
+.favorite-remove {
+	border: 0;
+	background: transparent;
+	color: inherit;
+	opacity: 0.65;
+	cursor: pointer;
+	padding: 0 0.25rem;
+	line-height: 1;
+}
+
+.favorite-remove:hover {
+	opacity: 1;
+}

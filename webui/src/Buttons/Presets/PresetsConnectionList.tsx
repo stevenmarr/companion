@@ -14,6 +14,7 @@ import {
 import { NonIdealState } from '~/Components/NonIdealState.js'
 import { usePanelCollapseHelper } from '~/Helpers/CollapseHelper.js'
 import { useComputed } from '~/Resources/util'
+import { FavoritePresets } from '../Favorites/FavoritePresets.js'
 import type { PresetDefinitionsStore } from './PresetDefinitionsStore'
 
 const PresetsStoreContext = createContext<PresetDefinitionsStore | null>(null)
@@ -99,6 +100,7 @@ export const PresetsConnectionList = observer(function PresetsConnectionList({
 	return (
 		<PresetsStoreContext.Provider value={presetsDefinitionsStore}>
 			<div>
+				<FavoritePresets />
 				<h5>Presets</h5>
 				<p>
 					Ready made buttons with text, actions and feedback which you can drop onto a button to help you get started

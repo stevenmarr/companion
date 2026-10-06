@@ -7,12 +7,18 @@ import type { UserConfigGridSize } from './Model/UserConfigModel.js'
  * home corner of the grid. A surface sitting at offset 0,0 then shows these cells on the
  * matching keys, touch regions, and knobs.
  */
-export const PAGE_SURFACE_LAYOUT_IDS = ['streamdeck', 'streamdeck-xl', 'streamdeck-plus', 'streamdeck-plus-xl'] as const
+export const PAGE_SURFACE_LAYOUT_IDS = [
+	'streamdeck',
+	'streamdeck-xl',
+	'streamdeck-plus',
+	'streamdeck-plus-xl',
+	'atem-micro',
+] as const
 
 export type PageSurfaceLayoutId = (typeof PAGE_SURFACE_LAYOUT_IDS)[number]
 
-/** What a cell on the device is. A hole is simply a missing cell. */
-export type PageSurfaceCellKind = 'button' | 'touch' | 'encoder'
+/** What a cell on the device is. A hole is simply a missing cell. The T-bar is one cell, not a span. */
+export type PageSurfaceCellKind = 'button' | 'touch' | 'encoder' | 'tbar'
 
 export interface PageSurfaceCell {
 	row: number
@@ -54,6 +60,27 @@ function buttons(columns: number, rows: number): PageSurfaceCell[] {
 
 function cellsAt(row: number, columns: readonly number[], kind: PageSurfaceCellKind): PageSurfaceCell[] {
 	return columns.map((column) => ({ row, column, kind }))
+}
+
+/**
+ * ATEM Micro Panel keys, in the same row and column the Blackmagic controller reports.
+ * The T-bar occupies row 0 column 14 for its whole height; the cells under it are holes,
+ * because a surface layout stores one cell per coordinate rather than a span.
+ */
+function atemMicroCells(): PageSurfaceCell[] {
+	const range = (from: number, to: number): number[] => {
+		const columns: number[] = []
+		for (let column = from; column <= to; column++) columns.push(column)
+		return columns
+	}
+
+	return [
+		...cellsAt(0, range(5, 13), 'button'),
+		...cellsAt(1, [...range(5, 9), ...range(11, 13), 15, 16], 'button'),
+		...cellsAt(2, [...range(0, 13), 15, 16], 'button'),
+		...cellsAt(3, [...range(0, 11), 13, 15, 16], 'button'),
+		{ row: 0, column: 14, kind: 'tbar' },
+	]
 }
 
 function finishLayout(layout: Omit<PageSurfaceLayout, 'bounds' | 'cellKeys' | 'cellsByKey'>): PageSurfaceLayout {
@@ -120,6 +147,13 @@ export const PAGE_SURFACE_LAYOUTS: readonly PageSurfaceLayout[] = [
 			...cellsAt(4, STREAM_DECK_PLUS_XL_ENCODER_COLUMNS, 'touch'),
 			...cellsAt(5, STREAM_DECK_PLUS_XL_ENCODER_COLUMNS, 'encoder'),
 		],
+	}),
+	finishLayout({
+		id: 'atem-micro',
+		label: 'ATEM Micro Panel',
+		summary: '17 columns × 4 rows, with gaps and a T-bar',
+		note: 'Coordinates match the ATEM Micro Panel, including the empty spots. The T-bar is the single cell at row 1, column 15. This layout is wider than the usual grid, so saving it grows the shared button grid to 17 columns for every page. The panel lines up when it sits at the home corner.',
+		cells: atemMicroCells(),
 	}),
 ]
 

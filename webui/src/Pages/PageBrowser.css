@@ -1,0 +1,93 @@
+.page-browser {
+	height: 100%;
+	overflow: auto;
+	padding: 1.25rem 1.5rem 2rem;
+}
+
+.page-browser-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 1rem;
+	margin-top: 1rem;
+}
+
+.page-browser-card {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	text-align: left;
+	color: inherit;
+	background: var(--color-surface);
+	border: 1px solid var(--color-tile-border);
+	border-radius: 10px;
+	padding: 0.75rem;
+	cursor: pointer;
+	width: 100%;
+}
+
+.page-browser-card:hover {
+	border-color: var(--bs-primary, #20a8d8);
+}
+
+.page-browser-card-heading {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	min-width: 0;
+}
+
+.page-browser-number {
+	font-weight: 700;
+	opacity: 0.7;
+}
+
+.page-browser-title {
+	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.page-browser-surface,
+.page-browser-empty {
+	font-size: 0.85rem;
+	opacity: 0.75;
+	margin-top: 0.15rem;
+}
+
+.page-browser-snapshot {
+	display: grid;
+	gap: 2px;
+	margin-top: 0.6rem;
+	overflow: auto;
+	max-width: 100%;
+}
+
+.page-browser-cell {
+	width: 22px;
+	height: 22px;
+	background: #111;
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+.page-browser-cell img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	display: block;
+}
+
+.page-browser-cell[data-kind='encoder'] {
+	border-radius: 50%;
+}
+
+.page-browser-cell[data-kind='touch'] {
+	outline: 1px dashed rgb(255 255 255 / 45%);
+	outline-offset: -1px;
+}
+
+.page-browser-cell[data-kind='tbar'] {
+	background: #3a3a3a;
+	border-radius: 2px;
+}

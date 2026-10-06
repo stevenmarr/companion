@@ -53,7 +53,7 @@ export const PageClassesSection = observer(function PageClassesSection({
 				.mutateAsync({ classId, name })
 				.then(refreshPageClasses)
 				.catch((e) => {
-					notifier.show('Page class', errorText(e))
+					notifier.show('Page template', errorText(e))
 				})
 		},
 		[notifier, renameMutation]
@@ -62,15 +62,15 @@ export const PageClassesSection = observer(function PageClassesSection({
 	const askDelete = useCallback(
 		(pageClass: PageClassSummary) => {
 			deleteRef.current?.show(
-				'Delete page class?',
-				[`Delete the class "${pageClass.name}"?`, 'Pages you already created from it are not deleted.'],
+				'Delete page template?',
+				[`Delete the template "${pageClass.name}"?`, 'Pages you already created from it are not deleted.'],
 				'Delete',
 				() => {
 					removeMutation
 						.mutateAsync({ classId: pageClass.id })
 						.then(refreshPageClasses)
 						.catch((e) => {
-							notifier.show('Page class', errorText(e))
+							notifier.show('Page template', errorText(e))
 						})
 				}
 			)
@@ -80,13 +80,13 @@ export const PageClassesSection = observer(function PageClassesSection({
 
 	return (
 		<div className="page-classes">
-			<h5>Page classes</h5>
+			<h5>Page templates</h5>
 			<p>
-				Save a finished page as a class, then stamp it out for the next device. A new page is created and its buttons
-				are pointed at the connection you choose. Changing the class later does not change pages you already created.
+				Save a finished page as a template, then stamp it out for the next device. A new page is created and its buttons
+				are pointed at the connection you choose. Changing the template later does not change pages you already created.
 			</p>
 			<Button color="primary" size="sm" onClick={() => setSaveOpen(true)}>
-				<FontAwesomeIcon icon={faClone} /> Save page {pageNumber} as class
+				<FontAwesomeIcon icon={faClone} /> Save page {pageNumber} as template
 			</Button>
 
 			<GenericConfirmModal ref={deleteRef} />
@@ -103,9 +103,9 @@ export const PageClassesSection = observer(function PageClassesSection({
 			/>
 			<UpdatePageClassModal pageClass={updateClass} onClose={() => setUpdateClass(null)} />
 
-			{classesQuery.isPending && <p>Loading page classes...</p>}
-			{classesQuery.error && <p>Couldn't load page classes.</p>}
-			{!classesQuery.isPending && classes.length === 0 && <p>No page classes yet.</p>}
+			{classesQuery.isPending && <p>Loading page templates...</p>}
+			{classesQuery.error && <p>Couldn't load page templates.</p>}
+			{!classesQuery.isPending && classes.length === 0 && <p>No page templates yet.</p>}
 
 			<div className="collections-nesting-table page-class-list">
 				{classes.map((pageClass) => (
@@ -158,7 +158,7 @@ function PageClassRow({
 							id={undefined}
 							value={name}
 							setValue={setName}
-							placeholder="Class name"
+							placeholder="Template name"
 							onBlur={() => {
 								const trimmed = name.trim()
 								if (trimmed && trimmed !== pageClass.name) onRename(pageClass.id, trimmed)
@@ -175,7 +175,7 @@ function PageClassRow({
 						<Button color="secondary" size="sm" onClick={() => onUpdate(pageClass)}>
 							Update
 						</Button>
-						<Button color="warning" size="sm" onClick={() => onDelete(pageClass)} title="Delete class">
+						<Button color="warning" size="sm" onClick={() => onDelete(pageClass)} title="Delete template">
 							<FontAwesomeIcon icon={faTrash} />
 						</Button>
 					</ButtonGroup>
@@ -215,10 +215,10 @@ export function SavePageClassModal({
 			.then(() => {
 				refreshPageClasses()
 				onOpenChange(false)
-				notifier.show('Page class', `Saved page ${pageNumber} as a class`, 3000)
+				notifier.show('Page template', `Saved page ${pageNumber} as a template`, 3000)
 			})
 			.catch((e) => {
-				notifier.show('Page class', errorText(e))
+				notifier.show('Page template', errorText(e))
 			})
 			.finally(() => setBusy(false))
 	}
@@ -230,16 +230,16 @@ export function SavePageClassModal({
 				<Modal.Viewport>
 					<Modal.Popup>
 						<Modal.Header closeButton>
-							<Modal.Title>Save page {pageNumber} as a class</Modal.Title>
+							<Modal.Title>Save page {pageNumber} as a template</Modal.Title>
 						</Modal.Header>
 						<Modal.Body>
 							<p>
-								The class keeps a copy of this page and of each connection's settings, including any password, so the
+								The template keeps a copy of this page and of each connection's settings, including any password, so the
 								next camera can be created from it.
 							</p>
 							<Form row className="sm:gap-2" onSubmit={PreventDefaultHandler}>
 								<FormLabel htmlFor={nameId} sm={4} column="sm">
-									Class name
+									Template name
 								</FormLabel>
 								<Grid.Col sm={8}>
 									<TextInputField id={nameId} value={name} setValue={setName} immediateValue />
@@ -248,7 +248,7 @@ export function SavePageClassModal({
 						</Modal.Body>
 						<Modal.Footer>
 							<Button color="primary" disabled={busy} onClick={save}>
-								Save class
+								Save page as template
 							</Button>
 						</Modal.Footer>
 					</Modal.Popup>
@@ -326,10 +326,10 @@ const InstantiatePageClassModal = observer(function InstantiatePageClassModal({
 			.then((result) => {
 				onClose()
 				onCreated(result.pageNumber)
-				notifier.show('Page class', `Created page ${result.pageNumber}`, 3000)
+				notifier.show('Page template', `Created page ${result.pageNumber}`, 3000)
 			})
 			.catch((e) => {
-				notifier.show('Page class', errorText(e))
+				notifier.show('Page template', errorText(e))
 			})
 			.finally(() => setBusy(false))
 	}
@@ -345,7 +345,7 @@ const InstantiatePageClassModal = observer(function InstantiatePageClassModal({
 						</Modal.Header>
 						<Modal.Body>
 							<p>
-								This copies the class onto a new page. Pick a new connection for each device, or one that already
+								This copies the template onto a new page. Pick a new connection for each device, or one that already
 								exists. Pages you already created are left as they are.
 							</p>
 							<Form row className="sm:gap-2" onSubmit={PreventDefaultHandler}>
@@ -453,10 +453,10 @@ function UpdatePageClassModal({
 			.then(() => {
 				refreshPageClasses()
 				onClose()
-				notifier.show('Page class', `Updated ${pageClass.name}`, 3000)
+				notifier.show('Page template', `Updated ${pageClass.name}`, 3000)
 			})
 			.catch((e) => {
-				notifier.show('Page class', errorText(e))
+				notifier.show('Page template', errorText(e))
 			})
 			.finally(() => setBusy(false))
 	}
@@ -477,8 +477,8 @@ function UpdatePageClassModal({
 						</Modal.Header>
 						<Modal.Body>
 							<p>
-								Replace this class with the buttons on the page you pick. Pages you already created from the class are
-								not changed.
+								Replace this template with the buttons on the page you pick. Pages you already created from the template
+								are not changed.
 							</p>
 							<SimpleDropdownInputField
 								id={undefined}
@@ -489,7 +489,7 @@ function UpdatePageClassModal({
 						</Modal.Body>
 						<Modal.Footer>
 							<Button color="primary" disabled={busy} onClick={replace}>
-								Replace class
+								Replace template
 							</Button>
 						</Modal.Footer>
 					</Modal.Popup>

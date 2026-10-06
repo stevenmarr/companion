@@ -112,7 +112,7 @@ export const PagesList = observer(function PagesList({ pageNumber, setPageNumber
 			<p>
 				You can insert, delete, and re-arrange the order of pages here. You can also give each page a unique name to
 				help you identify its purpose. The pencil sets the surface the page is written for, and an image buttons can
-				show with the feedback "Page: Show page image".
+				show with the feedback "Page: Show page image". The Pages item on the left shows a picture of every page.
 			</p>
 			<Grid.Row>
 				<Grid.Col xs={12}>

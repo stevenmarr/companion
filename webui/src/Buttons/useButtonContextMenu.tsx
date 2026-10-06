@@ -13,6 +13,8 @@ interface UseButtonContextMenuOptions {
 	store: ButtonGridStore
 	actions: GridToolActions
 	setTabResetToken: (token: string) => void
+	/** Right-click "Save as favorite". Omitted in tests that do not offer it. */
+	onSaveFavorite?: (location: ControlLocation) => void
 }
 
 export interface UseButtonContextMenuResult {
@@ -28,6 +30,7 @@ export function useButtonContextMenu({
 	store,
 	actions,
 	setTabResetToken,
+	onSaveFavorite,
 }: UseButtonContextMenuOptions): UseButtonContextMenuResult {
 	const { pages } = useContext(RootAppStoreContext)
 
@@ -148,6 +151,14 @@ export function useButtonContextMenu({
 			)
 		}
 
+		if (onSaveFavorite) {
+			items.push({
+				label: 'Save as favorite',
+				disabled: isEmpty,
+				do: () => onSaveFavorite(location),
+			})
+		}
+
 		items.push(
 			{ isSeparator: true },
 			{
@@ -169,6 +180,7 @@ export function useButtonContextMenu({
 		hotAbortMutation,
 		createReferenceControlMutation,
 		setTabResetToken,
+		onSaveFavorite,
 	])
 
 	return {

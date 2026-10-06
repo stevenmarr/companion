@@ -30,6 +30,7 @@ import { Route as AppImageLibraryRouteImport } from './routes/_app/image-library
 import { Route as AppImportExportRouteImport } from './routes/_app/import-export.tsx'
 import { Route as AppLogRouteImport } from './routes/_app/log.tsx'
 import { Route as AppModulesRouteImport } from './routes/_app/modules.tsx'
+import { Route as AppPagesRouteImport } from './routes/_app/pages.tsx'
 import { Route as AppSurfacesRouteImport } from './routes/_app/surfaces.tsx'
 import { Route as AppTriggersRouteImport } from './routes/_app/triggers.tsx'
 import { Route as StandaloneEmulatorRouteImport } from './routes/_standalone/emulator.tsx'
@@ -174,6 +175,11 @@ const AppLogRoute = AppLogRouteImport.update({
 const AppModulesRoute = AppModulesRouteImport.update({
   id: '/modules',
   path: '/modules',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPagesRoute = AppPagesRouteImport.update({
+  id: '/pages',
+  path: '/pages',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSurfacesRoute = AppSurfacesRouteImport.update({
@@ -448,6 +454,7 @@ export interface FileRoutesByFullPath {
   '/import-export': typeof AppImportExportRoute
   '/log': typeof AppLogRoute
   '/modules': typeof AppModulesRouteWithChildren
+  '/pages': typeof AppPagesRoute
   '/surfaces': typeof AppSurfacesRouteWithChildren
   '/triggers': typeof AppTriggersRouteWithChildren
   '/emulator': typeof StandaloneEmulatorRouteWithChildren
@@ -510,6 +517,7 @@ export interface FileRoutesByTo {
   '/cloud': typeof AppCloudRoute
   '/import-export': typeof AppImportExportRoute
   '/log': typeof AppLogRoute
+  '/pages': typeof AppPagesRoute
   '/tablet': typeof StandaloneTabletDotlazyRoute
   '/': typeof AppIndexRoute
   '/buttons/$page': typeof AppButtonsPageRoute
@@ -572,6 +580,7 @@ export interface FileRoutesById {
   '/_app/import-export': typeof AppImportExportRoute
   '/_app/log': typeof AppLogRoute
   '/_app/modules': typeof AppModulesRouteWithChildren
+  '/_app/pages': typeof AppPagesRoute
   '/_app/surfaces': typeof AppSurfacesRouteWithChildren
   '/_app/triggers': typeof AppTriggersRouteWithChildren
   '/_standalone/emulator': typeof StandaloneEmulatorRouteWithChildren
@@ -641,6 +650,7 @@ export interface FileRouteTypes {
     | '/import-export'
     | '/log'
     | '/modules'
+    | '/pages'
     | '/surfaces'
     | '/triggers'
     | '/emulator'
@@ -703,6 +713,7 @@ export interface FileRouteTypes {
     | '/cloud'
     | '/import-export'
     | '/log'
+    | '/pages'
     | '/tablet'
     | '/'
     | '/buttons/$page'
@@ -764,6 +775,7 @@ export interface FileRouteTypes {
     | '/_app/import-export'
     | '/_app/log'
     | '/_app/modules'
+    | '/_app/pages'
     | '/_app/surfaces'
     | '/_app/triggers'
     | '/_standalone/emulator'
@@ -963,6 +975,13 @@ declare module '@tanstack/react-router' {
       path: '/modules'
       fullPath: '/modules'
       preLoaderRoute: typeof AppModulesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/pages': {
+      id: '/_app/pages'
+      path: '/pages'
+      fullPath: '/pages'
+      preLoaderRoute: typeof AppPagesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/surfaces': {
@@ -1453,6 +1472,7 @@ interface AppRouteChildren {
   AppImportExportRoute: typeof AppImportExportRoute
   AppLogRoute: typeof AppLogRoute
   AppModulesRoute: typeof AppModulesRouteWithChildren
+  AppPagesRoute: typeof AppPagesRoute
   AppSurfacesRoute: typeof AppSurfacesRouteWithChildren
   AppTriggersRoute: typeof AppTriggersRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
@@ -1479,6 +1499,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppImportExportRoute: AppImportExportRoute,
   AppLogRoute: AppLogRoute,
   AppModulesRoute: AppModulesRouteWithChildren,
+  AppPagesRoute: AppPagesRoute,
   AppSurfacesRoute: AppSurfacesRouteWithChildren,
   AppTriggersRoute: AppTriggersRouteWithChildren,
   AppIndexRoute: AppIndexRoute,

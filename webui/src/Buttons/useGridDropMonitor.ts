@@ -5,6 +5,7 @@ import type { ControlLocation } from '@companion-app/shared/Model/Common.js'
 import type { UserConfigGridSize } from '@companion-app/shared/Model/UserConfigModel.js'
 import { trpc, useMutationExt } from '~/Resources/TRPC.js'
 import type { ButtonGridStore } from './ButtonGridStore.js'
+import { favoriteNeedsChoice, type FavoriteDragItem } from './Favorites/FavoriteDragItem.js'
 import { GRID_BUTTON_DRAG_TYPE, type GridButtonDragItem } from './GridButtonDragItem.js'
 import { parseGridButtonDroppableId } from './GridButtonDroppableId.js'
 import { planGridDrop } from './GridDragDrop.js'
@@ -18,6 +19,8 @@ export interface UseGridDropMonitorOptions {
 	gridSize: UserConfigGridSize | undefined
 	isOccupied: (location: ControlLocation) => boolean
 	actions: GridToolActions
+	/** A favorite that names a connection, page, or surface. The caller opens the chooser. */
+	onFavoriteDrop?: (favorite: FavoriteDragItem, location: ControlLocation) => void
 }
 
 /**
@@ -27,7 +30,13 @@ export interface UseGridDropMonitorOptions {
  * type: a preset from the presets tab is imported where it lands, and a button from the grid is
  * moved or swapped.
  */
-export function useGridDropMonitor({ store, gridSize, isOccupied, actions }: UseGridDropMonitorOptions): void {
+export function useGridDropMonitor({
+	store,
+	gridSize,
+	isOccupied,
+	actions,
+	onFavoriteDrop,
+}: UseGridDropMonitorOptions): void {
 	// Resolving the drag the same way for the preview and for the drop is what stops the two
 	// disagreeing about where the buttons were going to land
 	const resolveGridDrop = useCallback(
@@ -51,6 +60,7 @@ export function useGridDropMonitor({ store, gridSize, isOccupied, actions }: Use
 	)
 
 	const importPresetMutation = useMutationExt(trpc.controls.importPreset.mutationOptions())
+	const placeFavoriteMutation = useMutationExt(trpc.buttonFavorites.place.mutationOptions())
 
 	useDragDropMonitor({
 		onDragOver(event) {
@@ -84,6 +94,32 @@ export function useGridDropMonitor({ store, gridSize, isOccupied, actions }: Use
 					})
 					.catch(() => {
 						console.error('Preset import failed')
+					})
+				return
+			}
+
+			if (source.type === 'favorite') {
+				const location = parseGridButtonDroppableId(target.id)
+				if (!location) return
+
+				const dropData = source.data as FavoriteDragItem
+				if (!dropData?.favorite) return
+
+				if (favoriteNeedsChoice(dropData.favorite)) {
+					onFavoriteDrop?.(dropData, location)
+					return
+				}
+
+				placeFavoriteMutation
+					.mutateAsync({
+						favoriteId: dropData.favorite.id,
+						location,
+						connections: [],
+						pages: [],
+						surfaces: [],
+					})
+					.catch(() => {
+						console.error('Favorite place failed')
 					})
 				return
 			}

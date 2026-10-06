@@ -846,20 +846,20 @@ export class InternalSurface extends EventEmitter<InternalModuleFragmentEvents> 
 
 	visitReferences(visitor: InternalVisitor, actions: ActionForVisitor[], feedbacks: FeedbackForVisitor[]): void {
 		for (const action of actions) {
-			if (action.action === 'outbound_surface_set_enabled') {
+			// Every surface picker stores the id in `surfaceId`, including brightness and page changes.
+			// Expressions and "self" are left alone by the visitor.
+			if (action.options && Object.hasOwn(action.options, 'surfaceId')) {
 				visitor.visitOutboundSurfaceId(action.options, 'surfaceId')
-			} else if (action.action === 'set_page' || action.action === 'set_page_byindex') {
+			}
+			if (action.action === 'set_page' || action.action === 'set_page_byindex') {
 				visitor.visitPageId(action.options, 'page')
 			}
 		}
 		for (const feedback of feedbacks) {
-			if (feedback.type === 'outbound_surface_enabled') {
+			if (feedback.options && Object.hasOwn(feedback.options, 'surfaceId')) {
 				visitor.visitOutboundSurfaceId(feedback.options, 'surfaceId', feedback.id)
-			} else if (
-				feedback.type === 'surface_on_page' ||
-				feedback.type === 'page_missing' ||
-				feedback.type === 'page_image'
-			) {
+			}
+			if (feedback.type === 'surface_on_page' || feedback.type === 'page_missing' || feedback.type === 'page_image') {
 				visitor.visitPageId(feedback.options, 'page', feedback.id)
 			}
 		}

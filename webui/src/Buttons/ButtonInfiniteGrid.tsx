@@ -4,7 +4,7 @@ import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, u
 import type { ControlLocation } from '@companion-app/shared/Model/Common.js'
 import { DEFAULT_PREVIEW_RENDER_SIZE } from '@companion-app/shared/Model/Preview.js'
 import type { UserConfigGridSize } from '@companion-app/shared/Model/UserConfigModel.js'
-import type { PageSurfaceLayout } from '@companion-app/shared/PageSurfaceLayout.js'
+import type { PageSurfaceCellKind, PageSurfaceLayout } from '@companion-app/shared/PageSurfaceLayout.js'
 import useElementInnerSize from '~/Hooks/useElementClientSize.js'
 import useScrollPosition from '~/Hooks/useScrollPosition.js'
 import { GridButtonCell } from './GridButtonCell.js'
@@ -36,6 +36,23 @@ export interface GridMarqueeHandling {
 
 /** Nothing is being held down - the pointer has simply gone */
 const NO_MODIFIERS: GridButtonModifiers = { range: false, toggle: false }
+
+function surfaceCellTag(kind: PageSurfaceCellKind): string {
+	switch (kind) {
+		case 'encoder':
+			return 'Knob'
+		case 'touch':
+			return 'Touch'
+		case 'tbar':
+			return 'T-bar'
+		case 'button':
+			return ''
+		default: {
+			const neverKind: never = kind
+			return neverKind
+		}
+	}
+}
 
 /** A rectangle being dragged out, in canvas pixels */
 interface MarqueeState {
@@ -415,7 +432,7 @@ export const ButtonInfiniteGrid = forwardRef<ButtonInfiniteGridRef, ButtonInfini
 							className={`page-surface-cell-tag page-surface-cell-tag-${cell.kind}`}
 							style={{ left: (column - minColumn) * tileSize, top: (row - minRow) * tileSize }}
 						>
-							{cell.kind === 'encoder' ? 'Knob' : 'Touch'}
+							{surfaceCellTag(cell.kind)}
 						</div>
 					)
 				}

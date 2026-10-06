@@ -659,6 +659,7 @@ describe('InternalSurface', () => {
 			const actions: ActionForVisitor[] = [
 				{ id: 'a1', action: 'outbound_surface_set_enabled', options: { surfaceId: 'remote1' } as any },
 				{ id: 'a2', action: 'set_brightness', options: {} },
+				{ id: 'a3', action: 'set_page', options: { surfaceId: 'deck-1', page: 'page-a' } as any },
 			]
 			const feedbacks: FeedbackForVisitor[] = [
 				{ id: 'f1', type: 'outbound_surface_enabled', options: { surfaceId: 'remote2' } as any },
@@ -668,8 +669,10 @@ describe('InternalSurface', () => {
 			surface.visitReferences(visitor, actions, feedbacks)
 
 			expect(visitor.visitOutboundSurfaceId).toHaveBeenCalledWith(actions[0].options, 'surfaceId')
+			expect(visitor.visitOutboundSurfaceId).toHaveBeenCalledWith(actions[2].options, 'surfaceId')
 			expect(visitor.visitOutboundSurfaceId).toHaveBeenCalledWith(feedbacks[0].options, 'surfaceId', 'f1')
-			expect(visitor.visitOutboundSurfaceId).toHaveBeenCalledTimes(2)
+			expect(visitor.visitOutboundSurfaceId).toHaveBeenCalledTimes(3)
+			expect(visitor.visitPageId).toHaveBeenCalledWith(actions[2].options, 'page')
 			expect(visitor.visitPageId).toHaveBeenCalledWith(feedbacks[1].options, 'page', 'f2')
 		})
 	})
