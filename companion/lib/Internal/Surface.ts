@@ -24,10 +24,12 @@ import type { RunActionExtras } from '../Instance/Connection/ChildHandlerApi.js'
 import LogController from '../Log/Controller.js'
 import type { IPageStore } from '../Page/Store.js'
 import type { SurfaceController } from '../Surface/Controller.js'
+import type { VariablesAndExpressionParser } from '../Variables/VariablesAndExpressionParser.js'
 import { isInternalPageMissing, resolveInternalPage } from './PageReference.js'
 import type {
 	ActionForInternalExecution,
 	ActionForVisitor,
+	ExecuteFeedbackResultWithReferences,
 	FeedbackForInternalExecution,
 	FeedbackForVisitor,
 	InternalActionDefinition,
@@ -146,9 +148,13 @@ export class InternalSurface extends EventEmitter<InternalModuleFragmentEvents> 
 		this.#surfaceController.on('group_name', () => debounceUpdateVariables())
 
 		// Page ids stay valid across a reorder, but "on this page" and "page missing"
-		// both depend on the current set of pages.
+		// both depend on the current set of pages. The page image does too: a deleted
+		// page no longer has one.
 		this.#pageStore.on('pageindexchange', () => {
-			this.emit('checkFeedbacks', 'surface_on_page', 'page_missing')
+			this.emit('checkFeedbacks', 'surface_on_page', 'page_missing', 'page_image')
+		})
+		this.#pageStore.on('pageDataChanged', () => {
+			this.emit('checkFeedbacks', 'page_image')
 		})
 
 		this.#surfaceController.outbound.events.on('clientInfo', () => {
@@ -755,6 +761,28 @@ export class InternalSurface extends EventEmitter<InternalModuleFragmentEvents> 
 				optionsSupportExpressions: true,
 			},
 
+			page_image: {
+				feedbackType: FeedbackEntitySubType.Advanced,
+				label: 'Page: Show page image',
+				description:
+					"Set this button's image to the image assigned to a page. Add the feedback and pick the page. Changing that page's image updates the button.",
+				feedbackStyle: undefined,
+				feedbackAffectedProperties: ['png64'],
+				showInvert: false,
+				showButtonPreview: true,
+				options: [
+					{
+						type: 'internal:page',
+						label: 'Page',
+						id: 'page',
+						includeStartup: false,
+						includeDirection: false,
+						default: 0,
+					},
+				],
+				optionsSupportExpressions: true,
+			},
+
 			outbound_surface_enabled: {
 				feedbackType: FeedbackEntitySubType.Boolean,
 				label: 'Remote surface: When enabled',
@@ -770,7 +798,10 @@ export class InternalSurface extends EventEmitter<InternalModuleFragmentEvents> 
 		}
 	}
 
-	executeFeedback(feedback: FeedbackForInternalExecution): boolean | void {
+	executeFeedback(
+		feedback: FeedbackForInternalExecution,
+		parser?: VariablesAndExpressionParser
+	): boolean | ExecuteFeedbackResultWithReferences | void {
 		if (feedback.definitionId == 'surface_on_page') {
 			const surfaceId = this.#fetchSurfaceId(feedback.options, feedback)
 			if (!surfaceId) return false
@@ -784,11 +815,32 @@ export class InternalSurface extends EventEmitter<InternalModuleFragmentEvents> 
 		if (feedback.definitionId == 'page_missing') {
 			return isInternalPageMissing(feedback.options.page, this.#pageStore, feedback.location?.pageNumber)
 		}
+		if (feedback.definitionId == 'page_image') {
+			return this.#executePageImageFeedback(feedback, parser)
+		}
 		if (feedback.definitionId == 'outbound_surface_enabled') {
 			const surfaceId = stringifyVariableValue(feedback.options.surfaceId)?.trim()
 			if (!surfaceId) return false
 
 			return this.#surfaceController.outbound.getById(surfaceId)?.enabled ?? false
+		}
+	}
+
+	/**
+	 * The page image, as a data URL the button image can draw.
+	 * A library reference is resolved now and subscribed to, so a replaced image redraws the button.
+	 */
+	#executePageImageFeedback(
+		feedback: FeedbackForInternalExecution,
+		parser: VariablesAndExpressionParser | undefined
+	): ExecuteFeedbackResultWithReferences {
+		const resolved = resolveInternalPage(feedback.options.page, this.#pageStore, feedback.location?.pageNumber)
+		const stored = resolved.kind === 'page' ? this.#pageStore.getPageInfo(resolved.pageNumber)?.image : null
+		const resolvedImage = resolveStoredPageImage(stored, parser)
+
+		return {
+			referencedVariables: resolvedImage.referencedVariables,
+			value: { png64: resolvedImage.png64 },
 		}
 	}
 
@@ -803,9 +855,38 @@ export class InternalSurface extends EventEmitter<InternalModuleFragmentEvents> 
 		for (const feedback of feedbacks) {
 			if (feedback.type === 'outbound_surface_enabled') {
 				visitor.visitOutboundSurfaceId(feedback.options, 'surfaceId', feedback.id)
-			} else if (feedback.type === 'surface_on_page' || feedback.type === 'page_missing') {
+			} else if (
+				feedback.type === 'surface_on_page' ||
+				feedback.type === 'page_missing' ||
+				feedback.type === 'page_image'
+			) {
 				visitor.visitPageId(feedback.options, 'page', feedback.id)
 			}
 		}
+	}
+}
+
+/**
+ * Turn a stored page image into the data URL a button draws.
+ * Library references are parsed so the feedback subscribes to that image variable.
+ */
+function resolveStoredPageImage(
+	stored: string | null | undefined,
+	parser: VariablesAndExpressionParser | undefined
+): { png64: string | null; referencedVariables: string[] } {
+	if (!stored) return { png64: null, referencedVariables: [] }
+
+	if (!parser) {
+		return {
+			png64: stored.startsWith('data:image/') ? stored : null,
+			referencedVariables: [],
+		}
+	}
+
+	const parsed = parser.parseVariables(stored)
+	const text = parsed.text
+	return {
+		png64: text.startsWith('data:image/') ? text : null,
+		referencedVariables: [...parsed.variableIds],
 	}
 }

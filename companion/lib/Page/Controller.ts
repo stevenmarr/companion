@@ -8,6 +8,13 @@ import type {
 	PageModelChangesItem,
 	PageModelChangesUpdate,
 } from '@companion-app/shared/Model/PageModel.js'
+import {
+	getPageSurfaceLayout,
+	gridGrowthForLayout,
+	isPageSurfaceLayoutId,
+	PAGE_SURFACE_LAYOUT_IDS,
+	type PageSurfaceLayoutId,
+} from '@companion-app/shared/PageSurfaceLayout.js'
 import type { ControlCommonEvents } from '../Controls/ControlDependencies.js'
 import type { ControlsController } from '../Controls/Controller.js'
 import type { DataUserConfig } from '../Data/UserConfig.js'
@@ -242,6 +249,32 @@ export class PageController extends EventEmitter<PageControllerEvents> {
 					this.createPageDefaultNavButtons(input.pageNumber)
 
 					return 'ok'
+				}),
+
+			setSurfaceLayout: publicProcedure
+				.input(
+					z.object({
+						pageNumber: z.number(),
+						surfaceLayout: z.enum(PAGE_SURFACE_LAYOUT_IDS).nullable(),
+					})
+				)
+				.mutation(({ input }) => {
+					this.#logger.silly(`trpc: pages:setSurfaceLayout ${input.pageNumber}: ${input.surfaceLayout}`)
+
+					this.setPageSurfaceLayout(input.pageNumber, input.surfaceLayout)
+				}),
+
+			setImage: publicProcedure
+				.input(
+					z.object({
+						pageNumber: z.number(),
+						image: z.string().max(14_000_000).nullable(),
+					})
+				)
+				.mutation(({ input }) => {
+					this.#logger.silly(`trpc: pages:setImage ${input.pageNumber}`)
+
+					this.setPageImage(input.pageNumber, input.image)
 				}),
 		})
 	}
@@ -547,6 +580,74 @@ export class PageController extends EventEmitter<PageControllerEvents> {
 	}
 
 	/**
+	 * Choose the surface this page is written for.
+	 * A layout larger than the shared grid grows the grid so those cells exist.
+	 */
+	setPageSurfaceLayout(pageNumber: number, surfaceLayout: PageSurfaceLayoutId | null): void {
+		const pageInfo = this.#store.getPageInfo(pageNumber)
+		if (!pageInfo) {
+			throw new Error('Page must be created before it can be imported to')
+		}
+
+		if (surfaceLayout !== null && !isPageSurfaceLayoutId(surfaceLayout)) {
+			throw new Error(`Unknown surface layout "${surfaceLayout}"`)
+		}
+
+		const changed = this.#store._setPageSurfaceLayout(pageNumber, surfaceLayout)
+		if (!changed) return
+
+		if (surfaceLayout) {
+			const layout = getPageSurfaceLayout(surfaceLayout)
+			if (layout) {
+				const grown = gridGrowthForLayout(this.#userconfigController.getKey('gridSize'), layout)
+				if (grown) this.#userconfigController.setKey('gridSize', grown)
+			}
+		}
+
+		this.emit('clientUpdate', {
+			type: 'update',
+			updatedOrder: null,
+			added: [],
+			changes: [
+				{
+					id: pageInfo.id,
+					name: null,
+					controls: [],
+					surfaceLayout,
+				},
+			],
+		})
+	}
+
+	/**
+	 * Set the image the page-image feedback draws, or clear it.
+	 */
+	setPageImage(pageNumber: number, image: string | null): void {
+		const pageInfo = this.#store.getPageInfo(pageNumber)
+		if (!pageInfo) {
+			throw new Error('Page must be created before it can be imported to')
+		}
+
+		const normalized = normalizePageImage(image)
+		const changed = this.#store._setPageImage(pageNumber, normalized)
+		if (!changed) return
+
+		this.emit('clientUpdate', {
+			type: 'update',
+			updatedOrder: null,
+			added: [],
+			changes: [
+				{
+					id: pageInfo.id,
+					name: null,
+					controls: [],
+					image: normalized,
+				},
+			],
+		})
+	}
+
+	/**
 	 * Redraw allcontrols on the specified page
 	 */
 	#invalidateAllControlsOnPageNumber(pageNumber: number, pageInfo: PageModel): void {
@@ -570,4 +671,16 @@ export class PageController extends EventEmitter<PageControllerEvents> {
 			}
 		}
 	}
+}
+
+/** A page image is an image-library reference or an uploaded data URL. Anything else is rejected. */
+function normalizePageImage(image: string | null): string | null {
+	if (image == null) return null
+
+	const trimmed = image.trim()
+	if (!trimmed) return null
+	if (trimmed.startsWith('data:image/')) return trimmed
+	if (/^\$\(image:[^)\s]+\)$/.test(trimmed)) return trimmed
+
+	throw new Error('Page image must be an image from the library or an uploaded image')
 }

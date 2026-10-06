@@ -1,3 +1,4 @@
+import type { PageSurfaceLayoutId } from '../PageSurfaceLayout.js'
 import type { ConnectionCollection } from './Connections.js'
 import type { CustomVariableCollection, CustomVariablesModel } from './CustomVariableModel.js'
 import type { SomeEntityModel } from './EntityModel.js'
@@ -65,6 +66,12 @@ export interface ExportPageContentv6 {
 	pageVariables?: SomeEntityModel[]
 
 	gridSize: UserConfigGridSize
+
+	/** Surface this page was written for. Omitted on exports from before page layouts existed. */
+	surfaceLayout?: PageSurfaceLayoutId | null
+
+	/** Page image (`$(image:name)` or a data URL). Omitted when the page has none. */
+	image?: string | null
 }
 
 export type ExportControlv6 = Record<string, any> // TODO

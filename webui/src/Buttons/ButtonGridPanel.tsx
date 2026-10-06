@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import type { ControlLocation } from '@companion-app/shared/Model/Common.js'
+import { getPageSurfaceLayout, stepPageSurfaceFocus } from '@companion-app/shared/PageSurfaceLayout.js'
 import { Button } from '~/Components/Button.js'
 import { Grid } from '~/Components/Grid'
 import { useHasBeenRendered } from '~/Hooks/useHasBeenRendered.js'
@@ -74,6 +75,28 @@ export const ButtonsGridPanel = observer(function ButtonsPage({
 	)
 
 	const pageInfo = pages.get(pageNumber)
+	const pageSurfaceLayout = getPageSurfaceLayout(pageInfo?.surfaceLayout)
+
+	useEffect(() => {
+		if (!pageSurfaceLayout) {
+			store.setViewShape(null)
+			return
+		}
+
+		const page = pageNumber
+		store.setViewShape({
+			locations: pageSurfaceLayout.cells.map((cell) => ({
+				pageNumber: page,
+				row: cell.row,
+				column: cell.column,
+			})),
+			stepFocus(from, rowDelta, columnDelta) {
+				if (from.pageNumber !== page) return null
+				const next = stepPageSurfaceFocus(from, rowDelta, columnDelta, pageSurfaceLayout)
+				return next ? { pageNumber: page, row: next.row, column: next.column } : null
+			},
+		})
+	}, [pageSurfaceLayout, pageNumber, store])
 
 	const gridRef = useRef<ButtonInfiniteGridRef>(null)
 
@@ -126,7 +149,12 @@ export const ButtonsGridPanel = observer(function ButtonsPage({
 		() => ({
 			canStart: store.allowsMarquee,
 			onSelect: (from: ControlLocation, to: ControlLocation, additive: boolean) =>
-				store.handleMarquee(locationsInRectangle(from, to), from, additive, actions),
+				store.handleMarquee(
+					locationsInRectangle(from, to).filter((location) => store.isLocationInView(location)),
+					from,
+					additive,
+					actions
+				),
 		}),
 		[store, actions]
 	)
@@ -151,8 +179,9 @@ export const ButtonsGridPanel = observer(function ButtonsPage({
 					<ContextHelpButton action="/user-guide/config/buttons/" />
 				</h4>
 				<p className="mb-2">
-					The squares below represent each button on your Streamdeck. Click on them to set up how you want them to look,
-					and what they should do when you press or click on them.
+					{pageSurfaceLayout
+						? `This page is a ${pageSurfaceLayout.label} (${pageSurfaceLayout.summary}). Buttons land on the same rows and columns as that surface, including knobs and the touch strip.`
+						: 'The squares below represent each button on your Streamdeck. Click on them to set up how you want them to look, and what they should do when you press or click on them.'}
 				</p>
 
 				<ButtonGridResizePrompt />
@@ -187,6 +216,7 @@ export const ButtonsGridPanel = observer(function ButtonsPage({
 						contextMenuButton={contextMenuButton}
 						onButtonContextMenu={onButtonContextMenu}
 						gridSize={gridSize}
+						pageSurfaceLayout={pageSurfaceLayout}
 						ButtonIconFactory={PrimaryButtonGridIcon}
 						marquee={marquee}
 						onHoverLocation={handleHover}

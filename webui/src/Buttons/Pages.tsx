@@ -1,10 +1,11 @@
 import { useDragDropMonitor } from '@dnd-kit/react'
 import './Pages.css'
 import { isSortable, useSortable } from '@dnd-kit/react/sortable'
-import { faPlus, faShareFromSquare, faSort, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faPencil, faPlus, faShareFromSquare, faSort, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { observer } from 'mobx-react-lite'
 import { useCallback, useContext, useRef } from 'react'
+import { getPageSurfaceLayout } from '@companion-app/shared/PageSurfaceLayout.js'
 import { Button, ButtonGroup } from '~/Components/Button'
 import { GenericConfirmModal, type GenericConfirmModalRef } from '~/Components/GenericConfirmModal.js'
 import { Grid } from '~/Components/Grid'
@@ -36,14 +37,14 @@ export const PagesList = observer(function PagesList({ pageNumber, setPageNumber
 		[setPageNumber]
 	)
 
-	const configurePage = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-		const pageNumber = Number(e.currentTarget.getAttribute('data-page'))
-		const pageInfoRaw = e.currentTarget.getAttribute('data-page-info')
-		const pageInfo = pageInfoRaw ? JSON.parse(pageInfoRaw) : null
-		if (!isNaN(pageNumber) && pageInfo) {
-			editRef.current?.show(pageNumber, pageInfo)
-		}
-	}, [])
+	const configurePage = useCallback(
+		(e: React.MouseEvent<HTMLButtonElement>) => {
+			const nextPageNumber = Number(e.currentTarget.getAttribute('data-page'))
+			if (isNaN(nextPageNumber)) return
+			editRef.current?.show(nextPageNumber, pages.get(nextPageNumber))
+		},
+		[pages]
+	)
 
 	const insertMutation = useMutationExt(trpc.pages.insert.mutationOptions())
 	const doInsertPage = useCallback(
@@ -110,7 +111,8 @@ export const PagesList = observer(function PagesList({ pageNumber, setPageNumber
 			<h5>Pages</h5>
 			<p>
 				You can insert, delete, and re-arrange the order of pages here. You can also give each page a unique name to
-				help you identify its purpose.
+				help you identify its purpose. The pencil sets the surface the page is written for, and an image buttons can
+				show with the feedback "Page: Show page image".
 			</p>
 			<Grid.Row>
 				<Grid.Col xs={12}>
@@ -180,7 +182,7 @@ const PageListRow = observer(function PageListRow({
 	info,
 	pageCount,
 	goToPage,
-	// configurePage,
+	configurePage,
 	doInsertPage,
 	doDeletePage,
 }: PageListRowProps) {
@@ -217,7 +219,13 @@ const PageListRow = observer(function PageListRow({
 							setValue={changeName}
 							placeholder="Unnamed page"
 						/>
+						{info.surfaceLayout && (
+							<div className="page-class-meta">{getPageSurfaceLayout(info.surfaceLayout)?.label}</div>
+						)}
 					</div>
+					<Button color="light" size="sm" onClick={configurePage} title="Surface and image" data-page={pageNumber}>
+						<FontAwesomeIcon icon={faPencil} />
+					</Button>
 					<ButtonGroup className="pages-list-actions ms-auto">
 						<Button color="secondary" size="sm" onClick={goToPage} title="Jump to page" data-page={pageNumber}>
 							<FontAwesomeIcon icon={faShareFromSquare} />

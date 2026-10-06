@@ -10,6 +10,7 @@ const PAGE_REFERENCE_DEFINITIONS = new Set([
 	'set_page_byindex',
 	'surface_on_page',
 	'page_missing',
+	'page_image',
 	'panic_page',
 	'page_variable_set_value',
 	'page_variable_reset_to_default',

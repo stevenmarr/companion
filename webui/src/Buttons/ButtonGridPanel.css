@@ -189,6 +189,19 @@
 				}
 			}
 		}
+
+		/* Knob and touch cells, so they are not mistaken for keys. Clicks pass through to the button. */
+		.page-surface-cell-tag {
+			position: absolute;
+			z-index: 2;
+			pointer-events: none;
+			padding: 0 0.3em;
+			font-size: calc(var(--grid-scale) * 0.7rem);
+			line-height: 1.4;
+			color: #fff;
+			background: rgb(0 0 0 / 55%);
+			border-radius: 0.2em;
+		}
 	}
 }
 

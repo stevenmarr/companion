@@ -4,6 +4,7 @@ import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, u
 import type { ControlLocation } from '@companion-app/shared/Model/Common.js'
 import { DEFAULT_PREVIEW_RENDER_SIZE } from '@companion-app/shared/Model/Preview.js'
 import type { UserConfigGridSize } from '@companion-app/shared/Model/UserConfigModel.js'
+import type { PageSurfaceLayout } from '@companion-app/shared/PageSurfaceLayout.js'
 import useElementInnerSize from '~/Hooks/useElementClientSize.js'
 import useScrollPosition from '~/Hooks/useScrollPosition.js'
 import { GridButtonCell } from './GridButtonCell.js'
@@ -72,6 +73,11 @@ interface ButtonInfiniteGridProps {
 	contextMenuButton?: ControlLocation | null
 	onButtonContextMenu?: (location: ControlLocation, x: number, y: number) => void
 	gridSize: UserConfigGridSize
+	/**
+	 * When set, the grid is this surface: only its cells are drawn, at its rows and columns.
+	 * Null keeps the full rectangle.
+	 */
+	pageSurfaceLayout?: PageSurfaceLayout | null
 	ButtonIconFactory: React.ClassType<ButtonInfiniteGridButtonProps, any, any> // TODO - this type is flawed
 	/** How a rectangle dragged out across the grid is handled. Null for grids that are only picked from. */
 	marquee: GridMarqueeHandling | null
@@ -96,6 +102,7 @@ export const ButtonInfiniteGrid = forwardRef<ButtonInfiniteGridRef, ButtonInfini
 			contextMenuButton,
 			onButtonContextMenu,
 			gridSize,
+			pageSurfaceLayout,
 			ButtonIconFactory,
 			marquee: marqueeHandling,
 			onHoverLocation,
@@ -105,7 +112,8 @@ export const ButtonInfiniteGrid = forwardRef<ButtonInfiniteGridRef, ButtonInfini
 		},
 		ref
 	) {
-		const { minColumn, maxColumn, minRow, maxRow } = gridSize
+		const displayGrid = pageSurfaceLayout?.bounds ?? gridSize
+		const { minColumn, maxColumn, minRow, maxRow } = displayGrid
 		const countColumns = maxColumn - minColumn + 1
 		const countRows = maxRow - minRow + 1
 
@@ -240,8 +248,8 @@ export const ButtonInfiniteGrid = forwardRef<ButtonInfiniteGridRef, ButtonInfini
 		}, [])
 
 		const locationAtCanvasPoint = useCallback(
-			(x: number, y: number): ControlLocation => cellAtCanvasPoint({ x, y }, gridSize, tileSize, pageNumber),
-			[pageNumber, gridSize, tileSize]
+			(x: number, y: number): ControlLocation => cellAtCanvasPoint({ x, y }, displayGrid, tileSize, pageNumber),
+			[pageNumber, displayGrid, tileSize]
 		)
 
 		// ---- panning with the middle button ----
@@ -368,6 +376,9 @@ export const ButtonInfiniteGrid = forwardRef<ButtonInfiniteGridRef, ButtonInfini
 		const visibleButtons: React.JSX.Element[] = []
 		for (let row = drawMinRow; row <= drawMaxRow; row++) {
 			for (let column = drawMinColumn; column <= drawMaxColumn; column++) {
+				const cell = pageSurfaceLayout?.cellsByKey.get(`${row}/${column}`)
+				if (pageSurfaceLayout && !cell) continue
+
 				visibleButtons.push(
 					<ButtonIconFactory
 						key={`${column}_${row}`}
@@ -396,6 +407,18 @@ export const ButtonInfiniteGrid = forwardRef<ButtonInfiniteGridRef, ButtonInfini
 						top={(row - minRow) * tileSize}
 					/>
 				)
+
+				if (cell && cell.kind !== 'button') {
+					visibleButtons.push(
+						<div
+							key={`tag_${column}_${row}`}
+							className={`page-surface-cell-tag page-surface-cell-tag-${cell.kind}`}
+							style={{ left: (column - minColumn) * tileSize, top: (row - minRow) * tileSize }}
+						>
+							{cell.kind === 'encoder' ? 'Knob' : 'Touch'}
+						</div>
+					)
+				}
 			}
 		}
 
@@ -413,13 +436,18 @@ export const ButtonInfiniteGrid = forwardRef<ButtonInfiniteGridRef, ButtonInfini
 
 				const point = canvasPoint(e.clientX, e.clientY)
 				const inside = !!point && point.x >= 0 && point.y >= 0 && point.x < canvasWidth && point.y < canvasHeight
+				const location = inside ? locationAtCanvasPoint(point.x, point.y) : null
+				const shown =
+					location && (!pageSurfaceLayout || pageSurfaceLayout.cellKeys.has(`${location.row}/${location.column}`))
+						? location
+						: null
 
-				onHoverLocation(inside ? locationAtCanvasPoint(point.x, point.y) : null, {
+				onHoverLocation(shown, {
 					range: e.shiftKey,
 					toggle: e.ctrlKey || e.metaKey,
 				})
 			},
-			[onHoverLocation, canvasPoint, canvasWidth, canvasHeight, locationAtCanvasPoint, dragSource]
+			[onHoverLocation, canvasPoint, canvasWidth, canvasHeight, locationAtCanvasPoint, dragSource, pageSurfaceLayout]
 		)
 
 		const gridCanvasStyle = useMemo(

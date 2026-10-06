@@ -16,6 +16,7 @@ import type {
 import { ModuleInstanceType } from '@companion-app/shared/Model/Instance.js'
 import type { SurfaceConfig, SurfaceGroupConfig } from '@companion-app/shared/Model/Surfaces.js'
 import type { UserConfigGridSize } from '@companion-app/shared/Model/UserConfigModel.js'
+import { isPageSurfaceLayoutId } from '@companion-app/shared/PageSurfaceLayout.js'
 import type { ControlsController } from '../Controls/Controller.js'
 import type { DataUserConfig } from '../Data/UserConfig.js'
 import type { GraphicsController } from '../Graphics/Controller.js'
@@ -404,6 +405,16 @@ export class ImportController {
 
 		// Import the new page
 		this.#pagesController.setPageName(topage, pageInfo.name)
+		if (pageInfo.surfaceLayout === null || isPageSurfaceLayoutId(pageInfo.surfaceLayout)) {
+			this.#pagesController.setPageSurfaceLayout(topage, pageInfo.surfaceLayout)
+		}
+		if (pageInfo.image !== undefined) {
+			try {
+				this.#pagesController.setPageImage(topage, pageInfo.image ?? null)
+			} catch (e) {
+				this.#logger.warn(`Skipping page image on imported page ${topage}: ${e}`)
+			}
+		}
 
 		const connectionLabelRemap: Record<string, string> = {}
 		const connectionIdRemap: Record<string, string> = {}

@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid'
 import { oldBankIndexToXY } from '@companion-app/shared/ControlId.js'
 import type { ControlLocation } from '@companion-app/shared/Model/Common.js'
 import type { PageModel } from '@companion-app/shared/Model/PageModel.js'
+import type { PageSurfaceLayoutId } from '@companion-app/shared/PageSurfaceLayout.js'
 import type { DataStoreTableView } from '../Data/StoreBase.js'
 
 interface PageStoreEvents {
@@ -456,6 +457,42 @@ export class PageStore extends EventEmitter<PageStoreEvents> implements IPageSto
 		pageInfo.name = name
 		this.#commitChanges([pageNumber])
 		return pageInfo
+	}
+
+	/**
+	 * Remember which surface this page is written for. Null clears it.
+	 * @returns whether the stored value changed
+	 */
+	_setPageSurfaceLayout(pageNumber: number, surfaceLayout: PageSurfaceLayoutId | null): boolean {
+		const pageInfo = this.getPageInfo(pageNumber)
+		if (!pageInfo) return false
+
+		const next = surfaceLayout ?? undefined
+		if ((pageInfo.surfaceLayout ?? undefined) === next) return false
+
+		if (next) pageInfo.surfaceLayout = next
+		else delete pageInfo.surfaceLayout
+
+		this.#commitChanges([pageNumber])
+		return true
+	}
+
+	/**
+	 * Remember the image buttons can show for this page. Null clears it.
+	 * @returns whether the stored value changed
+	 */
+	_setPageImage(pageNumber: number, image: string | null): boolean {
+		const pageInfo = this.getPageInfo(pageNumber)
+		if (!pageInfo) return false
+
+		const next = image ?? undefined
+		if ((pageInfo.image ?? undefined) === next) return false
+
+		if (next) pageInfo.image = next
+		else delete pageInfo.image
+
+		this.#commitChanges([pageNumber])
+		return true
 	}
 
 	/**

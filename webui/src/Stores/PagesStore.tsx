@@ -1,11 +1,18 @@
 import { action, makeObservable, observable, type ObservableMap } from 'mobx'
 import type { ControlLocation } from '@companion-app/shared/Model/Common.js'
 import type { PageModel, PageModelChanges } from '@companion-app/shared/Model/PageModel.js'
+import type { PageSurfaceLayoutId } from '@companion-app/shared/PageSurfaceLayout.js'
 
 export class PagesStoreModel {
 	readonly id: string
 
 	name: string
+
+	/** Surface this page is written for, or null for the full grid */
+	surfaceLayout: PageSurfaceLayoutId | null = null
+
+	/** Library reference or data URL, or null when the page has no image */
+	image: string | null = null
 
 	readonly controls = observable.map<number, ObservableMap<number, string>>()
 
@@ -15,6 +22,8 @@ export class PagesStoreModel {
 
 		makeObservable(this, {
 			name: observable,
+			surfaceLayout: observable,
+			image: observable,
 		})
 	}
 }
@@ -69,6 +78,8 @@ export class PagesStore {
 			if (!pageModel) continue // Should never happen
 
 			if (pageChange.name != null) pageModel.name = pageChange.name
+			if ('surfaceLayout' in pageChange) pageModel.surfaceLayout = pageChange.surfaceLayout ?? null
+			if ('image' in pageChange) pageModel.image = pageChange.image ?? null
 
 			for (const controlChange of pageChange.controls) {
 				let rowObj = pageModel.controls.get(controlChange.row)
@@ -99,6 +110,8 @@ export class PagesStore {
 
 	#createModelForPage(id: string, pageInfo: PageModel | undefined): PagesStoreModel {
 		const newPageModel = new PagesStoreModel(id, pageInfo?.name ?? '')
+		newPageModel.surfaceLayout = pageInfo?.surfaceLayout ?? null
+		newPageModel.image = pageInfo?.image ?? null
 
 		if (pageInfo) {
 			for (const [row, rowObj] of Object.entries(pageInfo.controls)) {

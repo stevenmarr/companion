@@ -36,6 +36,7 @@ import { ModuleInstanceType } from '@companion-app/shared/Model/Instance.js'
 import type { PageModel } from '@companion-app/shared/Model/PageModel.js'
 import type { SurfaceGroupConfig } from '@companion-app/shared/Model/Surfaces.js'
 import type { TriggerCollection } from '@companion-app/shared/Model/TriggerModel.js'
+import { pageImageVariableId } from '@companion-app/shared/PageSurfaceLayout.js'
 import { unflattenQueryParams } from '@companion-app/shared/Util/QueryParamUtil.js'
 import type { ControlsController } from '../Controls/Controller.js'
 import type { ControlTrigger } from '../Controls/ControlTypes/Triggers/Trigger.js'
@@ -498,6 +499,13 @@ export class ExportController {
 			name: pageInfo.name,
 			controls: {},
 			gridSize: this.#userConfigController.getKey('gridSize'),
+		}
+
+		if (pageInfo.surfaceLayout) pageExport.surfaceLayout = pageInfo.surfaceLayout
+		if (pageInfo.image) {
+			pageExport.image = pageInfo.image
+			const imageVariable = pageImageVariableId(pageInfo.image)
+			if (imageVariable) referencedVariables.add(imageVariable)
 		}
 
 		for (const [row, rowObj] of Object.entries(pageInfo.controls)) {

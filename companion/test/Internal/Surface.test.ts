@@ -14,6 +14,7 @@ import type {
 } from '../../lib/Internal/Types.js'
 import type { IPageStore } from '../../lib/Page/Store.js'
 import type { SurfaceController } from '../../lib/Surface/Controller.js'
+import type { VariablesAndExpressionParser } from '../../lib/Variables/VariablesAndExpressionParser.js'
 
 function createSurface() {
 	const surfaceController = mockDeep<SurfaceController>()
@@ -645,7 +646,7 @@ describe('InternalSurface', () => {
 			const { surface } = createSurface()
 
 			expect(Object.keys(surface.getFeedbackDefinitions()).sort()).toEqual(
-				['surface_on_page', 'page_missing', 'outbound_surface_enabled'].sort()
+				['surface_on_page', 'page_missing', 'page_image', 'outbound_surface_enabled'].sort()
 			)
 		})
 	})
@@ -705,6 +706,84 @@ describe('InternalSurface', () => {
 			pageStore.getPageId.mockReturnValue(undefined)
 
 			expect(surface.executeFeedback(makeFeedback('page_missing', { page: 16 }))).toBe(true)
+		})
+	})
+
+	describe('executeFeedback: page_image', () => {
+		function makeFeedback(
+			options: Record<string, unknown>,
+			location?: FeedbackForInternalExecution['location']
+		): FeedbackForInternalExecution {
+			return { controlId: 'ctrl1', location, id: 'fb1', definitionId: 'page_image', options: options as any }
+		}
+
+		test('the definition draws the image and nothing else', () => {
+			const { surface } = createSurface()
+			const definition = surface.getFeedbackDefinitions().page_image
+
+			expect(definition?.feedbackAffectedProperties).toEqual(['png64'])
+			expect(definition?.label).toBe('Page: Show page image')
+		})
+
+		test('an uploaded page image is returned as the button image', () => {
+			const { surface, pageStore } = createSurface()
+			pageStore.isPageIdValid.mockReturnValue(true)
+			pageStore.getPageNumber.mockReturnValue(2)
+			pageStore.getPageInfo.mockReturnValue({
+				id: 'page-ptz6',
+				name: 'PTZ 6',
+				controls: {},
+				image: 'data:image/png;base64,abc',
+			})
+
+			expect(surface.executeFeedback(makeFeedback({ page: 'page-ptz6' }))).toEqual({
+				referencedVariables: [],
+				value: { png64: 'data:image/png;base64,abc' },
+			})
+		})
+
+		test('a library image is resolved and subscribed to', () => {
+			const { surface, pageStore } = createSurface()
+			pageStore.isPageIdValid.mockReturnValue(true)
+			pageStore.getPageNumber.mockReturnValue(2)
+			pageStore.getPageInfo.mockReturnValue({
+				id: 'page-ptz6',
+				name: 'PTZ 6',
+				controls: {},
+				image: '$(image:ptz-6)',
+			})
+			const parser = {
+				parseVariables: () => ({
+					text: 'data:image/png;base64,from-library',
+					variableIds: new Set(['image:ptz-6']),
+				}),
+			} as unknown as VariablesAndExpressionParser
+
+			expect(surface.executeFeedback(makeFeedback({ page: 'page-ptz6' }), parser)).toEqual({
+				referencedVariables: ['image:ptz-6'],
+				value: { png64: 'data:image/png;base64,from-library' },
+			})
+		})
+
+		test('a page with no image clears the button image', () => {
+			const { surface, pageStore } = createSurface()
+			pageStore.getPageId.mockReturnValue('page-2')
+			pageStore.getPageInfo.mockReturnValue({ id: 'page-2', name: 'PAGE', controls: {} })
+
+			expect(surface.executeFeedback(makeFeedback({ page: 0 }, { pageNumber: 2, row: 0, column: 0 }))).toEqual({
+				referencedVariables: [],
+				value: { png64: null },
+			})
+		})
+
+		test('a deleted page has no image', () => {
+			const { surface, pageStore } = createSurface()
+			pageStore.isPageIdValid.mockReturnValue(false)
+
+			expect(surface.executeFeedback(makeFeedback({ page: 'page-deleted' }))).toEqual({
+				referencedVariables: [],
+				value: { png64: null },
+			})
 		})
 	})
 })
