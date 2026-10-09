@@ -53,20 +53,20 @@
 	--font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 	--font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-	--color-primary: #d50215;
-	--color-secondary: #ccc;
-	--color-success: #1b9e3e;
-	--color-danger: #e55353;
-	--color-warning: #f9b115;
-	--color-info: #3399ff;
-	--color-light: #e9e9e9;
-	--color-dark: #212631;
+	--color-primary: #b45309;
+	--color-secondary: #ffcc99;
+	--color-success: #3f8f4a;
+	--color-danger: #b91c1c;
+	--color-warning: #e0a020;
+	--color-info: #3b6ea5;
+	--color-light: #fff8ee;
+	--color-dark: #1a120c;
 
 	/* Subtle/emphasis tints per severity (used by Alert, and a few wizard/expression badges).
 	   Adopted from CoreUI's *-bg-subtle / *-border-subtle / *-text-emphasis values. */
-	--color-primary-bg-subtle: #cfc7f3;
-	--color-primary-border-subtle: #9d92e6;
-	--color-primary-text-emphasis: #3634a3;
+	--color-primary-bg-subtle: #ffe4c2;
+	--color-primary-border-subtle: #ffcc99;
+	--color-primary-text-emphasis: #7c2d12;
 	--color-secondary-bg-subtle: #ced2d8;
 	--color-secondary-border-subtle: #9da5b1;
 	--color-secondary-text-emphasis: #212233;
@@ -94,45 +94,45 @@
 	--color-status-warn-bg: #fea;
 	--color-status-error-bg: #fcc;
 
-	--color-input-bg: #ffffff;
-	--color-input-readonly-bg: #eeeeee;
+	--color-input-bg: #fffaf3;
+	--color-input-readonly-bg: #f3e4cc;
 	--color-input-invalid: red;
 	--color-syntax-error: rgb(255, 12, 138);
 
-	/* Surfaces */
-	--color-surface: #fff;
-	--color-surface-muted: #f0f0f0;
-	--color-surface-muted-hover: #e8e8e8;
-	--color-surface-hover: #eee; /* light hover highlight on cards/rows */
-	--color-surface-alt: #f7f7f7;
-	--color-surface-subtle: #f8f9fa; /* very light neutral stage (preview stages, list backgrounds) */
-	--color-surface-dark: #222; /* dark panel/inset surface (tablet, emulator, button editor) */
-	--color-app-bg: #f9f9f9; /* main content area background */
-	--color-app-frame-bg: #f3f4f7; /* outer app frame behind the sidebar/header/body */
-	--color-body-bg: #333; /* <body> element backing, behind the app chrome */
+	/* Surfaces. Daylight is a warm readout set into a black frame (see --color-app-frame-bg). */
+	--color-surface: #fffaf3;
+	--color-surface-muted: #f6e6cf;
+	--color-surface-muted-hover: #edd9b8;
+	--color-surface-hover: #f3e4cc;
+	--color-surface-alt: #fff8ee;
+	--color-surface-subtle: #f8efe2;
+	--color-surface-dark: #14110e; /* dark panel/inset surface (tablet, emulator, button editor) */
+	--color-app-bg: #f3e6d0; /* main content area background */
+	--color-app-frame-bg: #000; /* outer app frame behind the sidebar/header/body */
+	--color-body-bg: #000; /* <body> element backing, behind the app chrome */
 	--color-loading-track: #3c4b64;
 
 	/* Borders */
-	--color-border: #ddd;
-	--color-border-alt: #dbdfe6; /* CoreUI gray-300; the legacy .cui-border/.cui-border-top colour, kept exactly pending reconciliation with --color-border */
-	--color-border-subtle: #e9ecef; /* faint divider (lighter than --color-border) */
+	--color-border: #e2c79a;
+	--color-border-alt: #e2c79a; /* legacy .cui-border colour, kept pending reconciliation with --color-border */
+	--color-border-subtle: #edd9b8; /* faint divider (lighter than --color-border) */
 	--color-border-translucent: color-mix(in srgb, var(--color-shadow) 17.5%, transparent); /* translucent hairline that darkens against its backdrop (modals, toasts, separators) */
-	--color-border-muted: #dddfe2;
-	--color-border-medium: #bbb; /* stronger than --color-border (e.g. tab bar underline) */
-	--color-border-strong: #999;
-	--color-border-hover: #aaa; /* hovered drag/resize handle border */
-	--color-line: #ccc; /* thin neutral line: tree/nesting guides, tab-panel borders, thin scrollbars */
+	--color-border-muted: #d7bc90;
+	--color-border-medium: #c9a36a; /* stronger than --color-border (e.g. tab bar underline) */
+	--color-border-strong: #8a6a3b;
+	--color-border-hover: #b45309; /* hovered drag/resize handle border */
+	--color-line: #d7bc90; /* thin neutral line: tree/nesting guides, tab-panel borders, thin scrollbars */
 
 	/* Text */
-	--color-text: #111;
-	--color-body-text: rgba(37, 42.92, 54.02, 0.95); /* inherited <body> default text colour */
-	--color-code: #d63384; /* inline <code> text */
+	--color-text: #1a120c;
+	--color-body-text: rgba(28, 20, 14, 0.95); /* inherited <body> default text colour */
+	--color-code: #9a3412; /* inline <code> text */
 	--color-text-strong: #000;
-	--color-icon: #333;
-	--color-text-secondary: #666;
-	--color-muted: #6c757d; /* deliberately un-prefixed (not --color-text-muted) so the utility reads `text-muted` */
-	--color-text-faint: #999; /* fainter than -muted: dropdown group headings, empty/placeholder labels */
-	--color-text-disabled: #ccc;
+	--color-icon: #3a2a14;
+	--color-text-secondary: #5c4318;
+	--color-muted: #7a5b32; /* deliberately un-prefixed (not --color-text-muted) so the utility reads `text-muted` */
+	--color-text-faint: #a08050; /* fainter than -muted: dropdown group headings, empty/placeholder labels */
+	--color-text-disabled: #c9b08a;
 
 	/* Row interaction states (dark mode overrides these to light overlays) */
 	--color-row-hover: rgba(0, 0, 0, 0.05);
@@ -152,25 +152,25 @@
 	--color-drop-hover-bg: #daffab; /* button drop target, with a drag hovering over it */
 
 	/* Toolbars - the layered button editor's quick actions and the button grid's tool palette */
-	--color-canvas-workspace: rgb(228, 228, 228); /* darker fill behind the layer canvas */
-	--color-toolbar-bg: rgb(245, 245, 245); /* quick-actions / canvas footer strips */
-	--color-toolbar-fg: #4a4a4a; /* toolbar icon & label text */
-	--color-toolbar-accent: #2276d2; /* active aspect / quick-action */
-	--color-toolbar-accent-hover: #1a5ea3;
+	--color-canvas-workspace: #e7d7be; /* darker fill behind the layer canvas */
+	--color-toolbar-bg: #f8efe2; /* quick-actions / canvas footer strips */
+	--color-toolbar-fg: #3a2a14; /* toolbar icon & label text */
+	--color-toolbar-accent: #b45309; /* active aspect / quick-action */
+	--color-toolbar-accent-hover: #7c2d12;
 	--color-resize-bar-bg-hover: #dedede; /* panel resize bar hover (base is --color-surface-muted-hover) */
 	--color-mode-toggle-bg: #ececec;
 	--color-mode-toggle-border: #c8c8c8;
 
 	/* Selected list item (button editor element pickers) */
-	--color-selected-item-bg: #e3f2fd;
-	--color-selected-accent: #1976d2;
+	--color-selected-item-bg: #ffe0b0;
+	--color-selected-accent: #b45309;
 	--color-step-highlight: #2eb85c; /* green glow pulsing on the current step selector */
 
 	/* Dropdown / select field popups */
-	--color-dropdown-item-hover-bg: #deebff; /* highlighted (hovered/keyboard-active) option */
-	--color-dropdown-item-selected-bg: #c7deff; /* selected option */
-	--color-pill-bg: #e6e6e6; /* multi-select value pill */
-	--color-pill-remove-bg: #d7d7d7; /* pill remove button */
+	--color-dropdown-item-hover-bg: #ffe0b0; /* highlighted (hovered/keyboard-active) option */
+	--color-dropdown-item-selected-bg: #ffcc99; /* selected option */
+	--color-pill-bg: #ffcc99; /* multi-select value pill */
+	--color-pill-remove-bg: #ff9966; /* pill remove button */
 
 	/* Drag & drop / grid tiles */
 	--color-drop-target: rgb(0, 123, 255); /* blue "drop here"/active accent */
@@ -189,9 +189,10 @@
 	--color-on-dark-muted: rgba(255, 255, 255, 0.75);
 
 	/* Primary tints */
-	--color-primary-soft: #ea818a;
-	--color-link-hover: rgb(170.4, 1.6, 16.8); /* darkened brand red for a:hover */
-	--color-primary-softer: #f2b3b9;
+	--color-primary-soft: #ff9900;
+	--color-link: #8a3e00; /* body links; brighter than this fails on the daylight readout */
+	--color-link-hover: #7c2d12;
+	--color-primary-softer: #ffcc99;
 	--color-focus-ring: color-mix(in srgb, var(--color-primary) 25%, transparent);
 
 	/* Drop-shadow / dark-tint scale. The alpha for each weight lives here (one place to retune when
@@ -209,21 +210,21 @@
 	--color-shadow-50: color-mix(in srgb, var(--color-shadow) 50%, transparent);
 
 	/* Tabs (tab-area, and the secondary-panel tabs in layout) */
-	--color-tab-bg: #f3f3f3; /* inactive tab background */
-	--color-tab-fg: #555; /* inactive tab text */
+	--color-tab-bg: #ffcc99; /* inactive tab background */
+	--color-tab-fg: #1a120c; /* inactive tab text */
 
-	/* Header bar (defaults to the brand primary; can be themed separately) */
-	--color-header-bg: var(--color-primary);
-	--color-header-text: var(--color-on-dark);
-	--color-header-hover: #b70212; /* darkened header bg for the mobile toggler hover */
-	--color-header-text-muted: #ddd; /* dimmed header nav-link on hover/focus */
-	--color-header-notification-bg: #333;
+	/* Header bar. The frame is black; colour lives in the end caps and the name pill (Layout/Lcars.css). */
+	--color-header-bg: #000;
+	--color-header-text: #ffcc99;
+	--color-header-hover: #2a2118;
+	--color-header-text-muted: #ffcc66;
+	--color-header-notification-bg: #cc99cc;
 
 	/* Panel headers & dropdown menus (layout) */
-	--color-panel-header-bg: #dee2e5;
-	--color-panel-header-fg: #343a40; /* panel title text */
-	--color-panel-header-btn: #4b545c; /* the round context-help / close button chrome */
-	--color-menu-bg: #f3f4f7; /* context-menu popover background */
+	--color-panel-header-bg: #ff9900;
+	--color-panel-header-fg: #000; /* panel title text */
+	--color-panel-header-btn: #1a120c; /* the round context-help / close button chrome */
+	--color-menu-bg: #fff8ee; /* context-menu popover background */
 
 	/* Modal / sidebar backdrop (dimmed behind an overlay; paired with an opacity) */
 	--color-backdrop: #080a0c;
@@ -269,135 +270,141 @@
 }
 
 /*
- * Dark appearance. Chosen in Settings → General → Appearance, which sets data-theme on <html>.
- * Only the tokens that are concrete colours are overridden. Mixes that already reference another
- * token (shadows, row overlays, focus ring) follow automatically.
- * The sidebar stays on its own always-dark tokens.
+ * Command appearance (Settings → General → Appearance → LCARS command).
+ * Black readouts, amber and lilac bars, peach text. Hardware button canvases stay black via
+ * --color-button-bg, which is not overridden here. The sidebar has its own frame tokens.
  */
 html[data-theme='dark'] {
 	color-scheme: dark;
 	--close-btn-filter: invert(1);
 
-	--color-secondary: #4a5568;
-	--color-light: #323a49;
-	--color-dark: #e7eaee;
+	--color-primary: #ff9900;
+	--color-secondary: #cc99cc;
+	--color-light: #ffcc99;
+	--color-dark: #ffcc99;
+	--color-info: #99ccff;
+	--color-warning: #ffcc66;
+	--color-success: #99cc99;
+	--color-danger: #cc6666;
 
-	--color-primary-bg-subtle: #3a1520;
-	--color-primary-border-subtle: #7a3040;
-	--color-primary-text-emphasis: #f2b3b9;
-	--color-secondary-bg-subtle: #2a3140;
-	--color-secondary-border-subtle: #4a5568;
-	--color-secondary-text-emphasis: #d0d5dd;
-	--color-success-bg-subtle: #12301c;
-	--color-success-border-subtle: #1f6b38;
-	--color-success-text-emphasis: #8ee0a8;
-	--color-info-bg-subtle: #10283f;
-	--color-info-border-subtle: #1d5f99;
-	--color-info-text-emphasis: #9fd0ff;
+	--color-primary-bg-subtle: #3a2508;
+	--color-primary-border-subtle: #ff9900;
+	--color-primary-text-emphasis: #ffcc99;
+	--color-secondary-bg-subtle: #2a2030;
+	--color-secondary-border-subtle: #cc99cc;
+	--color-secondary-text-emphasis: #e6c6e6;
+	--color-success-bg-subtle: #14301c;
+	--color-success-border-subtle: #99cc99;
+	--color-success-text-emphasis: #c8ecc8;
+	--color-info-bg-subtle: #102030;
+	--color-info-border-subtle: #99ccff;
+	--color-info-text-emphasis: #cce6ff;
 	--color-warning-bg-subtle: #3a2a08;
-	--color-warning-border-subtle: #8a6410;
-	--color-warning-text-emphasis: #f6d48a;
+	--color-warning-border-subtle: #ffcc66;
+	--color-warning-text-emphasis: #ffe0a0;
 	--color-danger-bg-subtle: #3a1515;
-	--color-danger-border-subtle: #8a3030;
-	--color-danger-text-emphasis: #f2a9a9;
-	--color-light-bg-subtle: #2a3140;
-	--color-light-border-subtle: #3d4658;
-	--color-light-text-emphasis: #c5cedb;
-	--color-dark-bg-subtle: #1a1f29;
-	--color-dark-border-subtle: #3d4658;
-	--color-dark-text-emphasis: #e7eaee;
+	--color-danger-border-subtle: #cc6666;
+	--color-danger-text-emphasis: #ffc0c0;
+	--color-light-bg-subtle: #241c14;
+	--color-light-border-subtle: #5c3d12;
+	--color-light-text-emphasis: #ffcc99;
+	--color-dark-bg-subtle: #100e0c;
+	--color-dark-border-subtle: #5c3d12;
+	--color-dark-text-emphasis: #ffcc99;
 
 	--color-status-ok-bg: #14301c;
 	--color-status-warn-bg: #3a3008;
 	--color-status-error-bg: #3a1515;
 
-	--color-input-bg: #1a1f29;
-	--color-input-readonly-bg: #141820;
-	--color-input-invalid: #ff6b81;
-	--color-syntax-error: #ff4d8d;
+	--color-input-bg: #000;
+	--color-input-readonly-bg: #14110e;
+	--color-input-invalid: #ff6666;
+	--color-syntax-error: #ff6688;
 
-	--color-surface: #212631;
-	--color-surface-muted: #2a3140;
-	--color-surface-muted-hover: #323a49;
-	--color-surface-hover: #2e3646;
-	--color-surface-alt: #1c212b;
-	--color-surface-subtle: #1a1f29;
-	--color-surface-dark: #141820;
-	--color-app-bg: #181c24;
-	--color-app-frame-bg: #12151b;
-	--color-body-bg: #0e1116;
+	--color-surface: #070707;
+	--color-surface-muted: #14110e;
+	--color-surface-muted-hover: #241c14;
+	--color-surface-hover: #1c1610;
+	--color-surface-alt: #0c0c0c;
+	--color-surface-subtle: #100e0c;
+	--color-surface-dark: #000;
+	--color-app-bg: #000;
+	--color-app-frame-bg: #000;
+	--color-body-bg: #000;
 
-	--color-border: #3d4658;
-	--color-border-alt: #3d4658;
-	--color-border-subtle: #2e3646;
-	--color-border-muted: #3a4252;
-	--color-border-medium: #5a6478;
-	--color-border-strong: #8b95a8;
-	--color-border-hover: #9aa3b5;
-	--color-line: #4a5568;
+	--color-border: #5c3d12;
+	--color-border-alt: #5c3d12;
+	--color-border-subtle: #3a2a14;
+	--color-border-muted: #4a3414;
+	--color-border-medium: #ff9900;
+	--color-border-strong: #ffcc99;
+	--color-border-hover: #ffcc66;
+	--color-line: #6b4a1e;
 
-	--color-text: rgba(255, 255, 255, 0.9);
-	--color-body-text: rgba(255, 255, 255, 0.9);
-	--color-code: #ff7eb3;
-	--color-text-strong: #fff;
-	--color-icon: #d0d5dd;
-	--color-text-secondary: #b0b8c6;
-	--color-muted: #9aa3b5;
-	--color-text-faint: #7d8796;
-	--color-text-disabled: #5c6573;
+	--color-text: #ffcc99;
+	--color-body-text: #f6d7a8;
+	--color-code: #ff9966;
+	--color-text-strong: #fff3d6;
+	--color-icon: #ffcc66;
+	--color-text-secondary: #e0b070;
+	--color-muted: #cc9966;
+	--color-text-faint: #a07840;
+	--color-text-disabled: #6b5430;
 
-	--color-row-hover: rgba(255, 255, 255, 0.06);
-	--color-row-overlay: #fff;
+	--color-row-hover: rgba(255, 204, 153, 0.08);
+	--color-row-overlay: #ffcc99;
 
-	--color-drop-border: #fff;
-	--color-drop-neutral-bg: #2a3140;
+	--color-drop-border: #ff9900;
+	--color-drop-neutral-bg: #14110e;
 	--color-drop-hover-bg: #2d4a22;
 
-	--color-canvas-workspace: #141820;
-	--color-toolbar-bg: #1c212b;
-	--color-toolbar-fg: #d0d5dd;
-	--color-toolbar-accent: #6cb0ff;
-	--color-toolbar-accent-hover: #9cc8ff;
-	--color-resize-bar-bg-hover: #323a49;
-	--color-mode-toggle-bg: #2a3140;
-	--color-mode-toggle-border: #4a5568;
+	--color-canvas-workspace: #000;
+	--color-toolbar-bg: #100e0c;
+	--color-toolbar-fg: #ffcc99;
+	--color-toolbar-accent: #ff9900;
+	--color-toolbar-accent-hover: #ffcc66;
+	--color-resize-bar-bg-hover: #3a2a14;
+	--color-mode-toggle-bg: #14110e;
+	--color-mode-toggle-border: #5c3d12;
 
-	--color-selected-item-bg: #1a3350;
-	--color-selected-accent: #6cb0ff;
+	--color-selected-item-bg: #3a2a14;
+	--color-selected-accent: #ff9900;
 
-	--color-dropdown-item-hover-bg: #243656;
-	--color-dropdown-item-selected-bg: #2c4a78;
-	--color-pill-bg: #323a49;
-	--color-pill-remove-bg: #3d4658;
+	--color-dropdown-item-hover-bg: #3a2a14;
+	--color-dropdown-item-selected-bg: #5c3d12;
+	--color-pill-bg: #3a2a14;
+	--color-pill-remove-bg: #ff9966;
 
-	--color-drag-row-bg: #262033;
-	--color-dropzone-border: #5a6478;
-	--color-tile-border: #3d4658;
-	--color-tile-handle-bg: #2a3140;
-	--color-tile-handle-bg-hover: #3d4658;
-	--color-tile-handle-bg-active: #5a6478;
+	--color-drag-row-bg: #241c14;
+	--color-dropzone-border: #ff9900;
+	--color-tile-border: #5c3d12;
+	--color-tile-handle-bg: #241c14;
+	--color-tile-handle-bg-hover: #5c3d12;
+	--color-tile-handle-bg-active: #ff9900;
 
-	--color-link-hover: #ff6b7a;
+	--color-link: #99ccff;
+	--color-link-hover: #ffcc99;
+	--color-primary-soft: #ffcc66;
 
-	--color-tab-bg: #1c212b;
-	--color-tab-fg: #c5cedb;
+	--color-tab-bg: #3a2a14;
+	--color-tab-fg: #ffcc99;
 
-	--color-header-notification-bg: #111;
-	--color-panel-header-bg: #2a3140;
-	--color-panel-header-fg: #e7eaee;
-	--color-panel-header-btn: #c5cedb;
-	--color-menu-bg: #1c212b;
+	--color-header-notification-bg: #cc99cc;
+	--color-panel-header-bg: #ff9900;
+	--color-panel-header-fg: #000;
+	--color-panel-header-btn: #000;
+	--color-menu-bg: #100e0c;
 
-	--color-scrollbar-thumb: #5a6478;
-	--color-text-emphasis: #d0d5dd;
-	--color-image-empty-text: #7d8796;
+	--color-scrollbar-thumb: #ff9900;
+	--color-text-emphasis: #ffcc99;
+	--color-image-empty-text: #a07840;
 	--color-preview-error-bg: #3a1515;
-	--color-preview-error-text: #f2a9a9;
+	--color-preview-error-text: #ffc0c0;
 
-	--color-log-error-text: #ff6b6b;
-	--color-log-info: #6cb0ff;
-	--color-log-info-text: #9fd0ff;
-	--color-log-debug-text: rgba(220, 220, 220, 0.75);
+	--color-log-error-text: #ff6666;
+	--color-log-info: #99ccff;
+	--color-log-info-text: #cce6ff;
+	--color-log-debug-text: rgba(255, 204, 153, 0.7);
 }
 
 html[data-theme='dark'] .modal2-header .btn-close {

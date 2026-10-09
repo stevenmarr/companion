@@ -9,8 +9,8 @@ import { UserConfigSwitchRow } from '../Components/UserConfigSwitchRow.js'
 import { UserConfigTextInputRow } from '../Components/UserConfigTextInputRow.js'
 
 const APPEARANCE_CHOICES: DropdownChoice[] = [
-	{ id: 'light', label: 'Light' },
-	{ id: 'dark', label: 'Dark' },
+	{ id: 'light', label: 'LCARS daylight' },
+	{ id: 'dark', label: 'LCARS command' },
 	{ id: 'system', label: 'Match this computer' },
 ]
 

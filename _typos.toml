@@ -9,6 +9,7 @@ shure = "shure" # Brandname
 Automattic = "Automattic" # Brand name in license.md
 helo = "helo" # AJA-Helo
 livetime = "livetime" # workflownetwork-livetime
+LCARS = "LCARS" # panel style name in the admin GUI
 
 [default.extend-identifiers]
 latch_compatability = "latch_compatability" # Bad spelling for an internal action

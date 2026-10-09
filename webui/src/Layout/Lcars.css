@@ -1,0 +1,553 @@
+/*
+ * Panel chrome inspired by the LCARS computer displays: a black frame, colour bars with black
+ * text, and pill controls. Daylight keeps a warm readout. Command (data-theme=dark) is the black
+ * screen. Hardware button canvases are not restyled here.
+ */
+
+html {
+	background: #000;
+}
+
+::selection {
+	background: #ff9900;
+	color: #000;
+}
+
+* {
+	scrollbar-color: #c9a36a transparent;
+}
+
+html[data-theme='dark'] * {
+	scrollbar-color: #ff9900 #111;
+}
+
+/* ── Frame ─────────────────────────────────────────────────────────────────── */
+
+.header {
+	background:
+		linear-gradient(#ff9966, #ff9966) left / 0.8rem 100% no-repeat,
+		linear-gradient(#cc99cc, #cc99cc) right / 0.65rem 100% no-repeat,
+		#000;
+	border-bottom: 0;
+	padding-left: 1.15rem;
+	padding-right: 1rem;
+}
+
+.header .header-brand {
+	color: #ffcc99;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	font-size: 0.85rem;
+	font-weight: 700;
+}
+
+.header .install-name {
+	background: #ff9900;
+	color: #000;
+	border-radius: 999px;
+	padding: 0.2rem 0.95rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-size: 0.92rem;
+	font-weight: 700;
+}
+
+.header-notification-item,
+.header-notification-item .nav-link {
+	color: #000;
+	border-radius: 999px;
+	font-weight: 700;
+}
+
+.body {
+	position: relative;
+	background: var(--color-app-bg);
+	margin: 0 0.5rem 0.45rem 0.35rem;
+	border-radius: 1.7rem 0.45rem 0.45rem 1.15rem;
+	box-shadow: inset 0 0 0 3px #ff9900;
+}
+
+.body::before,
+.body::after {
+	content: '';
+	position: absolute;
+	z-index: 4;
+	top: 0;
+	height: 0.45rem;
+	pointer-events: none;
+}
+
+.body::before {
+	left: 0;
+	width: 5rem;
+	background: #ff9966;
+	border-bottom-right-radius: 0.45rem;
+}
+
+.body::after {
+	right: 0;
+	width: 2.1rem;
+	background: #cc99cc;
+	border-bottom-left-radius: 0.45rem;
+}
+
+/* ── Sidebar rail ──────────────────────────────────────────────────────────── */
+
+.sidebar {
+	background: #000;
+	--color-text: #ffcc99;
+	--color-text-strong: #000;
+	--color-muted: #e0b070;
+	--color-text-faint: #99ccff;
+	--color-surface-dark: #000;
+	--color-surface-muted: #ff9900;
+	--color-surface-subtle: #ff9900;
+	--color-border: #3a2a14;
+	--sidebar-nav-link-bg: transparent;
+	--sidebar-nav-link-active-bg: #ff9900;
+	--sidebar-nav-link-hover-bg: #ffcc99;
+	--sidebar-nav-link-border-radius: 999px;
+	--sidebar-nav-link-icon-color: #ff9966;
+}
+
+.sidebar-header {
+	background: #ff9900;
+	color: #000;
+	margin: 0.45rem 0.5rem 0.15rem;
+	border-radius: 999px;
+	padding: 0.4rem 0.75rem;
+}
+
+.sidebar-header .sidebar-brand,
+.sidebar-header .sidebar-brand-full {
+	color: #000;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	font-weight: 700;
+}
+
+.sidebar .sidebar-nav .nav-link {
+	border-radius: 999px;
+	padding-top: 0.45rem;
+	padding-bottom: 0.45rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	font-size: 0.78rem;
+}
+
+.sidebar .sidebar-nav .nav-link.active,
+.sidebar .sidebar-nav .nav-link.active .nav-icon,
+.sidebar .nav-group.show > .nav-link,
+.sidebar .nav-group.show > .nav-link .nav-link,
+.sidebar .nav-group.show > .nav-link .nav-icon {
+	color: #000;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link:hover .nav-link,
+.sidebar .nav-link:hover .nav-icon {
+	color: #000 !important;
+}
+
+.sidebar .nav-group-toggle::after {
+	background-color: #ffcc99;
+}
+
+.sidebar .nav-group.show > .nav-group-toggle::after,
+.sidebar .nav-link:hover.nav-group-toggle::after {
+	background-color: #000;
+}
+
+.sidebar .version-sub {
+	color: #cc9966;
+}
+
+.notification-count {
+	background: #ff9900;
+	color: #000;
+}
+
+/* ── Phone bar ─────────────────────────────────────────────────────────────── */
+
+.bottom-nav {
+	background: #000;
+	border-top: 0;
+	box-shadow: none;
+	gap: 0.25rem;
+}
+
+.bottom-nav .bottom-nav-link {
+	color: #ffcc99;
+	border-radius: 999px;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+}
+
+.bottom-nav .bottom-nav-link.active,
+.bottom-nav .bottom-nav-link:hover {
+	background: #ff9900;
+	color: #000;
+}
+
+.bottom-nav .bottom-nav-menu {
+	background: #000;
+	border: 2px solid #ff9900;
+	border-radius: 1rem;
+}
+
+.bottom-nav .bottom-nav-menu a {
+	color: #ffcc99;
+}
+
+.bottom-nav .bottom-nav-menu a:hover {
+	background: #ff9900;
+	color: #000;
+}
+
+/* ── Controls ──────────────────────────────────────────────────────────────── */
+
+.button {
+	--btn-border-radius: 999px;
+	--btn-font-weight: 700;
+	--btn-focus-shadow-rgb: 255, 153, 0;
+	letter-spacing: 0.045em;
+	text-transform: uppercase;
+}
+
+.button-group {
+	gap: 0.3rem;
+}
+
+.button.button-primary {
+	--btn-color: #000;
+	--btn-bg: #ff9900;
+	--btn-border-color: #ff9900;
+	--btn-hover-color: #000;
+	--btn-hover-bg: #ffb833;
+	--btn-hover-border-color: #ffb833;
+	--btn-active-color: #000;
+	--btn-active-bg: #ffcc66;
+	--btn-active-border-color: #ffcc66;
+	--btn-disabled-color: #000;
+	--btn-disabled-bg: #ff9900;
+	--btn-disabled-border-color: #ff9900;
+}
+
+.button.button-secondary,
+.button.button-gray {
+	--btn-color: #000;
+	--btn-bg: #ffcc99;
+	--btn-border-color: #ffcc99;
+	--btn-hover-color: #000;
+	--btn-hover-bg: #ffd7b0;
+	--btn-hover-border-color: #ffd7b0;
+	--btn-active-color: #000;
+	--btn-active-bg: #ff9966;
+	--btn-active-border-color: #ff9966;
+	--btn-disabled-color: #000;
+	--btn-disabled-bg: #ffcc99;
+	--btn-disabled-border-color: #ffcc99;
+}
+
+.button.button-success {
+	--btn-color: #000;
+	--btn-bg: #99cc99;
+	--btn-border-color: #99cc99;
+	--btn-hover-color: #000;
+	--btn-hover-bg: #b3dbb3;
+	--btn-hover-border-color: #b3dbb3;
+	--btn-active-color: #000;
+	--btn-active-bg: #7fbf7f;
+	--btn-active-border-color: #7fbf7f;
+	--btn-disabled-color: #000;
+	--btn-disabled-bg: #99cc99;
+	--btn-disabled-border-color: #99cc99;
+}
+
+.button.button-info,
+.button.button-variable {
+	--btn-color: #000;
+	--btn-bg: #99ccff;
+	--btn-border-color: #99ccff;
+	--btn-hover-color: #000;
+	--btn-hover-bg: #c2e0ff;
+	--btn-hover-border-color: #c2e0ff;
+	--btn-active-color: #000;
+	--btn-active-bg: #77b8f5;
+	--btn-active-border-color: #77b8f5;
+	--btn-disabled-color: #000;
+	--btn-disabled-bg: #99ccff;
+	--btn-disabled-border-color: #99ccff;
+}
+
+.button.button-warning {
+	--btn-color: #000;
+	--btn-bg: #ffcc66;
+	--btn-border-color: #ffcc66;
+	--btn-hover-color: #000;
+	--btn-hover-bg: #ffd98a;
+	--btn-hover-border-color: #ffd98a;
+	--btn-active-color: #000;
+	--btn-active-bg: #ff9900;
+	--btn-active-border-color: #ff9900;
+	--btn-disabled-color: #000;
+	--btn-disabled-bg: #ffcc66;
+	--btn-disabled-border-color: #ffcc66;
+}
+
+.button.button-danger {
+	--btn-color: #000;
+	--btn-bg: #cc6666;
+	--btn-border-color: #cc6666;
+	--btn-hover-color: #000;
+	--btn-hover-bg: #db8888;
+	--btn-hover-border-color: #db8888;
+	--btn-active-color: #000;
+	--btn-active-bg: #b84d4d;
+	--btn-active-border-color: #b84d4d;
+	--btn-disabled-color: #000;
+	--btn-disabled-bg: #cc6666;
+	--btn-disabled-border-color: #cc6666;
+}
+
+.button.button-light,
+.button.button-white {
+	--btn-color: #000;
+	--btn-bg: #fff8ee;
+	--btn-border-color: #ff9900;
+	--btn-hover-color: #000;
+	--btn-hover-bg: #ffcc99;
+	--btn-hover-border-color: #ff9900;
+	--btn-active-color: #000;
+	--btn-active-bg: #ff9900;
+	--btn-active-border-color: #ff9900;
+	--btn-disabled-color: #000;
+	--btn-disabled-bg: #fff8ee;
+	--btn-disabled-border-color: #e2c79a;
+}
+
+.button.button-dark {
+	--btn-color: #000;
+	--btn-bg: #cc99cc;
+	--btn-border-color: #cc99cc;
+	--btn-hover-color: #000;
+	--btn-hover-bg: #dbb3db;
+	--btn-hover-border-color: #dbb3db;
+	--btn-active-color: #000;
+	--btn-active-bg: #b37ab3;
+	--btn-active-border-color: #b37ab3;
+	--btn-disabled-color: #000;
+	--btn-disabled-bg: #cc99cc;
+	--btn-disabled-border-color: #cc99cc;
+}
+
+.button.button-outline,
+.button.button-outline-primary,
+.button.button-outline-secondary,
+.button.button-outline-success,
+.button.button-outline-info,
+.button.button-outline-warning,
+.button.button-outline-danger,
+.button.button-outline-light,
+.button.button-outline-dark,
+.button.button-outline-variable {
+	--btn-border-width: 2px;
+	--btn-color: var(--color-text);
+	--btn-bg: transparent;
+	--btn-hover-color: #000;
+	--btn-active-color: #000;
+	--btn-disabled-color: var(--color-text-disabled);
+	--btn-disabled-bg: transparent;
+}
+
+.button.button-outline,
+.button.button-outline-primary,
+.button.button-outline-warning {
+	--btn-border-color: #ff9900;
+	--btn-hover-bg: #ff9900;
+	--btn-hover-border-color: #ff9900;
+	--btn-active-bg: #ffcc66;
+	--btn-active-border-color: #ffcc66;
+	--btn-disabled-border-color: #ff9900;
+}
+
+.button.button-outline-secondary,
+.button.button-outline-light {
+	--btn-border-color: #ffcc99;
+	--btn-hover-bg: #ffcc99;
+	--btn-hover-border-color: #ffcc99;
+	--btn-active-bg: #ff9966;
+	--btn-active-border-color: #ff9966;
+	--btn-disabled-border-color: #ffcc99;
+}
+
+.button.button-outline-success {
+	--btn-border-color: #3f8f4a;
+	--btn-hover-bg: #99cc99;
+	--btn-hover-border-color: #99cc99;
+	--btn-active-bg: #7fbf7f;
+	--btn-active-border-color: #7fbf7f;
+	--btn-disabled-border-color: #99cc99;
+}
+
+.button.button-outline-info,
+.button.button-outline-variable {
+	--btn-border-color: #3b6ea5;
+	--btn-hover-bg: #99ccff;
+	--btn-hover-border-color: #99ccff;
+	--btn-active-bg: #77b8f5;
+	--btn-active-border-color: #77b8f5;
+	--btn-disabled-border-color: #99ccff;
+}
+
+.button.button-outline-danger {
+	--btn-border-color: #cc6666;
+	--btn-hover-bg: #cc6666;
+	--btn-hover-border-color: #cc6666;
+	--btn-active-bg: #b84d4d;
+	--btn-active-border-color: #b84d4d;
+	--btn-disabled-border-color: #cc6666;
+}
+
+.button.button-outline-dark {
+	--btn-border-color: #cc99cc;
+	--btn-hover-bg: #cc99cc;
+	--btn-hover-border-color: #cc99cc;
+	--btn-active-bg: #b37ab3;
+	--btn-active-border-color: #b37ab3;
+	--btn-disabled-border-color: #cc99cc;
+}
+
+.button.button-ghost,
+.button.button-ghost-primary,
+.button.button-ghost-secondary,
+.button.button-ghost-success,
+.button.button-ghost-info,
+.button.button-ghost-warning,
+.button.button-ghost-danger,
+.button.button-ghost-light,
+.button.button-ghost-dark,
+.button.button-ghost-variable {
+	--btn-color: var(--color-text);
+	--btn-bg: transparent;
+	--btn-border-color: transparent;
+	--btn-hover-color: #000;
+	--btn-hover-bg: #ffcc99;
+	--btn-hover-border-color: #ffcc99;
+	--btn-active-color: #000;
+	--btn-active-bg: #ff9900;
+	--btn-active-border-color: #ff9900;
+	--btn-disabled-color: var(--color-text-disabled);
+	--btn-disabled-bg: transparent;
+	--btn-disabled-border-color: transparent;
+}
+
+.button.button-link {
+	--btn-border-radius: 0;
+	text-transform: none;
+	letter-spacing: 0;
+	--btn-font-weight: 650;
+	--btn-color: var(--color-link);
+	--btn-bg: transparent;
+	--btn-border-color: transparent;
+	--btn-hover-color: var(--color-link-hover);
+	--btn-hover-bg: transparent;
+	--btn-hover-border-color: transparent;
+	--btn-active-color: var(--color-link-hover);
+	--btn-active-bg: transparent;
+	--btn-disabled-color: var(--color-text-disabled);
+}
+
+.form-input:not(textarea) {
+	border-radius: 999px;
+	border-width: 2px;
+}
+
+textarea.form-input {
+	border-radius: 1rem;
+	border-width: 2px;
+}
+
+html[data-theme='dark'] .form-input {
+	border-color: #ff9900;
+}
+
+/* ── Panels, tabs, tables, dialogs ─────────────────────────────────────────── */
+
+.secondary-panel-inner {
+	box-shadow: none;
+}
+
+.secondary-panel-simple {
+	border: 3px solid #ff9900;
+	border-radius: 1.25rem;
+	box-shadow: none;
+}
+
+.secondary-panel-simple-header {
+	border-radius: 999px;
+	margin: 0.45rem 0.55rem 0;
+	border-bottom: 0;
+}
+
+.secondary-panel-simple-header .panel-title {
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-size: 0.95rem;
+}
+
+.tab-area .tab-bar {
+	border-bottom: 0;
+	gap: 0.3rem;
+	padding-bottom: 0.35rem;
+}
+
+.tab-area .tab-bar__tab,
+.secondary-panel .nav-item .nav-link {
+	border-radius: 999px;
+	border: 0;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	font-size: 0.72rem;
+	font-weight: 700;
+}
+
+.tab-area .tab-bar__tab[data-active],
+.secondary-panel .nav-item .nav-link.active {
+	background: #ff9900;
+	color: #000 !important;
+	border: 0;
+	border-radius: 999px;
+}
+
+.table > thead > tr > th {
+	background: #ff9900;
+	color: #000;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	font-size: 0.72rem;
+	border-bottom: 0;
+}
+
+.modal2-dialog {
+	--modal2-border-radius: 1.35rem;
+	--modal2-border-width: 3px;
+	--modal2-border-color: #ff9900;
+}
+
+.modal2-header {
+	background: #ff9900;
+	color: #000;
+	margin: 0.45rem 0.45rem 0;
+	border: 0;
+	border-radius: 999px;
+}
+
+.modal2-title {
+	color: #000;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-size: 0.95rem;
+}

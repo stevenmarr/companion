@@ -566,7 +566,7 @@
 	}
 
 	.nav-link:hover {
-		background-color: #262626 !important;
+		background-color: var(--sidebar-nav-link-hover-bg, #262626) !important;
 	}
 
 	.nav-secondary {

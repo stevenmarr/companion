@@ -27,6 +27,7 @@ import { MonacoLoader } from './Resources/MonacoLoader.js'
 import { SortableHysteresis } from './Resources/SortableHysteresis.js'
 import { shouldAutoOpenWizard } from './Wizard/Constants.js'
 import { WizardModal } from './Wizard/index.js'
+import './Layout/Lcars.css'
 
 export default function App(): React.JSX.Element {
 	const trpcStatus = useTRPCConnectionStatus()
