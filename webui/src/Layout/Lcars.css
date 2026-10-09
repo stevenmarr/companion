@@ -95,19 +95,19 @@ html[data-theme='dark'] * {
 
 .sidebar {
 	background: #000;
-	--color-text: #ffcc99;
-	--color-text-strong: #000;
-	--color-muted: #e0b070;
-	--color-text-faint: #99ccff;
+	--color-text: #f2f2f2;
+	--color-text-strong: #ffffff;
+	--color-muted: #d0d0d0;
+	--color-text-faint: #c8c8c8;
 	--color-surface-dark: #000;
-	--color-surface-muted: #ff9900;
-	--color-surface-subtle: #ff9900;
+	--color-surface-muted: #2a2118;
+	--color-surface-subtle: #2a2118;
 	--color-border: #3a2a14;
 	--sidebar-nav-link-bg: transparent;
-	--sidebar-nav-link-active-bg: #ff9900;
-	--sidebar-nav-link-hover-bg: #ffcc99;
+	--sidebar-nav-link-active-bg: #3a2410;
+	--sidebar-nav-link-hover-bg: #2a2118;
 	--sidebar-nav-link-border-radius: 999px;
-	--sidebar-nav-link-icon-color: #ff9966;
+	--sidebar-nav-link-icon-color: #f2f2f2;
 }
 
 .sidebar-header {
@@ -136,27 +136,27 @@ html[data-theme='dark'] * {
 	font-size: 0.78rem;
 }
 
+.sidebar .sidebar-nav .nav-link,
+.sidebar .sidebar-nav .nav-link .nav-icon,
+.sidebar .sidebar-section-label {
+	color: #f2f2f2 !important;
+}
+
 .sidebar .sidebar-nav .nav-link.active,
 .sidebar .sidebar-nav .nav-link.active .nav-icon,
 .sidebar .nav-group.show > .nav-link,
 .sidebar .nav-group.show > .nav-link .nav-link,
-.sidebar .nav-group.show > .nav-link .nav-icon {
-	color: #000;
-}
-
+.sidebar .nav-group.show > .nav-link .nav-icon,
 .sidebar .nav-link:hover,
 .sidebar .nav-link:hover .nav-link,
 .sidebar .nav-link:hover .nav-icon {
-	color: #000 !important;
+	color: #ffffff !important;
 }
 
-.sidebar .nav-group-toggle::after {
-	background-color: #ffcc99;
-}
-
+.sidebar .nav-group-toggle::after,
 .sidebar .nav-group.show > .nav-group-toggle::after,
 .sidebar .nav-link:hover.nav-group-toggle::after {
-	background-color: #000;
+	background-color: #f2f2f2;
 }
 
 .sidebar .version-sub {
