@@ -1,0 +1,85 @@
+@import '../breakpoints.css';
+
+/* Primary navigation once the sidebar is an overlay. Hidden from laptop width up, where the
+   sidebar itself is the navigation. */
+.bottom-nav {
+	display: none;
+}
+
+@media (--bp-lg-down) {
+	.bottom-nav {
+		position: fixed;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 1025;
+		display: flex;
+		align-items: stretch;
+		justify-content: space-around;
+		gap: 0.15rem;
+		margin: 0;
+		padding: 0.35rem 0.35rem calc(0.35rem + env(safe-area-inset-bottom, 0px));
+		background: var(--color-surface);
+		border-top: 1px solid var(--color-border);
+		box-shadow: 0 -8px 24px var(--color-shadow-10);
+	}
+}
+
+.bottom-nav-link {
+	display: flex;
+	flex: 1 1 0;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.15rem;
+	min-width: 0;
+	padding: 0.35rem 0.15rem;
+	color: var(--color-muted);
+	font-size: 0.68rem;
+	line-height: 1.1;
+	text-decoration: none;
+	background: transparent;
+	border: 0;
+	border-radius: var(--radius);
+
+	svg {
+		font-size: 1.05rem;
+	}
+
+	&.active {
+		color: var(--color-text-strong);
+		background: var(--color-surface-muted);
+	}
+}
+
+.bottom-nav-slot {
+	position: relative;
+	display: flex;
+	flex: 1 1 0;
+}
+
+.bottom-nav-menu {
+	position: absolute;
+	right: 0;
+	bottom: calc(100% + 0.4rem);
+	left: 0;
+	display: flex;
+	flex-direction: column;
+	min-width: 8.5rem;
+	padding: 0.35rem;
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	box-shadow: 0 8px 24px var(--color-shadow-20);
+
+	a {
+		padding: 0.55rem 0.7rem;
+		color: var(--color-text);
+		text-decoration: none;
+		border-radius: var(--radius-sm);
+
+		&:hover {
+			background: var(--color-surface-muted);
+		}
+	}
+}

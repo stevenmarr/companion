@@ -164,6 +164,10 @@ function SidebarMenuItemLabel(item: SidebarMenuItemProps) {
 	)
 }
 
+function SidebarSectionLabel({ children }: { children: string }): React.JSX.Element {
+	return <li className="sidebar-section-label">{children}</li>
+}
+
 function SidebarMenuItem(item: SidebarMenuItemProps) {
 	const isNarrow = useContext(NarrowModeContext)
 	const onClick2 = (e: React.MouseEvent) => {
@@ -400,6 +404,7 @@ export const MySidebar = memo(function MySidebar() {
 				<SidebarHeader />
 
 				<ul className="sidebar-nav nav-main-scroller">
+					<SidebarSectionLabel>Build</SidebarSectionLabel>
 					<SidebarMenuItem
 						name="Connections"
 						icon={faPlug}
@@ -408,7 +413,6 @@ export const MySidebar = memo(function MySidebar() {
 					/>
 					<SidebarMenuItem name="Buttons" icon={faTableCells} path="/buttons" />
 					<SidebarMenuItem name="Pages" icon={faLayerGroup} path="/pages" />
-					<SidebarMenuItem name="Image Library" icon={faImages} path="/image-library" />
 					<SidebarMenuItemGroup
 						name="Surfaces"
 						icon={faGamepad}
@@ -419,6 +423,7 @@ export const MySidebar = memo(function MySidebar() {
 					>
 						<SidebarMenuItem name="Remote" icon={faPeopleArrows} path="/surfaces/remote" />
 					</SidebarMenuItemGroup>
+					<SidebarSectionLabel>Automate</SidebarSectionLabel>
 					<SidebarMenuItem name="Triggers" icon={faClock} path="/triggers" />
 					<SidebarMenuItemGroup
 						name="Variables"
@@ -432,7 +437,10 @@ export const MySidebar = memo(function MySidebar() {
 						<SidebarMenuItem name="Internal" icon={faToolbox} path="/variables/connection/internal" />
 						{!hideModuleVars && <SidebarVariablesGroups />}
 					</SidebarMenuItemGroup>
+					<SidebarSectionLabel>Library</SidebarSectionLabel>
+					<SidebarMenuItem name="Image Library" icon={faImages} path="/image-library" />
 					<SidebarMenuItem name="Modules" icon={faPuzzlePiece} path="/modules" />
+					<SidebarSectionLabel>System</SidebarSectionLabel>
 					<SidebarMenuItemGroup
 						name="Settings"
 						icon={faCog}

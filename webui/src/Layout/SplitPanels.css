@@ -53,15 +53,15 @@
 
 @media (--bp-xl-up) {
 	.split-panels {
-		grid-template-columns: 1fr 1fr;
+		/* Canvas grows. Inspector stays a column, not half the window. */
+		grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
 		column-gap: 1.5rem;
 	}
 }
 
-/* For bigger screens, like 1440p and 4K, give the secondary panel more of the extra width. */
-@media only screen and (min-width: 2000px) {
+@media only screen and (min-width: 1920px) {
 	.split-panels {
-		grid-template-columns: 2fr 3fr;
+		grid-template-columns: minmax(0, 1fr) 440px;
 	}
 }
 

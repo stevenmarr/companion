@@ -18,6 +18,7 @@ import { ContextData } from './ContextData.js'
 import { EntityDragLayer } from './Controls/Components/EntityDragLayer.js'
 import { useAdminTheme } from './Hooks/useAdminTheme.js'
 import { TRPCConnectionStatus, useTRPCConnectionStatus } from './Hooks/useTRPCConnectionStatus.js'
+import { BottomNav } from './Layout/BottomNav.js'
 import { MyHeader } from './Layout/Header.js'
 import { MySidebar, SidebarStateProvider } from './Layout/Sidebar.js'
 import { PRIMARY_COLOR } from './Resources/Constants.js'
@@ -185,6 +186,7 @@ const AppMain = observer(function AppMain({ connected, loadingComplete, loadingP
 						)}
 					</div>
 				</div>
+				<BottomNav />
 			</SidebarStateProvider>
 		</div>
 	)

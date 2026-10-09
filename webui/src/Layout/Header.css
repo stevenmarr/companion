@@ -112,7 +112,7 @@
 }
 
 .header > .page-container {
-	min-height: calc(4rem + 1px); /* stylelint-disable-line function-disallowed-list */
+	min-height: 2.75rem;
 }
 
 .header .nav-link:hover {

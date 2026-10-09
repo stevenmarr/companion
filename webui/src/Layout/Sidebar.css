@@ -193,6 +193,17 @@
 		margin-top: 1px;
 	}
 
+	.sidebar-section-label {
+		margin: 0.85rem 0.35rem 0.15rem;
+		padding: 0;
+		color: var(--color-text-faint);
+		font-size: 0.68rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		list-style: none;
+	}
+
 	.nav-link {
 		display: flex;
 		flex: 1;
@@ -701,6 +712,11 @@
 	}
 
 	/* when the sidebar is narrow, make more space for the contents and let centering create what margins there will be. */
+	&.sidebar-narrow-unfoldable:not(.show, :hover) .sidebar-section-label,
+	&.sidebar-narrow .sidebar-section-label {
+		display: none;
+	}
+
 	&.sidebar-narrow-unfoldable:not(.show, :hover) .nav-main-scroller,
 	&.sidebar-narrow .nav-main-scroller {
 		scrollbar-width: thin;
