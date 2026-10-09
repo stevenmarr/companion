@@ -123,7 +123,7 @@ describe('SplitPanels resize', () => {
 	it('renders the handle and drives the columns from the stored percent when in two-panel mode', () => {
 		const { root } = renderPanels(null, RESIZE)
 		expect(root).toHaveClass('split-panels-resizable')
-		expect(root.style.gridTemplateColumns).toBe('minmax(300px, 50fr) minmax(350px, min(440px, 50%))')
+		expect(root.style.gridTemplateColumns).toBe('minmax(300px, 50fr) minmax(350px, 50fr)')
 		expect(root.querySelector('.split-panels-resize-handle')).not.toBeNull()
 	})
 
@@ -131,15 +131,13 @@ describe('SplitPanels resize', () => {
 		const { root } = renderPanels(null, { storageKey: 'defaults-view' })
 		const min = SPLIT_PANELS_DEFAULT_MIN_PX
 		const pct = SPLIT_PANELS_DEFAULT_PRIMARY_PERCENT
-		expect(root.style.gridTemplateColumns).toBe(
-			`minmax(${min}px, ${pct}fr) minmax(${min}px, min(440px, ${100 - pct}%))`
-		)
+		expect(root.style.gridTemplateColumns).toBe(`minmax(${min}px, ${pct}fr) minmax(${min}px, ${100 - pct}fr)`)
 	})
 
 	it('uses a stored percentage over the default', () => {
 		window.localStorage.setItem('split-panels-width:test-view', '70')
 		const { root } = renderPanels(null, RESIZE)
-		expect(root.style.gridTemplateColumns).toBe('minmax(300px, 70fr) minmax(350px, min(440px, 30%))')
+		expect(root.style.gridTemplateColumns).toBe('minmax(300px, 70fr) minmax(350px, 30fr)')
 	})
 
 	it('does not resize (no handle, no inline columns) below the two-panel breakpoint', () => {

@@ -20,8 +20,6 @@ export type SplitPanelsShowing = 'primary' | 'secondary' | null
 // page genuinely needs a different minimum or starting split.
 export const SPLIT_PANELS_DEFAULT_MIN_PX = 400
 export const SPLIT_PANELS_DEFAULT_PRIMARY_PERCENT = 50
-/** Inspector stays this wide. Extra screen width goes to the canvas, not a second equal pane. */
-export const SPLIT_PANELS_INSPECTOR_MAX_PX = 440
 
 /**
  * Opt a view into a draggable divide between the two panels (only takes effect in the side-by-side
@@ -64,10 +62,8 @@ export function clampPrimaryPercent(
 }
 
 function gridTemplateColumnsFor(minPrimaryPx: number, minSecondaryPx: number, primaryPercent: number): string {
-	// The canvas takes leftover width. The inspector tracks the stored split, but never wider than
-	// SPLIT_PANELS_INSPECTOR_MAX_PX, so an ultrawide monitor does not grow the editor with the grid.
-	const inspector = `min(${SPLIT_PANELS_INSPECTOR_MAX_PX}px, ${100 - primaryPercent}%)`
-	return `minmax(${minPrimaryPx}px, ${primaryPercent}fr) minmax(${minSecondaryPx}px, ${inspector})`
+	// Both tracks follow the stored split, so dragging the divider widens either column.
+	return `minmax(${minPrimaryPx}px, ${primaryPercent}fr) minmax(${minSecondaryPx}px, ${100 - primaryPercent}fr)`
 }
 
 function SplitPanelsRoot({

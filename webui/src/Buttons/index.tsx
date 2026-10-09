@@ -210,7 +210,11 @@ export const ButtonsPage = observer(function ButtonsPage() {
 
 	return (
 		<ButtonGridViewProvider value={gridView}>
-			<SplitPanels.Root showing={null} className="buttons-page" resize={{ storageKey: 'buttons' }}>
+			<SplitPanels.Root
+				showing={null}
+				className="buttons-page"
+				resize={{ storageKey: 'buttons', minPrimaryPx: 280, minSecondaryPx: 560, defaultPrimaryPercent: 42 }}
+			>
 				<GenericConfirmModal ref={confirmModalRef} />
 				<SaveFavoriteModal location={saveFavoriteAt} onClose={() => setSaveFavoriteAt(null)} />
 				<PlaceFavoriteModal pending={favoriteDrop} onClose={() => setFavoriteDrop(null)} />

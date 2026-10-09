@@ -53,15 +53,9 @@
 
 @media (--bp-xl-up) {
 	.split-panels {
-		/* Canvas grows. Inspector stays a column, not half the window. */
-		grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+		/* The canvas can shrink. The editor keeps enough width for its tabs, and can be dragged wider. */
+		grid-template-columns: minmax(280px, 1fr) minmax(520px, 1.15fr);
 		column-gap: 1.5rem;
-	}
-}
-
-@media only screen and (min-width: 1920px) {
-	.split-panels {
-		grid-template-columns: minmax(0, 1fr) 440px;
 	}
 }
 

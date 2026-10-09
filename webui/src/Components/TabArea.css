@@ -165,6 +165,11 @@
 		min-height: 0;
 	}
 
+	.tab-area .tab-bar {
+		flex-wrap: wrap;
+		row-gap: 0.25rem;
+	}
+
 	.tab-panel {
 		overflow-y: scroll;
 	}
