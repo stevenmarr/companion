@@ -57,6 +57,11 @@
 	min-width: 0;
 }
 
+.page-browser-card.is-selected {
+	border-color: var(--color-primary);
+	box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
 .page-browser-card:hover,
 .page-browser-open:hover {
 	border-color: var(--bs-primary, #20a8d8);

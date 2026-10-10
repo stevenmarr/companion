@@ -96,6 +96,17 @@ describe('editing over trpc, as the ui does', () => {
 
 		// The last remaining page cannot be removed
 		expect(await app.trpc().pages.remove({ pageNumber: 1 })).toBe('fail')
+
+		await app.trpc().pages.insert({ asPageNumber: 2, pageNames: ['A', 'B', 'C'] })
+		expect(app.registry.page.store.getPageCount()).toBe(4)
+
+		await app.trpc().pages.removeMany({ pageNumbers: [4, 2] })
+		expect(app.registry.page.store.getPageCount()).toBe(2)
+		expect(app.registry.page.store.getPageInfo(2)?.name).toBe('B')
+
+		// Deleting every page is refused, and nothing is removed
+		expect(await app.trpc().pages.removeMany({ pageNumbers: [1, 2] })).toBe('fail')
+		expect(app.registry.page.store.getPageCount()).toBe(2)
 	})
 
 	test('custom variable lifecycle', async () => {

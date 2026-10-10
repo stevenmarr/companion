@@ -12,6 +12,7 @@ import { getPageSurfaceLayout, type PageSurfaceCellKind } from '@companion-app/s
 import { rememberViewedPage } from '~/Buttons/GridPageNavigation.js'
 import { InstantiatePageClassModal } from '~/Buttons/PageClasses.js'
 import { Button } from '~/Components/Button.js'
+import { CheckboxInputField, CheckboxInputFieldWithLabel } from '~/Components/CheckboxInputField.js'
 import { SimpleDropdownInputField } from '~/Components/DropdownInputFieldSimple.js'
 import { Form, FormLabel } from '~/Components/Form.js'
 import { GenericConfirmModal, type GenericConfirmModalRef } from '~/Components/GenericConfirmModal.js'
@@ -94,8 +95,16 @@ export const PageBrowser = observer(function PageBrowser(): React.JSX.Element {
 	const [duplicatePage, setDuplicatePage] = useState<number | null>(null)
 	const [templatePickerOpen, setTemplatePickerOpen] = useState(false)
 	const [template, setTemplate] = useState<PageClassSummary | null>(null)
+	const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set())
 	const insertMutation = useMutationExt(trpc.pages.insert.mutationOptions())
 	const removeMutation = useMutationExt(trpc.pages.remove.mutationOptions())
+	const removeManyMutation = useMutationExt(trpc.pages.removeMany.mutationOptions())
+
+	const selected = pages.data.flatMap((page, index) =>
+		selectedIds.has(page.id) ? [{ pageNumber: index + 1, name: page.name?.trim() ?? '' }] : []
+	)
+	const allSelected = pages.pageCount > 0 && selected.length === pages.pageCount
+	const canDeleteSelected = selected.length > 0 && selected.length < pages.pageCount
 
 	const openPage = (pageNumber: number) => {
 		rememberViewedPage(pageNumber)
@@ -124,17 +133,64 @@ export const PageBrowser = observer(function PageBrowser(): React.JSX.Element {
 		)
 	}
 
+	const askDeleteSelected = () => {
+		if (!canDeleteSelected) return
+		const labels = selected.map((page) =>
+			page.name ? `page ${page.pageNumber} ("${page.name}")` : `page ${page.pageNumber}`
+		)
+		const list =
+			labels.length === 1
+				? labels[0]
+				: labels.length === 2
+					? `${labels[0]} and ${labels[1]}`
+					: `${labels.slice(0, -1).join(', ')}, and ${labels[labels.length - 1]}`
+		deleteRef.current?.show(
+			`Delete ${selected.length} pages?`,
+			[
+				`Are you sure you want to delete ${list}?`,
+				'This deletes every button on those pages, and the pages that remain move up a number.',
+			],
+			'Delete',
+			() => {
+				removeManyMutation
+					.mutateAsync({ pageNumbers: selected.map((page) => page.pageNumber) })
+					.then(() => setSelectedIds(new Set()))
+					.catch((e) => notifier.show('Pages', errorText(e)))
+			}
+		)
+	}
+
 	return (
 		<div className="page-browser">
 			<div className="page-browser-heading">
 				<div>
 					<h4>Pages</h4>
 					<p>
-						A picture of each page. Choose one to edit it. Duplicate copies the buttons and lets you point them at
-						different connections.
+						A picture of each page. Tick several to delete them together. Choose one to edit it. Duplicate copies the
+						buttons and lets you point them at different connections.
 					</p>
 				</div>
 				<div className="page-browser-create">
+					{pages.pageCount > 1 && (
+						<CheckboxInputFieldWithLabel
+							id="page-browser-select-all"
+							label="Select all"
+							value={allSelected}
+							indeterminate={selected.length > 0 && !allSelected}
+							setValue={(on) => setSelectedIds(on ? new Set(pages.data.map((page) => page.id)) : new Set())}
+							tooltip="Select pages"
+						/>
+					)}
+					{selected.length > 0 && (
+						<Button
+							color="warning"
+							onClick={askDeleteSelected}
+							disabled={!canDeleteSelected}
+							title={canDeleteSelected ? `Delete ${selected.length} pages` : 'Companion needs at least one page'}
+						>
+							<FontAwesomeIcon icon={faTrash} /> Delete {selected.length} selected
+						</Button>
+					)}
 					<Button color="primary" onClick={createBlank}>
 						<FontAwesomeIcon icon={faPlus} /> New page
 					</Button>
@@ -166,6 +222,15 @@ export const PageBrowser = observer(function PageBrowser(): React.JSX.Element {
 							pageNumber={index + 1}
 							page={page}
 							canDelete={pages.pageCount > 1}
+							selected={selectedIds.has(page.id)}
+							onSelected={(on) =>
+								setSelectedIds((current) => {
+									const next = new Set(current)
+									if (on) next.add(page.id)
+									else next.delete(page.id)
+									return next
+								})
+							}
 							onOpen={openPage}
 							onDuplicate={setDuplicatePage}
 							onDelete={askDelete}
@@ -181,6 +246,8 @@ const PageCard = observer(function PageCard({
 	pageNumber,
 	page,
 	canDelete,
+	selected,
+	onSelected,
 	onOpen,
 	onDuplicate,
 	onDelete,
@@ -188,6 +255,8 @@ const PageCard = observer(function PageCard({
 	pageNumber: number
 	page: PagesStoreModel
 	canDelete: boolean
+	selected: boolean
+	onSelected: (selected: boolean) => void
 	onOpen: (pageNumber: number) => void
 	onDuplicate: (pageNumber: number) => void
 	onDelete: (pageNumber: number, name: string) => void
@@ -208,12 +277,19 @@ const PageCard = observer(function PageCard({
 	const title = page.name?.trim() ? page.name : `Page ${pageNumber}`
 
 	return (
-		<article className="page-browser-card">
+		<article className={selected ? 'page-browser-card is-selected' : 'page-browser-card'}>
+			<div className="page-browser-card-heading">
+				<CheckboxInputField
+					id={`page-browser-select-${page.id}`}
+					value={selected}
+					setValue={onSelected}
+					disabled={!canDelete}
+					tooltip="Select page"
+				/>
+				<span className="page-browser-number">{pageNumber}</span>
+				<span className="page-browser-title">{title}</span>
+			</div>
 			<button type="button" className="page-browser-open" onClick={() => onOpen(pageNumber)}>
-				<div className="page-browser-card-heading">
-					<span className="page-browser-number">{pageNumber}</span>
-					<span className="page-browser-title">{title}</span>
-				</div>
 				<div className="page-browser-surface">{layout ? `${layout.label} · ${layout.summary}` : 'Full grid'}</div>
 				{cells.length === 0 ? (
 					<div className="page-browser-empty">Empty page</div>

@@ -149,6 +149,35 @@ export class PageController extends EventEmitter<PageControllerEvents> {
 					return 'ok'
 				}),
 
+			removeMany: publicProcedure
+				.input(
+					z.object({
+						pageNumbers: z.array(z.number().int().positive()).min(1),
+					})
+				)
+				.mutation(({ input }) => {
+					const count = this.#store.getPageCount()
+					// Highest first: deleting a later page does not change the numbers of earlier ones.
+					const pageNumbers = [...new Set(input.pageNumbers)]
+						.filter((pageNumber) => pageNumber >= 1 && pageNumber <= count)
+						.sort((a, b) => b - a)
+
+					this.#logger.silly(`trpc: pages:removeMany ${pageNumbers.join(',')}`)
+
+					if (pageNumbers.length === 0 || pageNumbers.length >= count) return 'fail'
+
+					for (const pageNumber of pageNumbers) {
+						if (this.#store.getPageCount() === 1) break
+						const controlIds = this.#store.getAllControlIdsOnPage(pageNumber)
+						for (const controlId of controlIds) {
+							this.#controlsController.deleteControl(controlId)
+						}
+						this.deletePage(pageNumber)
+					}
+
+					return 'ok'
+				}),
+
 			insert: publicProcedure
 				.input(
 					z.object({

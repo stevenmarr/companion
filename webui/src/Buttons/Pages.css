@@ -6,6 +6,11 @@
 		background-color: var(--color-surface-muted);
 	}
 
+	.pages-list-check {
+		flex: 0 0 auto;
+		width: 1.5rem;
+	}
+
 	.pages-list-number {
 		width: 5rem;
 		text-align: center;
