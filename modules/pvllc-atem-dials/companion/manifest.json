@@ -3,8 +3,8 @@
 	"id": "pvllc-atem-dials",
 	"name": "ATEM Encoder Dials",
 	"shortname": "ATEM dials",
-	"description": "Turn encoders to adjust ATEM upstream keyer DVE, luma, chroma and pattern values, with fine and coarse steps",
-	"version": "1.0.0",
+	"description": "Encoder buttons for an existing ATEM connection. Each preset asks which mix effect and keyer it controls.",
+	"version": "1.1.0",
 	"license": "MIT",
 	"repository": "https://github.com/stevenmarr/companion",
 	"bugs": "https://github.com/stevenmarr/companion/issues",
@@ -19,7 +19,10 @@
 		"type": "node22",
 		"api": "nodejs-ipc",
 		"apiVersion": "2.2.0",
-		"entrypoint": "../dist/main.js"
+		"entrypoint": "../dist/main.js",
+		"permissions": {
+			"native-addons": true
+		}
 	},
 	"manufacturer": "Blackmagic Design",
 	"products": ["ATEM Mini", "ATEM Television Studio", "ATEM Constellation", "ATEM Production Studio"],

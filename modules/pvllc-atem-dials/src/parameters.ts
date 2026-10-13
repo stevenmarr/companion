@@ -6,7 +6,7 @@
  * Coarse is a handful of those clicks.
  */
 
-export type ParameterGroup = 'dve' | 'luma' | 'chroma' | 'advancedChroma' | 'pattern'
+export type ParameterGroup = 'dve' | 'luma' | 'chroma' | 'advancedChroma' | 'pattern' | 'dsk'
 
 export interface ParameterSpec {
 	readonly id: string
@@ -27,10 +27,13 @@ export interface ParameterSpec {
 	 * so the next tenth after 359.9 is 0. Defaults to max - min.
 	 */
 	readonly wrapModulo?: number
+	/** Upstream keyers are per mix effect. Downstream keyers are not. */
+	readonly scope?: 'usk' | 'dsk'
 }
 
 export const MAX_MIX_EFFECTS = 4
 export const MAX_KEYERS = 4
+export const MAX_DOWNSTREAM_KEYERS = 4
 
 export const PARAMETER_GROUPS: ReadonlyArray<{ id: ParameterGroup; name: string }> = [
 	{ id: 'dve', name: 'DVE' },
@@ -38,6 +41,7 @@ export const PARAMETER_GROUPS: ReadonlyArray<{ id: ParameterGroup; name: string 
 	{ id: 'chroma', name: 'Chroma key' },
 	{ id: 'advancedChroma', name: 'Advanced chroma key' },
 	{ id: 'pattern', name: 'Pattern key' },
+	{ id: 'dsk', name: 'Downstream key' },
 ]
 
 const percent = (
@@ -58,6 +62,33 @@ const percent = (
 	fine: 0.1,
 	coarse: 1,
 	decimals: 1,
+})
+
+const dskPercent = (id: string, property: string, label: string, shortLabel: string): ParameterSpec => ({
+	...percent(id, 'dsk', property, label, shortLabel),
+	scope: 'dsk',
+})
+
+const dskMask = (
+	id: string,
+	property: string,
+	label: string,
+	shortLabel: string,
+	min: number,
+	max: number
+): ParameterSpec => ({
+	id,
+	group: 'dsk',
+	property,
+	label,
+	shortLabel,
+	min,
+	max,
+	scale: 1000,
+	fine: 0.1,
+	coarse: 1,
+	decimals: 1,
+	scope: 'dsk',
 })
 
 export const PARAMETERS: readonly ParameterSpec[] = [
@@ -340,6 +371,26 @@ export const PARAMETERS: readonly ParameterSpec[] = [
 		coarse: 0.1,
 		decimals: 2,
 	},
+	dskPercent('dsk_clip', 'clip', 'Downstream clip', 'DSK clip'),
+	dskPercent('dsk_gain', 'gain', 'Downstream gain', 'DSK gain'),
+	{
+		id: 'dsk_rate',
+		group: 'dsk',
+		property: 'rate',
+		label: 'Downstream rate',
+		shortLabel: 'DSK rate',
+		min: 0,
+		max: 250,
+		scale: 1,
+		fine: 1,
+		coarse: 5,
+		decimals: 0,
+		scope: 'dsk',
+	},
+	dskMask('dsk_mask_top', 'maskTop', 'Downstream mask top', 'DSK top', -9, 9),
+	dskMask('dsk_mask_bottom', 'maskBottom', 'Downstream mask bottom', 'DSK bot', -9, 9),
+	dskMask('dsk_mask_left', 'maskLeft', 'Downstream mask left', 'DSK left', -16, 16),
+	dskMask('dsk_mask_right', 'maskRight', 'Downstream mask right', 'DSK right', -16, 16),
 ]
 
 const BY_ID = new Map(PARAMETERS.map((spec) => [spec.id, spec]))
@@ -350,5 +401,6 @@ export function parameterById(id: string): ParameterSpec | undefined {
 
 /** Variable id for the live user value. Mix effect and keyer are 1-based, matching the action fields. */
 export function variableId(mixEffect: number, keyer: number, spec: ParameterSpec): string {
+	if (spec.scope === 'dsk') return `dsk${keyer}_${spec.id}`
 	return `me${mixEffect}_usk${keyer}_${spec.id}`
 }

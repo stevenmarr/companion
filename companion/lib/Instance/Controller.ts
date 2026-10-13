@@ -43,6 +43,7 @@ import { publicProcedure, router, toIterable } from '../UI/TRPC.js'
 import type { VariablesController } from '../Variables/Controller.js'
 import { ActionRecorder } from './ActionRecorder.js'
 import { InstanceConfigStore, type AddInstanceProps } from './ConfigStore.js'
+import { ATEM_DIALS_MODULE_ID, ATEM_SWITCHER_MODULE_ID } from './Connection/AtemDialsLink.js'
 import { ConnectionsCollections } from './Connection/Collections.js'
 import { InstanceSharedUdpManager } from './Connection/SharedUdpManager.js'
 import { createConnectionsTrpcRouter } from './Connection/TrpcRouter.js'
@@ -60,6 +61,12 @@ import { InstanceUdevRulesController } from './UdevRules.js'
 type CreateConnectionData = {
 	type: string
 	product?: string
+}
+
+function atemConnectionId(config: unknown): string {
+	if (!config || typeof config !== 'object' || Array.isArray(config)) return ''
+	const selected = (config as Record<string, unknown>).atemConnection
+	return typeof selected === 'string' ? selected : ''
 }
 
 export interface InstanceControllerEvents {
@@ -247,6 +254,8 @@ export class InstanceController extends EventEmitter<InstanceControllerEvents> {
 						}
 					)
 				},
+				getConnectionConfig: (connectionId) =>
+					this.#configStore.getConfigOfTypeForId(connectionId, ModuleInstanceType.Connection),
 				debugLogLine: (connectionId: string, time: number | null, source: string, level: string, message: string) => {
 					this.emit(`debugLog:${connectionId}`, time, source, level, message)
 				},
@@ -779,10 +788,14 @@ export class InstanceController extends EventEmitter<InstanceControllerEvents> {
 
 		this.#logger.debug(`instance "${connectionConfig.label}" configuration updated`)
 
+		const refreshLinkedDials =
+			connectionConfig.moduleId === ATEM_SWITCHER_MODULE_ID && (!!values.config || values.enabled !== null)
+
 		// If enabled has changed, start/stop the connection
 		if (values.enabled !== null) {
 			this.#queueUpdateInstanceState(id, false, false)
 			if (!connectionConfig.enabled) {
+				if (refreshLinkedDials) this.#refreshAtemDialsFollowing(id)
 				// If new state is disabled, stop processing here
 				return { ok: true }
 			}
@@ -800,7 +813,24 @@ export class InstanceController extends EventEmitter<InstanceControllerEvents> {
 			})
 		}
 
+		if (refreshLinkedDials) this.#refreshAtemDialsFollowing(id)
+
 		return { ok: true }
+	}
+
+	/** Push a switcher's current address into encoder-dial connections that follow it. */
+	#refreshAtemDialsFollowing(switcherId: string): void {
+		for (const [dialsId, dialsConfig] of this.#configStore.getAllInstanceConfigs()) {
+			if (dialsConfig.moduleInstanceType !== ModuleInstanceType.Connection) continue
+			if (dialsConfig.moduleId !== ATEM_DIALS_MODULE_ID || !dialsConfig.enabled) continue
+			if (atemConnectionId(dialsConfig.config) !== switcherId) continue
+
+			const child = this.processManager.getConnectionChild(dialsId, true)
+			if (!child) continue
+			child.updateConfigAndLabel(dialsConfig).catch((e) => {
+				child.logger.warn('Error updating ATEM dials after the switcher changed: ' + stringifyError(e))
+			})
+		}
 	}
 
 	/**
@@ -913,6 +943,7 @@ export class InstanceController extends EventEmitter<InstanceControllerEvents> {
 		}
 
 		const label = config.label
+		const wasSwitcher = config.moduleId === ATEM_SWITCHER_MODULE_ID
 		this.#logger.info(`Deleting instance: ${label ?? connectionId}`)
 
 		try {
@@ -927,6 +958,7 @@ export class InstanceController extends EventEmitter<InstanceControllerEvents> {
 
 		this.status.forgetInstanceStatus(connectionId)
 		this.#configStore.forgetInstance(connectionId)
+		if (wasSwitcher) this.#refreshAtemDialsFollowing(connectionId)
 
 		this.emit('connection_deleted', connectionId)
 

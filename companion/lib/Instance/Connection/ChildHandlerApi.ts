@@ -35,6 +35,8 @@ export interface ConnectionChildHandlerDependencies {
 		secrets: unknown | null,
 		newUpgradeIndex: number | null
 	) => void
+	/** Read another connection's stored config. Used to follow a switcher's address. */
+	readonly getConnectionConfig: (connectionId: string) => InstanceConfig | undefined
 	readonly debugLogLine: (
 		connectionId: string,
 		time: number | null,

@@ -1,4 +1,5 @@
-import { useCallback } from 'react'
+import { observer } from 'mobx-react-lite'
+import { useCallback, useContext } from 'react'
 import type { JsonValue } from 'type-fest'
 import { ModuleInstanceType } from '@companion-app/shared/Model/Instance.js'
 import type { SomeCompanionInputField } from '@companion-app/shared/Model/Options.js'
@@ -11,6 +12,7 @@ import { NumberInputField } from '~/Components/NumberInputField'
 import { SwitchInputField } from '~/Components/SwitchInputField'
 import { TextInputFieldSimple } from '~/Components/TextInputField'
 import { StaticTextFieldText } from '~/Controls/StaticTextField.js'
+import { RootAppStoreContext } from '~/Stores/RootAppStore.js'
 
 interface InstanceEditFieldProps {
 	inputId: string
@@ -73,6 +75,18 @@ export function InstanceEditField({
 				</div>
 			)
 		case 'dropdown':
+			if (definition.id === 'atemConnection') {
+				return (
+					<AtemConnectionDropdown
+						inputId={inputId}
+						instanceId={instanceId}
+						definition={definition}
+						value={value}
+						setValue={setValue}
+						checkValid={checkValid}
+					/>
+				)
+			}
 			return (
 				<DropdownInputField
 					htmlName={inputId}
@@ -127,3 +141,44 @@ export function InstanceEditField({
 			return <p>Unknown field "{fieldType}"</p>
 	}
 }
+
+const AtemConnectionDropdown = observer(function AtemConnectionDropdown({
+	inputId,
+	instanceId,
+	definition,
+	value,
+	setValue,
+	checkValid,
+}: {
+	inputId: string
+	instanceId: string
+	definition: Extract<SomeCompanionInputField, { type: 'dropdown' }>
+	value: JsonValue | undefined
+	setValue: (next: JsonValue | undefined) => void
+	checkValid: (next: JsonValue | undefined) => boolean | undefined
+}): React.JSX.Element {
+	const { connections } = useContext(RootAppStoreContext)
+	const moduleId = connections.getInfo(instanceId)?.moduleId
+	const choices =
+		moduleId === 'pvllc-atem-dials'
+			? [
+					{ id: '', label: 'Select an ATEM connection' },
+					...connections.getAllOfModuleId('bmd-atem').map((connection) => ({
+						id: connection.id,
+						label: connection.label,
+					})),
+				]
+			: definition.choices
+
+	return (
+		<DropdownInputField
+			htmlName={inputId}
+			choices={choices}
+			allowCustom={definition.allowCustom}
+			regex={definition.regex}
+			value={value as any}
+			setValue={setValue}
+			checkValid={checkValid}
+		/>
+	)
+})

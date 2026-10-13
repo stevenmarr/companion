@@ -1,9 +1,9 @@
 {
 	"name": "pvllc-atem-dials",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"private": true,
 	"type": "module",
-	"description": "Companion connection: encoder dials for ATEM upstream keyer DVE, luma and chroma values",
+	"description": "Companion connection: encoder dials for an existing ATEM connection, including downstream keyers",
 	"license": "MIT",
 	"scripts": {
 		"build": "node build.mjs",

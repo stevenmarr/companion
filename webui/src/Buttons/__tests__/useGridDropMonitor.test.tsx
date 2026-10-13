@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { formatLocation } from '@companion-app/shared/ControlId.js'
 import type { ControlLocation } from '@companion-app/shared/Model/Common.js'
 import type { UserConfigGridSize } from '@companion-app/shared/Model/UserConfigModel.js'
+import type { PresetDragItem } from '../Presets/PresetDragItem.js'
 
 /** The handlers the hook subscribed with, so a drag can be played through them */
 let monitor: {
@@ -55,7 +56,12 @@ function gridDrag(origin: ControlLocation) {
 }
 
 function setup(
-	options: { gridSize?: UserConfigGridSize | undefined; occupied?: (l: ControlLocation) => boolean } = {}
+	options: {
+		gridSize?: UserConfigGridSize | undefined
+		occupied?: (l: ControlLocation) => boolean
+		shouldPromptForPreset?: (preset: PresetDragItem) => boolean
+		onPresetPrompt?: (preset: PresetDragItem, location: ControlLocation) => void
+	} = {}
 ) {
 	const store = new ButtonGridStore()
 	const actions = makeGridActions()
@@ -69,6 +75,8 @@ function setup(
 				gridSize: 'gridSize' in options ? options.gridSize : GRID_SIZE,
 				isOccupied,
 				actions,
+				shouldPromptForPreset: options.shouldPromptForPreset,
+				onPresetPrompt: options.onPresetPrompt,
 			}),
 		{ wrapper: ({ children }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider> }
 	)
@@ -259,6 +267,25 @@ describe('when a preset is dropped on the grid', () => {
 				},
 			},
 		])
+	})
+
+	it('asks which key a dial preset controls instead of placing it immediately', () => {
+		const onPresetPrompt = vi.fn()
+		const { drop } = setup({
+			shouldPromptForPreset: (item) => item.presetId.startsWith('dve_'),
+			onPresetPrompt,
+		})
+		const item = {
+			connectionId: 'dials',
+			presetId: 'dve_position_x_fine',
+			variableValues: null,
+			mode: 'reference',
+		}
+
+		drop({ source: { type: 'preset', data: item }, target: { id: cellId(at(1, 2)) } })
+
+		expect(sent).toEqual([])
+		expect(onPresetPrompt).toHaveBeenCalledWith(item, at(1, 2))
 	})
 
 	it('does nothing when it lands on something that is not a cell', () => {

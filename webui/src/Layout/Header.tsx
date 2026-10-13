@@ -64,6 +64,10 @@ export const MyHeader = observer(function MyHeader({ canLock, setLocked }: MyHea
 	const { mobileMode, handleShowSidebar } = useSidebarState()
 
 	const updateData = useSubscription(trpc.appInfo.updateInfo.subscriptionOptions())
+	const updateNotice = updateData.data
+	const hideExperimentalNotice =
+		!!updateNotice &&
+		(/experimental/i.test(updateNotice.message ?? '') || /experimental/i.test(updateNotice.message2 ?? ''))
 
 	return (
 		// note: position="sticky" is not necessary since the header is never part of a scrolling element.
@@ -78,7 +82,7 @@ export const MyHeader = observer(function MyHeader({ canLock, setLocked }: MyHea
 				)}
 
 				<a className="header-brand mx-auto md:hidden">
-					Bitfocus&nbsp;<span className="font-bold">Companion</span>
+					Performance Video <span className="font-bold">LLC</span>
 				</a>
 
 				<HeaderNav className="hidden md:flex me-auto">
@@ -86,12 +90,12 @@ export const MyHeader = observer(function MyHeader({ canLock, setLocked }: MyHea
 						<li className="nav-item install-name">{userConfig.properties?.installName}</li>
 					)}
 
-					{updateData.data?.message ? (
+					{updateNotice?.message && !hideExperimentalNotice ? (
 						<li className="nav-item header-notification-item">
 							<a
 								className="nav-link"
 								target="_blank"
-								href={updateData.data.link || 'https://companion.free/'}
+								href={updateNotice.link || 'https://companion.free/'}
 								rel="noopener noreferrer"
 							>
 								<div className="flex">
@@ -99,11 +103,11 @@ export const MyHeader = observer(function MyHeader({ canLock, setLocked }: MyHea
 										<FontAwesomeIcon icon={faTriangleExclamation} className="header-update-icon" />
 									</div>
 									<div>
-										{updateData.data.message}
-										{!!updateData.data.message2 && (
+										{updateNotice.message}
+										{!!updateNotice.message2 && (
 											<>
 												<br />
-												{updateData.data.message2}
+												{updateNotice.message2}
 											</>
 										)}
 										<FontAwesomeIcon icon={faExternalLinkSquare} className="ms-2" />

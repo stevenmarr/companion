@@ -118,12 +118,22 @@ html[data-theme='dark'] * {
 	padding: 0.4rem 0.75rem;
 }
 
-.sidebar-header .sidebar-brand,
-.sidebar-header .sidebar-brand-full {
+.sidebar .sidebar-header .sidebar-brand,
+.sidebar .sidebar-header .sidebar-brand-full {
 	color: #000;
-	letter-spacing: 0.12em;
+	letter-spacing: 0.04em;
 	text-transform: uppercase;
 	font-weight: 700;
+	font-size: 0.68rem;
+	line-height: 1.2;
+	white-space: normal;
+	text-align: center;
+}
+
+.sidebar .sidebar-header .sidebar-brand-narrow {
+	font-size: 0.85rem;
+	letter-spacing: 0.08em;
+	white-space: nowrap;
 }
 
 .sidebar .sidebar-nav .nav-link {

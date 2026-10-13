@@ -26,6 +26,7 @@ import type { DataChannelServer } from '../Common/DataChannelServer.js'
 import { HostFramedTransport } from '../Common/FramedMessageChannel.js'
 import { IpcWrapper, type IpcEventHandlers, type IpcMessagePacket } from '../Common/IpcWrapper.js'
 import type { ChildProcessHandlerBase } from '../ProcessManager.js'
+import { enrichAtemDialsConfig } from './AtemDialsLink.js'
 import {
 	actionExecutionOverrideVariables,
 	type ConnectionChildHandlerApi,
@@ -182,13 +183,15 @@ export class ConnectionChildHandlerNew implements ChildProcessHandlerBase, Conne
 			}
 		}
 
+		const runtimeConfig = enrichAtemDialsConfig(config, (connectionId) => this.#deps.getConnectionConfig(connectionId))
+
 		const msg = await this.#ipcWrapper.sendWithCb(
 			'init',
 			{
-				label: config.label,
-				isFirstInit: config.isFirstInit,
-				config: config.config,
-				secrets: config.secrets,
+				label: runtimeConfig.label,
+				isFirstInit: runtimeConfig.isFirstInit,
+				config: runtimeConfig.config,
+				secrets: runtimeConfig.secrets,
 
 				lastUpgradeIndex: config.lastUpgradeIndex,
 			},
@@ -216,10 +219,12 @@ export class ConnectionChildHandlerNew implements ChildProcessHandlerBase, Conne
 		this.logger = LogController.createLogger(`Instance/Connection/${config.label}`)
 		this.#label = config.label
 
+		const runtimeConfig = enrichAtemDialsConfig(config, (connectionId) => this.#deps.getConnectionConfig(connectionId))
+
 		await this.#ipcWrapper.sendWithCb('updateConfig', {
-			config: config.config,
-			secrets: config.secrets,
-			label: config.label,
+			config: runtimeConfig.config,
+			secrets: runtimeConfig.secrets,
+			label: runtimeConfig.label,
 		})
 	}
 

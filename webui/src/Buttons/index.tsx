@@ -31,6 +31,7 @@ import { rememberViewedPage, resolveViewedPage } from './GridPageNavigation.js'
 import { useGridZoom } from './GridZoom.js'
 import { PagesList } from './Pages.js'
 import { PageVariablesPanel } from './PageVariablesPanel.js'
+import { AtemPresetPlaceModal, type AtemPresetDrop } from './Presets/AtemPresetPlaceModal.js'
 import { ConnectionPresets } from './Presets/Presets.js'
 import { useButtonContextMenu } from './useButtonContextMenu.js'
 import { useGridDropMonitor } from './useGridDropMonitor.js'
@@ -52,7 +53,7 @@ function navigateToButtonsPage(navigate: UseNavigateResult<'/buttons'>, pageNumb
 }
 
 export const ButtonsPage = observer(function ButtonsPage() {
-	const { userConfig, pages } = useContext(RootAppStoreContext)
+	const { userConfig, pages, connections } = useContext(RootAppStoreContext)
 
 	const confirmModalRef = useRef<GenericConfirmModalRef>(null)
 	const [gridZoomController, gridZoomValue] = useGridZoom('grid')
@@ -68,6 +69,7 @@ export const ButtonsPage = observer(function ButtonsPage() {
 	const [selectedButton, setSelectedButton] = useState<ControlLocation | null>(null)
 	const [saveFavoriteAt, setSaveFavoriteAt] = useState<ControlLocation | null>(null)
 	const [favoriteDrop, setFavoriteDrop] = useState<FavoriteDrop | null>(null)
+	const [atemPresetDrop, setAtemPresetDrop] = useState<AtemPresetDrop | null>(null)
 
 	const navigate = useNavigate({ from: '/buttons' })
 	const rawPageNumber = useUrlPageNumber()
@@ -145,6 +147,8 @@ export const ButtonsPage = observer(function ButtonsPage() {
 		isOccupied,
 		actions,
 		onFavoriteDrop: (item, location) => setFavoriteDrop({ favorite: item.favorite, location }),
+		shouldPromptForPreset: (item) => connections.getInfo(item.connectionId)?.moduleId === 'pvllc-atem-dials',
+		onPresetPrompt: (item, location) => setAtemPresetDrop({ item, location }),
 	})
 
 	const {
@@ -218,6 +222,7 @@ export const ButtonsPage = observer(function ButtonsPage() {
 				<GenericConfirmModal ref={confirmModalRef} />
 				<SaveFavoriteModal location={saveFavoriteAt} onClose={() => setSaveFavoriteAt(null)} />
 				<PlaceFavoriteModal pending={favoriteDrop} onClose={() => setFavoriteDrop(null)} />
+				<AtemPresetPlaceModal pending={atemPresetDrop} onClose={() => setAtemPresetDrop(null)} />
 				<ContextMenu
 					open={contextMenuOpen}
 					onOpenChange={setContextMenuOpen}

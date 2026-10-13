@@ -1,37 +1,46 @@
 import type { CompanionPresetDefinitions, CompanionPresetSection } from '@companion-module/base'
-import { PARAMETER_GROUPS, PARAMETERS, type ParameterSpec, variableId } from './parameters.js'
+import { PARAMETER_GROUPS, PARAMETERS, type ParameterSpec } from './parameters.js'
 
 export type SpeedName = 'fine' | 'coarse'
 
 const encoderTicks = { value: '$(this:delta)', isExpression: true as const }
+const localMe = { value: '$(local:me)', isExpression: true as const }
+const localKeyer = { value: '$(local:keyer)', isExpression: true as const }
 
 function nudgeOptions(spec: ParameterSpec, speed: SpeedName) {
-	return {
-		me: 1,
-		keyer: 1,
+	const options = {
+		keyer: localKeyer,
 		parameter: spec.id,
 		speed,
 		customStep: spec.fine,
 		direction: 'encoder',
 		ticks: encoderTicks,
 	}
+	if (spec.scope === 'dsk') return options
+	return { me: localMe, ...options }
 }
 
 function presetFor(label: string, spec: ParameterSpec, speed: SpeedName) {
+	const isDownstream = spec.scope === 'dsk'
 	const speedLabel = speed === 'fine' ? 'fine' : 'coarse'
 	const step = speed === 'fine' ? spec.fine : spec.coarse
 	const action = {
-		actionId: 'nudge' as const,
+		actionId: isDownstream ? ('nudgeDownstream' as const) : ('nudge' as const),
 		headline: `${spec.label} ${speedLabel} (${step})`,
 		options: nudgeOptions(spec, speed),
 	}
+	const valueVariable = isDownstream
+		? `$(${label}:dsk$(local:keyer)_${spec.id})`
+		: `$(${label}:me$(local:me)_usk$(local:keyer)_${spec.id})`
 	return {
 		type: 'simple' as const,
 		name: `${spec.label} (${speedLabel})`,
-		keywords: [spec.group, speedLabel, 'encoder', 'dial'],
-		notes: `Drag onto a Stream Deck encoder. Each detent moves ${spec.label} by ${step} (${speedLabel}) on ME 1 key 1. Edit the action to pick another mix effect, keyer, or a custom step. The button text follows ME 1 key 1; change the variable in the text if you move the action to another keyer.`,
+		keywords: [spec.group, speedLabel, 'encoder', 'dial', isDownstream ? 'dsk' : 'usk'],
+		notes: isDownstream
+			? `Drag onto a Stream Deck encoder. Companion asks which downstream keyer this knob controls. Each detent moves ${spec.label} by ${step} (${speedLabel}).`
+			: `Drag onto a Stream Deck encoder. Companion asks which mix effect and upstream keyer this knob controls. Each detent moves ${spec.label} by ${step} (${speedLabel}).`,
 		style: {
-			text: `${spec.shortLabel}\n$(${label}:${variableId(1, 1, spec)})`,
+			text: `${spec.shortLabel}\n${valueVariable}`,
 			size: '14' as const,
 			color: 0xffb000,
 			bgcolor: 0x000000,
@@ -46,12 +55,24 @@ function presetFor(label: string, spec: ParameterSpec, speed: SpeedName) {
 			},
 		],
 		feedbacks: [
-			{
-				feedbackId: 'onAir' as const,
-				options: { me: 1, keyer: 1 },
-				style: { bgcolor: 0xff6600, color: 0x000000 },
-			},
+			isDownstream
+				? {
+						feedbackId: 'dskOnAir' as const,
+						options: { keyer: localKeyer },
+						style: { bgcolor: 0xff6600, color: 0x000000 },
+					}
+				: {
+						feedbackId: 'onAir' as const,
+						options: { me: localMe, keyer: localKeyer },
+						style: { bgcolor: 0xff6600, color: 0x000000 },
+					},
 		],
+		localVariables: isDownstream
+			? [{ variableType: 'simple' as const, variableName: 'keyer', startupValue: 1, headline: 'Downstream keyer' }]
+			: [
+					{ variableType: 'simple' as const, variableName: 'me', startupValue: 1, headline: 'Mix effect' },
+					{ variableType: 'simple' as const, variableName: 'keyer', startupValue: 1, headline: 'Upstream keyer' },
+				],
 	}
 }
 
@@ -77,7 +98,8 @@ export function buildPresetSections(label: string): {
 		sections.push({
 			id: group.id,
 			name: group.name,
-			description: 'Encoder buttons. Fine is a small step, coarse is a larger one. Both can be changed later on the action.',
+			description:
+				'Encoder buttons. Dropping one asks which mix effect and keyer it controls. Fine is a small step, coarse is a larger one.',
 			definitions: [
 				{ id: `${group.id}-fine`, type: 'simple', name: 'Fine', presets: fineIds },
 				{ id: `${group.id}-coarse`, type: 'simple', name: 'Coarse', presets: coarseIds },

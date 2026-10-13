@@ -72,7 +72,7 @@ if (platformInfo.runtimePlatform === 'linux') {
 		JSON.stringify(
 			{
 				name: 'pvllc-atem-dials',
-				version: '1.0.0',
+				version: '1.1.0',
 				private: true,
 				type: 'module',
 				license: 'MIT',

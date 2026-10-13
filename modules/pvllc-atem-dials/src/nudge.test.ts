@@ -22,6 +22,9 @@ describe('protocol scale', () => {
 		assert.equal(userToProtocol(spec('luma_clip'), 12.5), 125)
 		assert.equal(userToProtocol(spec('chroma_hue'), 359.9), 3599)
 		assert.equal(protocolToUser(spec('luma_gain'), 1000), 100)
+		assert.equal(userToProtocol(spec('dsk_clip'), 12.5), 125)
+		assert.equal(userToProtocol(spec('dsk_mask_left'), -16), -16000)
+		assert.equal(userToProtocol(spec('dsk_rate'), 25), 25)
 	})
 
 	it('gives every fine step at least one protocol unit', () => {

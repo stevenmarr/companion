@@ -41,7 +41,7 @@
   - connection module actions can read $(this:delta), so an encoder expression sees the whole turn
 
 - Modules
-  - ATEM Encoder Dials, a built-in connection for DVE, luma, chroma and pattern values with fine and coarse encoder steps
+  - ATEM Encoder Dials follows an existing Blackmagic ATEM connection. Placing a preset asks which mix effect and keyer that knob controls, including downstream keyers.
 
 - Controls
   - reference/mirror control type (#4339)

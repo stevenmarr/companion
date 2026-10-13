@@ -21,6 +21,9 @@ export interface UseGridDropMonitorOptions {
 	actions: GridToolActions
 	/** A favorite that names a connection, page, or surface. The caller opens the chooser. */
 	onFavoriteDrop?: (favorite: FavoriteDragItem, location: ControlLocation) => void
+	/** When this returns true, the preset is not imported until the caller decides. */
+	shouldPromptForPreset?: (preset: PresetDragItem) => boolean
+	onPresetPrompt?: (preset: PresetDragItem, location: ControlLocation) => void
 }
 
 /**
@@ -36,6 +39,8 @@ export function useGridDropMonitor({
 	isOccupied,
 	actions,
 	onFavoriteDrop,
+	shouldPromptForPreset,
+	onPresetPrompt,
 }: UseGridDropMonitorOptions): void {
 	// Resolving the drag the same way for the preview and for the drop is what stops the two
 	// disagreeing about where the buttons were going to land
@@ -84,6 +89,10 @@ export function useGridDropMonitor({
 				if (!location) return
 
 				const dropData = source.data as PresetDragItem
+				if (!dropData.variableValues && shouldPromptForPreset?.(dropData) && onPresetPrompt) {
+					onPresetPrompt(dropData, location)
+					return
+				}
 				importPresetMutation
 					.mutateAsync({
 						connectionId: dropData.connectionId,
