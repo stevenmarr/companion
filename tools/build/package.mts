@@ -50,6 +50,41 @@ if (platformInfo.runtimePlatform === 'linux') {
 	await fs.copy(builtinSurfaceCacheDir, builtinSurfacesDir)
 }
 
+// Bundle the ATEM encoder-dial connection so a packaged Companion can add it
+// without a separate module install. The arm64 builder installs atem-connection
+// here, so the native pieces match the target.
+{
+	const moduleDir = path.resolve('modules/pvllc-atem-dials')
+	console.log('Building ATEM encoder dials module')
+	await $({ cwd: moduleDir })`npm install --no-audit --no-fund`
+	await $({ cwd: moduleDir })`npm test`
+	await $({ cwd: moduleDir })`npm run build`
+
+	const dest = path.resolve('dist/builtin-modules/pvllc-atem-dials')
+	await fs.remove(dest)
+	await fs.mkdirp(path.join(dest, 'companion'))
+	await fs.mkdirp(path.join(dest, 'dist'))
+	await fs.copy(path.join(moduleDir, 'companion/manifest.json'), path.join(dest, 'companion/manifest.json'))
+	await fs.copy(path.join(moduleDir, 'dist/main.js'), path.join(dest, 'dist/main.js'))
+	await fs.copy(path.join(moduleDir, 'dist/main.js.map'), path.join(dest, 'dist/main.js.map'))
+	await fs.writeFile(
+		path.join(dest, 'package.json'),
+		JSON.stringify(
+			{
+				name: 'pvllc-atem-dials',
+				version: '1.0.0',
+				private: true,
+				type: 'module',
+				license: 'MIT',
+				dependencies: { 'atem-connection': '3.10.3' },
+			},
+			null,
+			2
+		)
+	)
+	await $({ cwd: dest })`npm install --omit=dev --no-audit --no-fund`
+}
+
 // Install dependencies
 $.cwd = 'dist'
 // await fs.writeFile(`dist/yarn.lock`, '')

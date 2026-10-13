@@ -139,3 +139,4 @@ Additionally, in some places there are some builtin local variables under the `$
   - Variable: `this:surface_id`
 - The rotation amount of a rotary action (positive = right/clockwise, negative = left/counter-clockwise; only set while a rotary action is running)
   - Variable: `this:delta`
+  - Works in any action option expression, including actions from a connection module. A fast turn is one run whose magnitude is the number of detents.

@@ -38,6 +38,10 @@
 - Variables
   - Local Variables on pages (#4332)
   - expose $(this:delta) for rotary actions and carry rotation amount (#4387)
+  - connection module actions can read $(this:delta), so an encoder expression sees the whole turn
+
+- Modules
+  - ATEM Encoder Dials, a built-in connection for DVE, luma, chroma and pattern values with fine and coarse encoder steps
 
 - Controls
   - reference/mirror control type (#4339)

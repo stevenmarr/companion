@@ -26,10 +26,11 @@ import type { DataChannelServer } from '../Common/DataChannelServer.js'
 import { HostFramedTransport } from '../Common/FramedMessageChannel.js'
 import { IpcWrapper, type IpcEventHandlers, type IpcMessagePacket } from '../Common/IpcWrapper.js'
 import type { ChildProcessHandlerBase } from '../ProcessManager.js'
-import type {
-	ConnectionChildHandlerApi,
-	ConnectionChildHandlerDependencies,
-	RunActionExtras,
+import {
+	actionExecutionOverrideVariables,
+	type ConnectionChildHandlerApi,
+	type ConnectionChildHandlerDependencies,
+	type RunActionExtras,
 } from './ChildHandlerApi.js'
 import {
 	ConnectionEntityManager,
@@ -375,10 +376,15 @@ export class ConnectionChildHandlerNew implements ChildProcessHandlerBase, Conne
 			)
 			if (!actionDefinition) throw new Error(`Failed to find action definition for ${action.definitionId}`)
 
-			// Note: for actions, this doesn't need to be reactive
-			const parser = this.#deps.controls.createVariablesAndExpressionParser(extras.controlId, null, {
-				allowClockSensitive: false,
-			})
+			// Rotary amount is $(this:delta) for internal actions. Connection modules need the same
+			// values, or an encoder expression cannot see which way the knob turned or by how many detents.
+			const parser = this.#deps.controls.createVariablesAndExpressionParser(
+				extras.controlId,
+				actionExecutionOverrideVariables(extras),
+				{
+					allowClockSensitive: false,
+				}
+			)
 			const parseRes = parser.parseEntityOptions(actionDefinition, action.options)
 			if (!parseRes.ok) {
 				let location = 'Unknown'

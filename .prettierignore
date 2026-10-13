@@ -16,6 +16,7 @@ webui/src/tailwind.css
 
 module-local-dev
 bundled-modules
+modules
 
 companion/test/Upgrade/*/*.*.json
 webui/public/_deps

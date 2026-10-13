@@ -3,6 +3,7 @@ import type { ControlLocation } from '@companion-app/shared/Model/Common.js'
 import type { ActionEntityModel, SomeEntityModel } from '@companion-app/shared/Model/EntityModel.js'
 import type { InstanceConfig } from '@companion-app/shared/Model/Instance.js'
 import type { ExpressionableOptionsObject, SomeCompanionInputField } from '@companion-app/shared/Model/Options.js'
+import type { VariableValues } from '@companion-app/shared/Model/Variables.js'
 import type { JsonValue } from '@companion-module/host'
 import type { ControlEntityInstance } from '../../Controls/Entities/EntityInstance.js'
 import type { IControlStore } from '../../Controls/IControlStore.js'
@@ -123,4 +124,15 @@ export interface RunActionExtras {
 	 * Exposed to expressions as `$(this:delta)`.
 	 */
 	rotationDelta: number | null
+}
+
+/**
+ * `$(this:*)` values for one action execution. `this:delta` is the signed rotary amount
+ * (positive = right). It is undefined for a press, so a non-rotary run does not pretend to be a turn.
+ */
+export function actionExecutionOverrideVariables(extras: RunActionExtras): VariableValues {
+	return {
+		'this:surface_id': extras.surfaceId,
+		'this:delta': extras.rotationDelta ?? undefined,
+	}
 }

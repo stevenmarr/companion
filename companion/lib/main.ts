@@ -237,7 +237,9 @@ program.command('start', { isDefault: true, hidden: true }).action(() => {
 				[ModuleInstanceType.Surface]: path.join(rootConfigDir, 'surfaces'),
 			},
 			builtinModuleDirs: {
-				[ModuleInstanceType.Connection]: null,
+				[ModuleInstanceType.Connection]: isPackaged()
+					? path.join(import.meta.dirname, 'builtin-modules')
+					: path.join(import.meta.dirname, '../../modules'),
 				[ModuleInstanceType.Surface]: isPackaged()
 					? path.join(import.meta.dirname, 'builtin-surfaces')
 					: path.join(import.meta.dirname, '../../.cache/builtin-surfaces'),

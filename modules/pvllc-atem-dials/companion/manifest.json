@@ -1,0 +1,27 @@
+{
+	"type": "connection",
+	"id": "pvllc-atem-dials",
+	"name": "ATEM Encoder Dials",
+	"shortname": "ATEM dials",
+	"description": "Turn encoders to adjust ATEM upstream keyer DVE, luma, chroma and pattern values, with fine and coarse steps",
+	"version": "1.0.0",
+	"license": "MIT",
+	"repository": "https://github.com/stevenmarr/companion",
+	"bugs": "https://github.com/stevenmarr/companion/issues",
+	"maintainers": [
+		{
+			"name": "Steven Marr",
+			"github": "stevenmarr"
+		}
+	],
+	"legacyIds": [],
+	"runtime": {
+		"type": "node22",
+		"api": "nodejs-ipc",
+		"apiVersion": "2.2.0",
+		"entrypoint": "../dist/main.js"
+	},
+	"manufacturer": "Blackmagic Design",
+	"products": ["ATEM Mini", "ATEM Television Studio", "ATEM Constellation", "ATEM Production Studio"],
+	"keywords": ["atem", "blackmagic", "dve", "keyer", "chroma", "luma", "encoder"]
+}

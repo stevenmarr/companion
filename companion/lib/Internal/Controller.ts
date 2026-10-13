@@ -34,7 +34,7 @@ import type { IControlStore } from '../Controls/IControlStore.js'
 import type { RenderClock } from '../Controls/RenderClock.js'
 import type { DataUserConfig } from '../Data/UserConfig.js'
 import type { GraphicsController } from '../Graphics/Controller.js'
-import type { RunActionExtras } from '../Instance/Connection/ChildHandlerApi.js'
+import { actionExecutionOverrideVariables, type RunActionExtras } from '../Instance/Connection/ChildHandlerApi.js'
 import type { InstanceController } from '../Instance/Controller.js'
 import type { InstanceDefinitions } from '../Instance/Definitions.js'
 import LogController from '../Log/Controller.js'
@@ -832,8 +832,5 @@ export class InternalController {
  * action's own options and by the one for its child feedbacks, so both see the same variables.
  */
 export function buildActionExecutionOverrides(extras: RunActionExtras): VariableValues {
-	return {
-		'this:surface_id': extras.surfaceId,
-		'this:delta': extras.rotationDelta ?? undefined,
-	}
+	return actionExecutionOverrideVariables(extras)
 }

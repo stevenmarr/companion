@@ -208,6 +208,7 @@ export default [
 			'companion/test/integration/modules/fixtures-invalid/**/*',
 			'tools/**/*',
 			'module-local-dev/**/*',
+			'modules/**/*',
 			'launcher/dev.cjs',
 			'webui/public/_deps/**/*',
 			'webui/post-install.ts',
