@@ -1,6 +1,6 @@
 # [Bitfocus Companion](https://companion.free)
 
-**User Documentation**
+**User Documentation***
 
 - https://companion.free/user-guide/beta/getting-started/Installation
 
