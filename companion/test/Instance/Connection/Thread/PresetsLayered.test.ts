@@ -608,6 +608,9 @@ describe('ConvertLayerPresetElements', () => {
 					halign: exprVal('center'),
 					valign: exprVal('center'),
 					outlineColor: exprVal(0xff000000),
+					letterSpacing: exprVal(0),
+					lineHeight: exprVal(100),
+					textTransform: exprVal('none'),
 				},
 			])
 		})

@@ -84,11 +84,7 @@ export interface ButtonGraphicsCanvasElement extends Omit<
 	showStatusIcons: ExpressionOrValue<'default' | 'all' | 'none'>
 }
 
-export type ButtonGraphicsFontFamily =
-	| 'companion-sans'
-	| 'companion-mono'
-	| 'companion-brand'
-	| 'companion-condensed'
+export type ButtonGraphicsFontFamily = 'companion-sans' | 'companion-mono' | 'companion-brand' | 'companion-condensed'
 
 export type ButtonGraphicsFontWeight = 'light' | 'normal' | 'medium' | 'bold'
 

@@ -175,7 +175,13 @@ function convertLayeredPresetElement(
 				valign: convertModuleExpressionOrValue(element.valign, { value: 'center', isExpression: false }),
 				fillMode: convertModuleExpressionOrValue(element.fillMode, { value: 'fit', isExpression: false }),
 			} satisfies ButtonGraphicsImageElement
-		case 'text':
+		case 'text': {
+			// Module API (@companion-module/base) does not yet declare these; accept them if a fork module sends them.
+			const textProps = element as typeof element & {
+				letterSpacing?: CompanionGraphicsElementValue<number>
+				lineHeight?: CompanionGraphicsElementValue<number>
+				textTransform?: CompanionGraphicsElementValue<'none' | 'uppercase' | 'lowercase' | 'capitalize'>
+			}
 			return {
 				type: 'text',
 				...convertElementBasicProperties(element, 'Text', forceNewIds, generateId),
@@ -200,10 +206,11 @@ function convertLayeredPresetElement(
 				valign: convertModuleExpressionOrValue(element.valign, { value: 'center', isExpression: false }),
 
 				outlineColor: convertModuleExpressionOrValue(element.outlineColor, { value: 0xff000000, isExpression: false }),
-				letterSpacing: convertModuleExpressionOrValue(element.letterSpacing, { value: 0, isExpression: false }),
-				lineHeight: convertModuleExpressionOrValue(element.lineHeight, { value: 100, isExpression: false }),
-				textTransform: convertModuleExpressionOrValue(element.textTransform, { value: 'none', isExpression: false }),
+				letterSpacing: convertModuleExpressionOrValue(textProps.letterSpacing, { value: 0, isExpression: false }),
+				lineHeight: convertModuleExpressionOrValue(textProps.lineHeight, { value: 100, isExpression: false }),
+				textTransform: convertModuleExpressionOrValue(textProps.textTransform, { value: 'none', isExpression: false }),
 			} satisfies ButtonGraphicsTextElement
+		}
 		case 'line':
 			return {
 				type: 'line',

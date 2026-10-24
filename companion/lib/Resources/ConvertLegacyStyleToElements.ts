@@ -296,10 +296,10 @@ export function ConvertLegacyStyleToElements(
 		font: { value: 'companion-sans', isExpression: false },
 		weight: { value: 'normal', isExpression: false },
 		styles: { value: [], isExpression: false },
-		outlineColor: { value: 0xff000000,
+		outlineColor: { value: 0xff000000, isExpression: false },
 		letterSpacing: { value: 0, isExpression: false },
 		lineHeight: { value: 100, isExpression: false },
-		textTransform: { value: 'none', isExpression: false }, isExpression: false },
+		textTransform: { value: 'none', isExpression: false },
 	}
 	const bufferElement: ButtonGraphicsImageElement = {
 		id: 'imageBuffers',
