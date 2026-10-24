@@ -200,6 +200,9 @@ function convertLayeredPresetElement(
 				valign: convertModuleExpressionOrValue(element.valign, { value: 'center', isExpression: false }),
 
 				outlineColor: convertModuleExpressionOrValue(element.outlineColor, { value: 0xff000000, isExpression: false }),
+				letterSpacing: convertModuleExpressionOrValue(element.letterSpacing, { value: 0, isExpression: false }),
+				lineHeight: convertModuleExpressionOrValue(element.lineHeight, { value: 100, isExpression: false }),
+				textTransform: convertModuleExpressionOrValue(element.textTransform, { value: 'none', isExpression: false }),
 			} satisfies ButtonGraphicsTextElement
 		case 'line':
 			return {

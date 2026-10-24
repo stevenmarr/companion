@@ -74,6 +74,9 @@ function makeTextDrawEl(overrides: Partial<ButtonGraphicsTextDrawElement> = {}):
 		halign: 'center',
 		valign: 'center',
 		outlineColor: 0,
+		letterSpacing: 0,
+		lineHeight: 100,
+		textTransform: 'none',
 		contentHash: 'hash',
 		...overrides,
 	}
@@ -125,6 +128,9 @@ function makeTextEl(overrides: Partial<ButtonGraphicsTextElement> = {}): ButtonG
 		halign: val('center'),
 		valign: val('center'),
 		outlineColor: val(0),
+		letterSpacing: val(0),
+		lineHeight: val(100),
+		textTransform: val('none'),
 		...overrides,
 	}
 }

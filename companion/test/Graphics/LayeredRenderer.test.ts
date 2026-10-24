@@ -77,6 +77,9 @@ function makeTextElement(overrides: Partial<ButtonGraphicsTextDrawElement> = {})
 		outlineColor: 0xff000000, // alpha=0 → no outline
 		halign: 'center',
 		valign: 'center',
+		letterSpacing: 0,
+		lineHeight: 100,
+		textTransform: 'none',
 		...overrides,
 	}
 }

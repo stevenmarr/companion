@@ -172,6 +172,8 @@ export const textElementSchema: ElementSchemaSection[] = [
 				choices: [
 					{ id: 'companion-sans', label: 'Default' },
 					{ id: 'companion-mono', label: 'Monospace' },
+					{ id: 'companion-brand', label: 'Brand (Space Grotesk)' },
+					{ id: 'companion-condensed', label: 'Condensed' },
 				],
 				default: 'companion-sans',
 				disableAutoExpression: true, // I think this will just be confusing to know what values to provide..
@@ -181,7 +183,9 @@ export const textElementSchema: ElementSchemaSection[] = [
 				id: 'weight',
 				label: 'Weight',
 				choices: [
+					{ id: 'light', label: 'Light' },
 					{ id: 'normal', label: 'Normal' },
+					{ id: 'medium', label: 'Medium' },
 					{ id: 'bold', label: 'Bold' },
 				],
 				default: 'normal',
@@ -210,6 +214,39 @@ export const textElementSchema: ElementSchemaSection[] = [
 				default: 0x000000,
 				returnType: 'number',
 				enableAlpha: true,
+			},
+			{
+				type: 'number',
+				id: 'letterSpacing',
+				label: 'Letter Spacing',
+				tooltip: 'Extra space between characters, as a percent of the font size (0 = default, 10 ≈ 0.1em).',
+				min: -20,
+				max: 50,
+				default: 0,
+				step: 1,
+			},
+			{
+				type: 'number',
+				id: 'lineHeight',
+				label: 'Line Height',
+				tooltip: 'Line box height as a percent of the font natural line box (100 = default).',
+				min: 70,
+				max: 200,
+				default: 100,
+				step: 1,
+			},
+			{
+				type: 'dropdown',
+				id: 'textTransform',
+				label: 'Text Transform',
+				choices: [
+					{ id: 'none', label: 'None' },
+					{ id: 'uppercase', label: 'Uppercase' },
+					{ id: 'lowercase', label: 'Lowercase' },
+					{ id: 'capitalize', label: 'Capitalize' },
+				],
+				default: 'none',
+				disableAutoExpression: true,
 			},
 			{
 				type: 'internal:horizontal-alignment',
