@@ -72,6 +72,12 @@ export interface DrawAlignedTextOptions {
 	underline?: boolean
 	/** render a strikethrough (default false) */
 	strikethrough?: boolean
+	/** letter-spacing as a percent of font size (0 = default) */
+	letterSpacing?: number
+	/** line-height as a percent of the natural line box (100 = default) */
+	lineHeight?: number
+	/** CSS-like text transform applied before layout */
+	textTransform?: ButtonGraphicsTextDrawElement['textTransform']
 }
 
 /** Take a limited view of CompanionImageContext2D, based on what skia canvas supports */
@@ -84,6 +90,38 @@ export type CompanionImageContext2D = Omit<
  * A simple image pool, to allow for using temporary images for compositing purposes
  * This should minimise GC pressure by reusing the same image object
  */
+
+function cssFontWeight(weight: ButtonGraphicsTextDrawElement['weight'] | undefined): string {
+	switch (weight) {
+		case 'light':
+			return '300 '
+		case 'medium':
+			return '500 '
+		case 'bold':
+			return 'bold '
+		case 'normal':
+		default:
+			return ''
+	}
+}
+
+function applyTextTransform(
+	text: string,
+	transform: ButtonGraphicsTextDrawElement['textTransform'] | undefined
+): string {
+	switch (transform) {
+		case 'uppercase':
+			return text.toLocaleUpperCase()
+		case 'lowercase':
+			return text.toLocaleLowerCase()
+		case 'capitalize':
+			return text.replace(/\S+/g, (w) => w.charAt(0).toLocaleUpperCase() + w.slice(1).toLocaleLowerCase())
+		case 'none':
+		default:
+			return text
+	}
+}
+
 export abstract class ImagePoolBase<TImage extends ImageBase<any>> {
 	#pool: TImage[] = []
 
@@ -804,7 +842,7 @@ export abstract class ImageBase<TDrawImageType extends { width: number; height: 
 		weight: DrawAlignedTextOptions['weight'],
 		italic: boolean
 	): number {
-		const fontSpec = `${italic ? 'italic ' : ''}${weight === 'bold' ? 'bold ' : ''}100px ${resolveFontName(font)}`
+		const fontSpec = `${italic ? 'italic ' : ''}${cssFontWeight(weight)}100px ${resolveFontName(font, weight)}`
 		const cacheKey = `linebox:${fontSpec}`
 		const cached = this.#textLayoutCache?.get(cacheKey)
 		if (typeof cached === 'number') return cached
@@ -851,12 +889,16 @@ export abstract class ImageBase<TDrawImageType extends { width: number; height: 
 			italic = false,
 			underline = false,
 			strikethrough = false,
+			letterSpacing = 0,
+			lineHeight = 100,
+			textTransform = 'none',
 		} = options
 
 		if (w <= 0 || h <= 0) return
 
 		let displayTextStr = this.#sanitiseText(text).toString().trim() // remove leading and trailing spaces for display
 		if (!displayTextStr) return
+		displayTextStr = applyTextTransform(displayTextStr, textTransform)
 
 		displayTextStr = displayTextStr.replaceAll('\r\n', '\n') // we only want \n as a linebreak
 		displayTextStr = displayTextStr.replaceAll('\\n', '\n') // users can add deliberate line breaks, let's replace it with a real line break
@@ -884,25 +926,38 @@ export abstract class ImageBase<TDrawImageType extends { width: number; height: 
 		// When fontsize === h (signals "shrink up to the full height"), normFontsize === NORM_H — preserved.
 		const normFontsize = fontsize * normScale
 		const upScale = h / NORM_H
-		const fontNameStr = resolveFontName(font)
+		const fontNameStr = resolveFontName(font, weight)
 
 		// CSS font shorthand prefix: `font-style font-weight` (skia/browsers synthesize faux italic/bold).
 		// Must be part of the measured spec too, as it affects glyph widths (and the layout cache key).
-		const fontStylePrefix = `${italic ? 'italic ' : ''}${weight === 'bold' ? 'bold ' : ''}`
+		const fontStylePrefix = `${italic ? 'italic ' : ''}${cssFontWeight(weight)}`
+		const lineHeightMul = Math.min(Math.max(lineHeight || 100, 70), 200) / 100
+		const letterSpacingPct = Number.isFinite(letterSpacing) ? letterSpacing : 0
 
 		// Layout at a normalized size, cached by normalized dims (shared across same-aspect canvases).
 		// `needComplete` forces a full layout for rendering; otherwise a fast early-exit probe is used,
 		// whose only reliable output is `fits`. Only cache render-safe layouts: an early-exit probe is
 		// complete only when it fits, so non-fitting probes are skipped.
+		const previousLetterSpacing = this.context2d.letterSpacing
 		const getNormLayout = (size: number, needComplete: boolean): TextLayoutResult => {
-			const normFontSpec = `${fontStylePrefix}${size}px/${size * 1.1}px ${fontNameStr}`
-			const cacheKey = `${normFontSpec}:${normW}:${NORM_H}:${displayTextCharsStr}`
+			const normFontSpec = `${fontStylePrefix}${size}px/${size * 1.1 * lineHeightMul}px ${fontNameStr}`
+			const cacheKey = `${normFontSpec}:${normW}:${NORM_H}:${displayTextCharsStr}:ls${letterSpacingPct}:lh${lineHeightMul}`
 			const cachedLayout = this.#textLayoutCache?.get(cacheKey)
 			if (typeof cachedLayout === 'object') return cachedLayout
 
+			// letterSpacing is % of font size → px at the normalized size
+			this.context2d.letterSpacing = letterSpacingPct ? `${(letterSpacingPct / 100) * size}px` : '0px'
 			const layout = computeTextLayout(this.context2d, normW, NORM_H, displayTextChars, normFontSpec, !needComplete)
-			if (needComplete || layout.fits) this.#textLayoutCache?.set(cacheKey, layout)
-			return layout
+			const adjusted =
+				lineHeightMul === 1
+					? layout
+					: {
+							...layout,
+							measuredLineHeight: layout.measuredLineHeight * lineHeightMul,
+							totalHeight: layout.measuredLineHeight * lineHeightMul * Math.max(layout.lines.length, 1),
+						}
+			if (needComplete || adjusted.fits) this.#textLayoutCache?.set(cacheKey, adjusted)
+			return adjusted
 		}
 
 		const bounds = resolveFontSizeBounds(NORM_H, normFontsize, allowShrink)
@@ -930,7 +985,7 @@ export abstract class ImageBase<TDrawImageType extends { width: number; height: 
 		// Scale the normalized layout up to the actual canvas dimensions for rendering
 		const actualSize = usedNormSize * upScale
 		const textLayout: TextLayoutResult = {
-			fontDefinition: `${fontStylePrefix}${actualSize}px/${actualSize * 1.1}px ${fontNameStr}`,
+			fontDefinition: `${fontStylePrefix}${actualSize}px/${actualSize * 1.1 * lineHeightMul}px ${fontNameStr}`,
 			lines: normLayout.lines,
 			measuredLineHeight: normLayout.measuredLineHeight * upScale,
 			measuredAscent: normLayout.measuredAscent * upScale,
@@ -938,8 +993,13 @@ export abstract class ImageBase<TDrawImageType extends { width: number; height: 
 			fits: normLayout.fits,
 		}
 
-		// Perform the draw
-		this.#drawTextLayout(x, y, w, h, textLayout, color, halign, valign, outlineStyle, underline, strikethrough)
+		// Perform the draw with the same letter-spacing used for measurement
+		this.context2d.letterSpacing = letterSpacingPct ? `${(letterSpacingPct / 100) * actualSize}px` : '0px'
+		try {
+			this.#drawTextLayout(x, y, w, h, textLayout, color, halign, valign, outlineStyle, underline, strikethrough)
+		} finally {
+			this.context2d.letterSpacing = previousLetterSpacing
+		}
 	}
 
 	/**

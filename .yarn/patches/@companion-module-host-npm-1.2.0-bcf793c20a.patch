@@ -1,0 +1,28 @@
+diff --git a/dist/schema/elements.js b/dist/schema/elements.js
+index e150b5c55d71a8b5a294e68dae7200d257d7992f..b35d2895ca8ebb93d7a58090463b2afbff383d43 100644
+--- a/dist/schema/elements.js
++++ b/dist/schema/elements.js
+@@ -20,11 +20,11 @@ const hAlignType = z.enum(['left', 'center', 'right']);
+ const vAlignType = z.enum(['top', 'center', 'bottom']);
+ const lineOrientationType = z.enum(['inside', 'center', 'outside']);
+ const imageFillModeType = z.enum(['crop', 'fill', 'fit']);
+-const fontFamilyType = z.enum(['companion-sans', 'companion-mono']);
++const fontFamilyType = z.enum(['companion-sans', 'companion-mono', 'companion-brand', 'companion-condensed']);
+ const gaugeOrientationType = z.enum(['horizontal', 'vertical', 'ring']);
+ const gaugeTrackStyleType = z.enum(['transparent', 'dimmed']);
+ const gaugeValueType = z.number().min(-1000000).max(1000000);
+-const fontWeightType = z.enum(['normal', 'bold']);
++const fontWeightType = z.enum(['light', 'normal', 'medium', 'bold']);
+ const textStyleType = z.enum(['italic', 'underline', 'strikethrough']);
+ // ── Shared element shape fragments ────────────────────────────────────────────
+ // Plain shape objects (not ZodObject instances) so they can be spread into z.object()
+@@ -82,6 +82,9 @@ const textElementSchema = z.object({
+     halign: eov(hAlignType).optional(),
+     valign: eov(vAlignType).optional(),
+     outlineColor: eov(colorType).optional(),
++    letterSpacing: eov(z.number().min(-20).max(50)).optional(),
++    lineHeight: eov(z.number().min(70).max(200)).optional(),
++    textTransform: eov(z.enum(['none', 'uppercase', 'lowercase', 'capitalize'])).optional(),
+ });
+ true;
+ const imageElementSchema = z.object({

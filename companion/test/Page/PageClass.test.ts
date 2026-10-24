@@ -55,6 +55,7 @@ function createController(capture: ReturnType<typeof pageCapture> | null = pageC
 		deletePage: vi.fn(() => []),
 	}
 	const created: { id: string; label: string; config: unknown; secrets: unknown }[] = []
+	const removed: string[] = []
 	const instances: PageClassInstances = {
 		getIdForLabel: (type, label) => (type === ModuleInstanceType.Connection && label === 'PTZ-1' ? 'cam-1' : undefined),
 		getInstanceConfigOfType: (id) =>
@@ -71,6 +72,11 @@ function createController(capture: ReturnType<typeof pageCapture> | null = pageC
 			}
 			return { ok: true }
 		},
+		removeConnection: async (id) => {
+			removed.push(id)
+			const index = created.findIndex((entry) => entry.id === id)
+			if (index >= 0) created.splice(index, 1)
+		},
 	}
 	const imported: unknown[] = []
 	const importExport: PageClassImportExport = {
@@ -84,6 +90,7 @@ function createController(capture: ReturnType<typeof pageCapture> | null = pageC
 		controller: new PageClassController(table, pages, instances, importExport),
 		pages,
 		created,
+		removed,
 		imported,
 		importExport,
 	}
@@ -185,8 +192,8 @@ describe('PageClassController', () => {
 		expect(created).toEqual([])
 	})
 
-	it('removes the new page if the import fails', async () => {
-		const { controller, pages, importExport } = createController()
+	it('removes the new page and the connection it created if the import fails', async () => {
+		const { controller, pages, importExport, created, removed } = createController()
 		importExport.importPageForClass = async () => {
 			throw new Error('import failed')
 		}
@@ -198,6 +205,8 @@ describe('PageClassController', () => {
 			])
 		).rejects.toThrow('import failed')
 		expect(pages.deletePage).toHaveBeenCalledWith(5)
+		expect(removed).toEqual(['new-PTZ-2'])
+		expect(created).toEqual([])
 	})
 
 	it('duplicates a page onto a new connection without saving a template', async () => {

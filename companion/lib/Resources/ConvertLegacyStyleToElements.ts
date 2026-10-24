@@ -297,6 +297,9 @@ export function ConvertLegacyStyleToElements(
 		weight: { value: 'normal', isExpression: false },
 		styles: { value: [], isExpression: false },
 		outlineColor: { value: 0xff000000, isExpression: false },
+		letterSpacing: { value: 0, isExpression: false },
+		lineHeight: { value: 100, isExpression: false },
+		textTransform: { value: 'none', isExpression: false },
 	}
 	const bufferElement: ButtonGraphicsImageElement = {
 		id: 'imageBuffers',

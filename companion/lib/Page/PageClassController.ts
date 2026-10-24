@@ -43,6 +43,8 @@ export interface PageClassInstances {
 			upgradeIndex: number | null
 		}
 	): { ok: true } | { ok: false; message: string }
+	/** Drop a connection this controller just created, when the page it was for does not stick. */
+	removeConnection(id: string): Promise<void>
 }
 
 export interface PageClassCapture {
@@ -280,44 +282,56 @@ export class PageClassController {
 			clones.push({ captured: connection, label, config: patched.config })
 		}
 
-		for (const clone of clones) {
-			const [id] = this.#instances.addConnectionWithLabel({ type: clone.captured.moduleId }, clone.label, {
-				versionId: clone.captured.moduleVersionId,
-				updatePolicy: clone.captured.updatePolicy ?? InstanceVersionUpdatePolicy.Stable,
-				disabled: true,
-			})
-			const configured = this.#instances.setConnectionLabelAndConfig(id, {
-				label: null,
-				enabled: clone.captured.enabled,
-				config: clone.config,
-				secrets: clone.captured.secrets ?? null,
-				updatePolicy: null,
-				upgradeIndex: clone.captured.lastUpgradeIndex,
-			})
-			if (!configured.ok) throw new Error(configured.message)
-			remap[clone.captured.connectionId] = id
-		}
-
-		const pageName = pageNameInput.trim() || fallbackName || 'Page'
-		const pageNumber = this.#pages.store.getPageCount() + 1
-		const pageIds = this.#pages.insertPages(pageNumber, [pageName])
-		if (pageIds.length === 0) throw new Error('Failed to create a page')
-
-		const page = structuredClone(sourcePage)
-		page.name = pageName
-
+		const createdIds: string[] = []
+		let createdPageNumber: number | null = null
 		try {
+			for (const clone of clones) {
+				const [id] = this.#instances.addConnectionWithLabel({ type: clone.captured.moduleId }, clone.label, {
+					versionId: clone.captured.moduleVersionId,
+					updatePolicy: clone.captured.updatePolicy ?? InstanceVersionUpdatePolicy.Stable,
+					disabled: true,
+				})
+				createdIds.push(id)
+				const configured = this.#instances.setConnectionLabelAndConfig(id, {
+					label: null,
+					enabled: clone.captured.enabled,
+					config: clone.config,
+					secrets: clone.captured.secrets ?? null,
+					updatePolicy: null,
+					upgradeIndex: clone.captured.lastUpgradeIndex,
+				})
+				if (!configured.ok) throw new Error(configured.message)
+				remap[clone.captured.connectionId] = id
+			}
+
+			const pageName = pageNameInput.trim() || fallbackName || 'Page'
+			const pageNumber = this.#pages.store.getPageCount() + 1
+			const pageIds = this.#pages.insertPages(pageNumber, [pageName])
+			if (pageIds.length === 0) throw new Error('Failed to create a page')
+			createdPageNumber = pageNumber
+
+			const page = structuredClone(sourcePage)
+			page.name = pageName
+
 			await this.#importExport.importPageForClass(instances, remap, page, pageNumber)
+			return { pageNumber }
 		} catch (e) {
-			try {
-				this.#pages.deletePage(pageNumber)
-			} catch {
-				// The failed page is empty. Leave it if it cannot be removed.
+			if (createdPageNumber !== null) {
+				try {
+					this.#pages.deletePage(createdPageNumber)
+				} catch {
+					// The failed page is empty. Leave it if it cannot be removed.
+				}
+			}
+			for (const id of createdIds.reverse()) {
+				try {
+					await this.#instances.removeConnection(id)
+				} catch (cleanupError) {
+					this.#logger.warn(`Failed to remove connection created for a page that did not import: ${cleanupError}`)
+				}
 			}
 			throw e
 		}
-
-		return { pageNumber }
 	}
 
 	#capture(pageNumber: number): {

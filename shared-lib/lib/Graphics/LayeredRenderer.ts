@@ -378,6 +378,9 @@ export class GraphicsLayeredButtonRenderer {
 						italic: italic,
 						underline: element.styles.includes('underline'),
 						strikethrough: element.styles.includes('strikethrough'),
+						letterSpacing: element.letterSpacing,
+						lineHeight: element.lineHeight,
+						textTransform: element.textTransform,
 					}
 				)
 			})

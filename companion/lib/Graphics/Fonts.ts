@@ -18,11 +18,19 @@ function generateFontUrl(fontFilename: string): string {
 
 /**
  * The supported fonts for button drawing, these are loaded into the renderer at startup, and can be pulled by clients for preview rendering
+ *
+ * Fork additions (SIL OFL 1.1, vendored under assets/Fonts with OFL-*.txt):
+ * - Space Grotesk Bold → Companion-brand (HOME / section headers; Performance Video software line)
+ * - Barlow Semi Condensed SemiBold/Bold → Companion-condensed-* (when Arimo overflows a key)
+ * Dense labels stay Companion-sans (Arimo); live values stay Companion-mono. No Montserrat.
  */
 export const FONT_DEFINITIONS = [
 	{ pathOnDisk: generateFontUrl('Arimo-Regular.ttf'), name: 'Companion-sans' },
 	// typos:disable-line wdth is part of the filename
 	{ pathOnDisk: generateFontUrl('NotoSansMono-wdth-wght.ttf'), name: 'Companion-mono' },
+	{ pathOnDisk: generateFontUrl('SpaceGrotesk-Bold.ttf'), name: 'Companion-brand' },
+	{ pathOnDisk: generateFontUrl('BarlowSemiCondensed-SemiBold.ttf'), name: 'Companion-condensed-semibold' },
+	{ pathOnDisk: generateFontUrl('BarlowSemiCondensed-Bold.ttf'), name: 'Companion-condensed-bold' },
 	{ pathOnDisk: generateFontUrl('NotoSansSymbols-wght.ttf'), name: 'Companion-symbols1' },
 	{ pathOnDisk: generateFontUrl('NotoSansSymbols2-Regular.ttf'), name: 'Companion-symbols2' },
 	{ pathOnDisk: generateFontUrl('NotoSansMath-Regular.ttf'), name: 'Companion-symbols3' },

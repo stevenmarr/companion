@@ -103,6 +103,9 @@ function buildElements(phase: number): SomeButtonGraphicsDrawElement[] {
 			outlineColor: 0x000000,
 			halign: 'center',
 			valign: 'center',
+			letterSpacing: 0,
+			lineHeight: 100,
+			textTransform: 'none',
 		},
 		{
 			// Animated progress bar along the bottom.
