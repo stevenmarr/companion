@@ -30,4 +30,10 @@ describe('allocateInstanceLabels', () => {
 		expect(allocateInstanceLabels('   ', 3, new Set())).toEqual([])
 		expect(allocateInstanceLabels('PTZ-1', 0, new Set())).toEqual([])
 	})
+
+	it('stops at 50 connections', () => {
+		expect(allocateInstanceLabels('PTZ-1', 50, new Set())).toHaveLength(50)
+		expect(allocateInstanceLabels('PTZ-1', 51, new Set())).toHaveLength(50)
+		expect(allocateInstanceLabels('PTZ-1', 51, new Set()).at(-1)).toBe('PTZ-50')
+	})
 })

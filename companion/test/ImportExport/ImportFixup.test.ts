@@ -20,7 +20,10 @@ import {
 } from '../../lib/ImportExport/ImportFixup.js'
 import type { InternalController } from '../../lib/Internal/Controller.js'
 import type { Logger } from '../../lib/Log/Controller.js'
-import { VisitorReferencesUpdater } from '../../lib/Resources/Visitors/ReferencesUpdater.js'
+import {
+	VisitorReferencesUpdater,
+	type VisitorReferencesUpdaterVisitor,
+} from '../../lib/Resources/Visitors/ReferencesUpdater.js'
 
 // ── Test helpers ──────────────────────────────────────────────────────────────
 
@@ -419,12 +422,18 @@ describe('fixupPageVariables', () => {
 	})
 
 	test('defaults to an empty list', () => {
-		expect(fixupPageVariables(internalModule, undefined, standardMap(), {})).toEqual([])
-		expect(fixupPageVariables(internalModule, [], standardMap(), {})).toEqual([])
+		expect(fixupPageVariables(internalModule, undefined, standardMap(), {}, null)).toEqual([])
+		expect(fixupPageVariables(internalModule, [], standardMap(), {}, null)).toEqual([])
 	})
 
 	test('remaps connectionId on page variables', () => {
-		const result = fixupPageVariables(internalModule, [makeFeedback({ connectionId: 'conn-old' })], standardMap(), {})
+		const result = fixupPageVariables(
+			internalModule,
+			[makeFeedback({ connectionId: 'conn-old' })],
+			standardMap(),
+			{},
+			null
+		)
 
 		expect(result[0].connectionId).toBe('conn-new')
 	})
@@ -434,7 +443,8 @@ describe('fixupPageVariables', () => {
 			internalModule,
 			[makeFeedback({ connectionId: 'unknown-connection' })],
 			standardMap(),
-			{}
+			{},
+			null
 		)
 
 		expect(result).toEqual([])
@@ -445,7 +455,8 @@ describe('fixupPageVariables', () => {
 			internalModule,
 			[makeFeedback({ connectionId: 'conn-old', options: { src: exprVal('$(OldLabel:x)') } })],
 			standardMap(),
-			{}
+			{},
+			null
 		)
 
 		expect((result[0].options.src as any).value).toBe('$(NewLabel:x)')
@@ -454,10 +465,43 @@ describe('fixupPageVariables', () => {
 	test('does not mutate the input', () => {
 		const input = [makeFeedback({ connectionId: 'conn-old' })]
 
-		fixupPageVariables(internalModule, input, standardMap(), {})
+		fixupPageVariables(internalModule, input, standardMap(), {}, null)
 
 		// original untouched (structuredClone inside)
 		expect(input[0].connectionId).toBe('conn-old')
+	})
+
+	test('rewrites a stored page id to the page the copy landed on', () => {
+		const internalModule = {
+			visitReferences(visitor: VisitorReferencesUpdaterVisitor, rawEntities: SomeEntityModel[]) {
+				for (const entity of rawEntities) {
+					if (entity.connectionId !== 'internal' || !entity.options || !('page' in entity.options)) continue
+					visitor.visitPageId(entity.options, 'page', entity.type === EntityModelType.Feedback ? entity.id : undefined)
+				}
+			},
+		} as unknown as InternalController
+
+		const result = fixupPageVariables(
+			internalModule,
+			[
+				makeAction({
+					connectionId: 'internal',
+					definitionId: 'set_page',
+					options: { page: { isExpression: false, value: 'page-source' } },
+				}),
+				makeAction({
+					connectionId: 'internal',
+					definitionId: 'set_page',
+					options: { page: { isExpression: true, value: '$(internal:page)' } },
+				}),
+			],
+			standardMap(),
+			{},
+			{ 'page-source': 'page-copy' }
+		)
+
+		expect(result[0].options.page).toEqual({ isExpression: false, value: 'page-copy' })
+		expect(result[1].options.page).toEqual({ isExpression: true, value: '$(internal:page)' })
 	})
 })
 

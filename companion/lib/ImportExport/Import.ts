@@ -480,7 +480,8 @@ export class ImportController {
 					this.#internalModule,
 					pageInfo.pageVariables,
 					instanceIdMap,
-					outboundSurfaceIdRemap
+					outboundSurfaceIdRemap,
+					pageIdRemap ?? null
 				)
 				this.#controlsController.createPageControl(pageId, { type: 'page', localVariables }, true)
 			}

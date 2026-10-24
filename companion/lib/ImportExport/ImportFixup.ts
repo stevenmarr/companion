@@ -125,7 +125,8 @@ export function fixupPageVariables(
 	internalModule: InternalController,
 	localVariables: SomeEntityModel[] | undefined,
 	instanceIdMap: InstanceAppliedRemappings,
-	outboundSurfaceIdRemap: Record<string, string> | undefined
+	outboundSurfaceIdRemap: Record<string, string> | undefined,
+	pageIdRemap: Record<string, string> | null
 ): SomeEntityModel[] {
 	// Future: this does not feel durable
 
@@ -146,7 +147,8 @@ export function fixupPageVariables(
 		internalModule,
 		connectionLabelRemap,
 		connectionIdRemap,
-		outboundSurfaceIdRemap
+		outboundSurfaceIdRemap,
+		pageIdRemap ?? undefined
 	).visitEntities([], result)
 
 	return result
