@@ -84,19 +84,34 @@ export interface ButtonGraphicsCanvasElement extends Omit<
 	showStatusIcons: ExpressionOrValue<'default' | 'all' | 'none'>
 }
 
+export type ButtonGraphicsFontFamily =
+	| 'companion-sans'
+	| 'companion-mono'
+	| 'companion-brand'
+	| 'companion-condensed'
+
+export type ButtonGraphicsFontWeight = 'light' | 'normal' | 'medium' | 'bold'
+
+export type ButtonGraphicsTextTransform = 'none' | 'uppercase' | 'lowercase' | 'capitalize'
+
 export interface ButtonGraphicsTextDrawElement
 	extends ButtonGraphicsDrawBase, ButtonGraphicsDrawBounds, ButtonGraphicsDrawRotation {
 	type: 'text'
 	text: string
 	fontsize: number
 	fontsizeAllowShrink: boolean
-	font: 'companion-sans' | 'companion-mono'
-	weight: 'normal' | 'bold'
+	font: ButtonGraphicsFontFamily
+	weight: ButtonGraphicsFontWeight
 	styles: TextStyle[]
 	color: ColorValue
 	outlineColor: ColorValue
 	halign: HorizontalAlignment
 	valign: VerticalAlignment
+	/** Letter-spacing as a percent of the rendered font size (0 = default, 10 ≈ 0.1em). */
+	letterSpacing: number
+	/** Line-height multiplier as a percent of the font's natural line box (100 = default). */
+	lineHeight: number
+	textTransform: ButtonGraphicsTextTransform
 }
 
 export interface ButtonGraphicsTextElement
@@ -105,13 +120,16 @@ export interface ButtonGraphicsTextElement
 	text: ExpressionOrValue<string>
 	fontsize: ExpressionOrValue<number>
 	fontsizeAllowShrink: ExpressionOrValue<boolean>
-	font: ExpressionOrValue<'companion-sans' | 'companion-mono'>
-	weight: ExpressionOrValue<'normal' | 'bold'>
+	font: ExpressionOrValue<ButtonGraphicsFontFamily>
+	weight: ExpressionOrValue<ButtonGraphicsFontWeight>
 	styles: ExpressionOrValue<TextStyle[]>
 	color: ExpressionOrValue<ColorValue>
 	outlineColor: ExpressionOrValue<ColorValue>
 	halign: ExpressionOrValue<HorizontalAlignment>
 	valign: ExpressionOrValue<VerticalAlignment>
+	letterSpacing: ExpressionOrValue<number>
+	lineHeight: ExpressionOrValue<number>
+	textTransform: ExpressionOrValue<ButtonGraphicsTextTransform>
 }
 
 export interface ButtonGraphicsImageDrawElement

@@ -86,6 +86,7 @@ const CANVAS_SHOW_STATUS_ICONS_CHOICES = dropdownChoices<ButtonGraphicsShowStatu
 const IMAGE_FILL_MODE_CHOICES = dropdownChoices<ButtonGraphicsImageDrawElement['fillMode']>('image', 'fillMode')
 const TEXT_FONT_CHOICES = dropdownChoices<ButtonGraphicsTextDrawElement['font']>('text', 'font')
 const TEXT_WEIGHT_CHOICES = dropdownChoices<ButtonGraphicsTextDrawElement['weight']>('text', 'weight')
+const TEXT_TRANSFORM_CHOICES = dropdownChoices<ButtonGraphicsTextDrawElement['textTransform']>('text', 'textTransform')
 // The `styles` field is an internal:text-styles multi-toggle with a fixed set of values (no schema choices).
 const TEXT_STYLE_VALUES = ['italic', 'underline', 'strikethrough'] as const
 // box/circle share inside/center/outside; a line instead sits left/center/right of its path
@@ -453,6 +454,9 @@ export function makeReferencePlaceholder(
 		outlineColor: 0,
 		halign: 'center',
 		valign: 'center',
+		letterSpacing: 0,
+		lineHeight: 100,
+		textTransform: 'none',
 		contentHash: '',
 	}
 	textEl.contentHash = computeElementContentHash(textEl)
@@ -710,6 +714,9 @@ function convertTextElementForDrawing(
 		halign: helper.getHorizontalAlignment('halign'),
 		valign: helper.getVerticalAlignment('valign'),
 		outlineColor: helper.getColor('outlineColor', 0),
+		letterSpacing: helper.getNumber('letterSpacing', 0),
+		lineHeight: helper.getNumber('lineHeight', 100),
+		textTransform: helper.getEnum('textTransform', TEXT_TRANSFORM_CHOICES, 'none'),
 		contentHash: '', // Will be computed below
 	}
 
