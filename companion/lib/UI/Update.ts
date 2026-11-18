@@ -104,6 +104,15 @@ export class UIUpdate {
 					return
 				}
 
+				// Performance Video fork: never show the update server's beta / "EXPERIMENTAL: Thank you for
+				// testing…" banner. The server sends it to every non-release build, including this fork.
+				const notice = res.data as typeof res.data & { type?: string }
+				if (notice.type === 'beta' || /experimental/i.test(`${notice.message ?? ''} ${notice.message2 ?? ''}`)) {
+					this.#logger.debug('Not showing the update server experimental/beta notice.')
+					this.#latestUpdateData = null
+					return
+				}
+
 				this.#latestUpdateData = {
 					link: res.data.link,
 					message2: undefined,

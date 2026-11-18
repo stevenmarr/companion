@@ -27,7 +27,7 @@ import { MonacoLoader } from './Resources/MonacoLoader.js'
 import { SortableHysteresis } from './Resources/SortableHysteresis.js'
 import { shouldAutoOpenWizard } from './Wizard/Constants.js'
 import { WizardModal } from './Wizard/index.js'
-import './Layout/Lcars.css'
+import './Layout/ControlCenter.css'
 
 export default function App(): React.JSX.Element {
 	const trpcStatus = useTRPCConnectionStatus()
@@ -369,8 +369,8 @@ const AppContent = observer(function AppContent() {
 	useEffect(() => {
 		document.title =
 			userConfig.properties?.installName && userConfig.properties?.installName.length > 0
-				? `${userConfig.properties?.installName} - Admin (Bitfocus Companion)`
-				: 'Bitfocus Companion - Admin'
+				? `${userConfig.properties?.installName} - Admin (PV Companion)`
+				: 'PV Companion - Admin'
 	}, [userConfig.properties?.installName])
 
 	return (

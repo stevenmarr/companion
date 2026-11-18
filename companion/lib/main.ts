@@ -126,7 +126,8 @@ program.command('start', { isDefault: true, hidden: true }).action(() => {
 	if (!configDir) {
 		// Check the old location first
 		configDir = path.join(process.env[process.platform == 'win32' ? 'USERPROFILE' : 'HOME']!, 'companion')
-		if (!fs.pathExistsSync(configDir)) {
+		// Performance Video fork: ~/companion may be a git checkout of Companion itself, not old config.
+		if (!fs.pathExistsSync(configDir) || fs.pathExistsSync(path.join(configDir, '.git'))) {
 			// Creating a new folder, so use the proper place
 			const paths = envPaths('companion')
 			configDir = paths.config

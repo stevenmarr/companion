@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
 import type { MouseEventHandler } from 'react'
+import { makeAbsolutePath } from '~/Resources/util.js'
 import { useSidebarState } from './Sidebar'
 import { useCompanionVersion } from './useCompanionVersion'
 
@@ -10,7 +11,10 @@ export function SidebarHeader(): React.JSX.Element {
 	return (
 		<div className="sidebar-header brand">
 			<div className="sidebar-brand">
-				<div className="sidebar-brand-full">Performance Video LLC</div>
+				<div className="sidebar-brand-full">
+					<img className="pv-logo" src={makeAbsolutePath('/img/pv-logo.png')} alt="Performance Video" />
+					<span className="pv-brand-name">COMPANION</span>
+				</div>
 				<div className="sidebar-brand-narrow">PV</div>
 			</div>
 		</div>

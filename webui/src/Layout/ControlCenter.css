@@ -1,0 +1,284 @@
+/*
+ * Performance Video Control Center look for the admin UI. Colours come from the theme tokens in
+ * tailwind.css (Control Center's dark and light palettes); this file sets the chrome: a panel top
+ * bar with a hairline, a slate sidebar whose active item carries a blue edge, uppercase heavy
+ * labels with wide tracking, 10px corners, and Control Center's tab style (inset accent line).
+ * It replaces the LCARS chrome (Layout/Lcars.css) and reuses the same hooks. Hardware button
+ * canvases are not restyled here.
+ */
+
+html {
+	background: var(--color-body-bg);
+}
+
+::selection {
+	background: color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+
+* {
+	scrollbar-color: var(--color-border-medium) transparent;
+}
+
+/* ── Top bar ───────────────────────────────────────────────────────────────── */
+
+.header {
+	background: var(--color-header-bg);
+	border-bottom: 1px solid var(--color-border);
+}
+
+.header .header-brand {
+	color: var(--color-header-text);
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	font-size: 1.1rem;
+}
+
+.header .header-brand span {
+	color: var(--color-header-text-muted);
+	font-weight: 600;
+}
+
+/* The installation name: a Control Center status pill. */
+.header .install-name {
+	border: 1px solid var(--color-border);
+	border-radius: 99px;
+	padding: 0.2rem 0.75rem;
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--color-header-text);
+	align-self: center;
+}
+
+.body {
+	background: var(--color-app-bg);
+}
+
+/* ── Sidebar ───────────────────────────────────────────────────────────────── */
+
+/* The sidebar is a Control Center dark panel in both appearances, like Control Center's header. */
+.sidebar {
+	background: #14181d;
+	border-right: 1px solid #2a313b;
+	--color-text: #d9dee5;
+	--color-text-strong: #ffffff;
+	--color-muted: #7d8794;
+	--color-text-faint: #5f6875;
+	--color-surface-dark: #0b0d10;
+	--color-surface-muted: #1b2027;
+	--color-surface-subtle: #1b2027;
+	--color-border: #2a313b;
+	--sidebar-nav-link-bg: transparent;
+	--sidebar-nav-link-active-bg: #1b2027;
+	--sidebar-nav-link-hover-bg: #1b2027;
+	--sidebar-nav-link-border-radius: 8px;
+	--sidebar-nav-link-icon-color: #aab3bf;
+}
+
+.sidebar .sidebar-header,
+.sidebar-header {
+	background: transparent;
+	background-color: transparent;
+	border-bottom: 1px solid #2a313b;
+	padding: 0.7rem 0.85rem;
+}
+
+.sidebar .sidebar-header .sidebar-brand-full {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.3rem;
+	min-width: 0;
+}
+
+/* The Performance Video logo is white on transparent (from the Control Center repo). */
+.sidebar .sidebar-header .pv-logo {
+	display: block;
+	height: 26px;
+	width: auto;
+	max-width: 100%;
+	object-fit: contain;
+	object-position: left center;
+}
+
+.sidebar .sidebar-header .pv-brand-name,
+.sidebar .sidebar-header .sidebar-brand-narrow {
+	color: #7d8794;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	font-size: 0.72rem;
+	white-space: nowrap;
+}
+
+.sidebar .sidebar-header .sidebar-brand-narrow {
+	color: #d9dee5;
+	font-size: 0.9rem;
+}
+
+.sidebar .sidebar-nav .nav-link {
+	--sidebar-nav-link-bg: transparent;
+	border-radius: 8px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	font-size: 0.78rem;
+}
+
+.sidebar .sidebar-nav .nav-link,
+.sidebar .sidebar-nav .nav-link .nav-icon,
+.sidebar .sidebar-section-label {
+	color: #aab3bf !important;
+}
+
+.sidebar .sidebar-section-label {
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	color: #7d8794 !important;
+}
+
+.sidebar .sidebar-nav .nav-link:hover,
+.sidebar .sidebar-nav .nav-link:hover .nav-icon {
+	color: #ffffff !important;
+}
+
+/* Active item: Control Center's active tab, an inset accent line on a lifted panel. */
+.sidebar .sidebar-nav .nav-link.active,
+.sidebar .sidebar-nav .nav-link.active .nav-icon {
+	color: #ffffff !important;
+}
+
+.sidebar .sidebar-nav .nav-link.active {
+	box-shadow: inset 3px 0 0 #3b8cff;
+}
+
+.sidebar .nav-group-toggle::after {
+	background-color: #aab3bf;
+}
+
+.sidebar .version-sub {
+	color: #7d8794;
+}
+
+.notification-count {
+	background: #f0a500;
+	color: #000;
+	font-weight: 800;
+}
+
+/* ── Phone bar ─────────────────────────────────────────────────────────────── */
+
+.bottom-nav {
+	background: #14181d;
+	border-top: 1px solid #2a313b;
+}
+
+.bottom-nav .bottom-nav-link {
+	color: #aab3bf;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.bottom-nav .bottom-nav-link.active,
+.bottom-nav .bottom-nav-link:hover {
+	color: #ffffff;
+	box-shadow: inset 0 3px 0 #3b8cff;
+}
+
+/* ── Controls ──────────────────────────────────────────────────────────────── */
+
+.button {
+	--btn-border-radius: 10px;
+	--btn-font-weight: 700;
+}
+
+.button.button-primary {
+	--btn-color: #fff;
+	--btn-bg: var(--color-primary);
+	--btn-border-color: var(--color-primary);
+	--btn-hover-color: #fff;
+	--btn-hover-bg: color-mix(in srgb, var(--color-primary) 85%, #000);
+	--btn-hover-border-color: color-mix(in srgb, var(--color-primary) 85%, #000);
+	--btn-focus-shadow-rgb: 59, 140, 255;
+	--btn-active-color: #fff;
+	--btn-active-bg: color-mix(in srgb, var(--color-primary) 75%, #000);
+	--btn-active-border-color: color-mix(in srgb, var(--color-primary) 75%, #000);
+	--btn-disabled-color: #fff;
+	--btn-disabled-bg: var(--color-primary);
+	--btn-disabled-border-color: var(--color-primary);
+}
+
+.button.button-outline-primary {
+	--btn-color: var(--color-primary);
+	--btn-border-color: var(--color-primary);
+	--btn-hover-color: #fff;
+	--btn-hover-bg: var(--color-primary);
+	--btn-hover-border-color: var(--color-primary);
+	--btn-active-color: #fff;
+	--btn-active-bg: var(--color-primary);
+	--btn-active-border-color: var(--color-primary);
+	--btn-disabled-color: var(--color-primary);
+	--btn-disabled-border-color: var(--color-primary);
+}
+
+.button.button-ghost-primary {
+	--btn-color: var(--color-primary);
+	--btn-hover-color: #fff;
+	--btn-hover-bg: var(--color-primary);
+	--btn-hover-border-color: var(--color-primary);
+	--btn-active-color: #fff;
+	--btn-active-bg: var(--color-primary);
+	--btn-active-border-color: var(--color-primary);
+	--btn-disabled-color: var(--color-primary);
+}
+
+.form-input:not(textarea),
+textarea.form-input {
+	border-radius: 8px;
+}
+
+/* ── Panels, tabs, tables, dialogs ─────────────────────────────────────────── */
+
+.secondary-panel-simple {
+	border: 1px solid var(--color-border);
+	border-radius: 10px;
+}
+
+.secondary-panel-simple-header .panel-title,
+.modal2-title {
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-size: 0.85rem;
+}
+
+.tab-area .tab-bar__tab,
+.secondary-panel .nav-item .nav-link {
+	border-radius: 8px 8px 0 0;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-size: 0.75rem;
+	color: var(--color-muted);
+}
+
+.tab-area .tab-bar__tab[data-active],
+.secondary-panel .nav-item .nav-link.active {
+	background: var(--color-surface-muted);
+	color: var(--color-text) !important;
+	box-shadow: inset 0 3px 0 var(--color-primary);
+}
+
+.table > thead > tr > th {
+	color: var(--color-muted);
+	font-size: 0.7rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.modal2-dialog {
+	--modal2-border-radius: 10px;
+}

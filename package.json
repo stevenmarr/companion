@@ -16,6 +16,7 @@
   "scripts": {
     "postinstall": "husky && run build:writefile && run build:whatsnew",
     "dev": "yarn workspace companion dev",
+    "start:local": "yarn workspace companion start:local",
     "dev:inner": "yarn workspace companion dev:inner",
     "dev:debug": "yarn workspace companion dev:debug",
     "dev:webui": "yarn workspace @companion-app/webui dev",

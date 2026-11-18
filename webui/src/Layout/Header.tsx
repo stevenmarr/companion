@@ -82,7 +82,7 @@ export const MyHeader = observer(function MyHeader({ canLock, setLocked }: MyHea
 				)}
 
 				<a className="header-brand mx-auto md:hidden">
-					Performance Video <span className="font-bold">LLC</span>
+					PV <span>COMPANION</span>
 				</a>
 
 				<HeaderNav className="hidden md:flex me-auto">

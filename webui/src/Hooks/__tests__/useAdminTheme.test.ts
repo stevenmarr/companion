@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { isAdminTheme, resolveAdminTheme } from '../useAdminTheme.js'
 
 describe('admin appearance', () => {
-	it('stays light unless dark is chosen or the computer is dark', () => {
+	it('is dark (the Control Center default) unless light is chosen or the computer is light', () => {
 		expect(resolveAdminTheme('light', true)).toBe('light')
-		expect(resolveAdminTheme(undefined, true)).toBe('light')
+		expect(resolveAdminTheme(undefined, false)).toBe('dark')
 		expect(resolveAdminTheme('dark', false)).toBe('dark')
 		expect(resolveAdminTheme('system', true)).toBe('dark')
 		expect(resolveAdminTheme('system', false)).toBe('light')

@@ -76,8 +76,8 @@ export const TabletView = observer(function TabletView() {
 	useEffect(() => {
 		document.title =
 			userConfigStore.properties?.installName && userConfigStore.properties?.installName.length > 0
-				? `${userConfigStore.properties?.installName} - Web Buttons (Bitfocus Companion)`
-				: 'Bitfocus Companion - Web Buttons'
+				? `${userConfigStore.properties?.installName} - Web Buttons (PV Companion)`
+				: 'PV Companion - Web Buttons'
 	}, [userConfigStore.properties?.installName])
 
 	const updateQueryUrl = useCallback(

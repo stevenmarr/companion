@@ -3,11 +3,12 @@
 	<head>
 		<meta charset="utf-8" />
 		<script>
-			/* Paint dark before the app loads, using the appearance last chosen on this browser. */
+			/* Paint dark before the app loads (dark is the default, like Control Center), unless this
+			   browser last chose light, or "match this computer" on a light computer. */
 			try {
 				var pref = localStorage.getItem('companion-admin-theme')
 				var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-				var dark = pref === 'dark' || (pref === 'system' && systemDark)
+				var dark = pref === 'system' ? systemDark : pref !== 'light'
 				if (dark) {
 					document.documentElement.dataset.theme = 'dark'
 					document.documentElement.dataset.coreuiTheme = 'dark'
@@ -27,7 +28,7 @@
 
 		<link rel="manifest" href="/manifest.json" />
 		<!-- PWA support -->
-		<meta name="theme-color" content="#000000" />
+		<meta name="theme-color" content="#0b0d10" />
 		<!-- ios support -->
 		<link rel="apple-touch-icon" sizes="16x16" href="/img/icons/16x16.png" />
 		<link rel="apple-touch-icon" sizes="32x32" href="/img/icons/32x32.png" />
@@ -42,9 +43,9 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta http-equiv="Content-Language" content="en" />
 
-		<meta name="theme-color" content="#000000" />
-		<meta name="description" content="Bitfocus Companion - Admin" />
-		<title>Bitfocus Companion - Admin</title>
+		<meta name="theme-color" content="#0b0d10" />
+		<meta name="description" content="PV Companion - Admin" />
+		<title>PV Companion - Admin</title>
 	</head>
 
 	<body>
