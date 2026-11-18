@@ -1423,6 +1423,20 @@ export class InstanceController extends EventEmitter<InstanceControllerEvents> {
 
 		let changed = false
 
+		// PV fork: move a connection on a legacy module id (e.g. rs6-presets) to the built-in module that replaces it
+		// (pvllc-control-center lists rs6-presets in legacyIds). The old code cannot see Control Center buttons.
+		if (config.moduleInstanceType === ModuleInstanceType.Connection) {
+			const replacement = this.modules.getBuiltinReplacement(config.moduleInstanceType, config.moduleId)
+			if (replacement) {
+				this.#logger.info(
+					`Moving connection "${config.label}" from ${config.moduleId}@${config.moduleVersionId ?? 'latest'} to built-in ${replacement}`
+				)
+				config.moduleId = replacement
+				config.moduleVersionId = 'builtin'
+				changed = true
+			}
+		}
+
 		// Seamless fixup old configs
 		if (!config.moduleVersionId) {
 			config.moduleVersionId = this.modules.getLatestVersionOfModule(config.moduleInstanceType, config.moduleId, true)
