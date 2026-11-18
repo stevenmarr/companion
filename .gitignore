@@ -121,3 +121,8 @@ typings/
 # playwright e2e artifacts
 /e2e/test-results/
 /e2e/playwright-report/
+
+# Performance Video fork: Companion config written into the checkout by older dev runs (~/companion/v5.1 etc.)
+/v[0-9]*.[0-9]*/
+/machid
+/README.txt

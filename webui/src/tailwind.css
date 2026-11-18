@@ -50,38 +50,38 @@
 
 	/* Fonts — the app's canonical UI and monospace stacks. Declared here so base.css and the
 	   font-sans/font-mono utilities all read one source. */
-	--font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-	--font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	--font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-	--color-primary: #b45309;
-	--color-secondary: #ffcc99;
-	--color-success: #3f8f4a;
-	--color-danger: #b91c1c;
-	--color-warning: #e0a020;
-	--color-info: #3b6ea5;
-	--color-light: #fff8ee;
-	--color-dark: #1a120c;
+	--color-primary: #1563d6;
+	--color-secondary: #5a6570;
+	--color-success: #0f8f42;
+	--color-danger: #b3261e;
+	--color-warning: #c48400;
+	--color-info: #2a7fb8;
+	--color-light: #f3f5f7;
+	--color-dark: #1a1f26;
 
 	/* Subtle/emphasis tints per severity (used by Alert, and a few wizard/expression badges).
 	   Adopted from CoreUI's *-bg-subtle / *-border-subtle / *-text-emphasis values. */
-	--color-primary-bg-subtle: #ffe4c2;
-	--color-primary-border-subtle: #ffcc99;
-	--color-primary-text-emphasis: #7c2d12;
-	--color-secondary-bg-subtle: #ced2d8;
-	--color-secondary-border-subtle: #9da5b1;
-	--color-secondary-text-emphasis: #212233;
-	--color-success-bg-subtle: #cbedd6;
-	--color-success-border-subtle: #96dbad;
-	--color-success-text-emphasis: #0f5722;
+	--color-primary-bg-subtle: #dbe7fb;
+	--color-primary-border-subtle: #9dbcf0;
+	--color-primary-text-emphasis: #0d3f8a;
+	--color-secondary-bg-subtle: #e8edf3;
+	--color-secondary-border-subtle: #c5ccd6;
+	--color-secondary-text-emphasis: #1a1f26;
+	--color-success-bg-subtle: #d4f0df;
+	--color-success-border-subtle: #8ad4a6;
+	--color-success-text-emphasis: #157a3e;
 	--color-info-bg-subtle: #c0e6ff;
 	--color-info-border-subtle: #80c6ff;
 	--color-info-text-emphasis: #184c77;
-	--color-warning-bg-subtle: #feecc5;
-	--color-warning-border-subtle: #fcd88a;
-	--color-warning-text-emphasis: #764705;
-	--color-danger-bg-subtle: #f9d4d4;
-	--color-danger-border-subtle: #f2a9a9;
-	--color-danger-text-emphasis: #671414;
+	--color-warning-bg-subtle: #f7e7c2;
+	--color-warning-border-subtle: #e8c97a;
+	--color-warning-text-emphasis: #7a5a00;
+	--color-danger-bg-subtle: #f8d4d6;
+	--color-danger-border-subtle: #f0a8ac;
+	--color-danger-text-emphasis: #9b1c24;
 	--color-light-bg-subtle: rgb(249, 249.5, 251);
 	--color-light-border-subtle: #e7eaee;
 	--color-light-text-emphasis: #4a566d;
@@ -90,49 +90,49 @@
 	--color-dark-text-emphasis: #323a49;
 
 	/* Status row/background tints */
-	--color-status-ok-bg: #cfc;
-	--color-status-warn-bg: #fea;
-	--color-status-error-bg: #fcc;
+	--color-status-ok-bg: #d4f0df;
+	--color-status-warn-bg: #f7e7c2;
+	--color-status-error-bg: #f8d4d6;
 
-	--color-input-bg: #fffaf3;
-	--color-input-readonly-bg: #f3e4cc;
+	--color-input-bg: #ffffff;
+	--color-input-readonly-bg: #e8edf3;
 	--color-input-invalid: red;
 	--color-syntax-error: rgb(255, 12, 138);
 
-	/* Surfaces. Daylight is a warm readout set into a black frame (see --color-app-frame-bg). */
-	--color-surface: #fffaf3;
-	--color-surface-muted: #f6e6cf;
-	--color-surface-muted-hover: #edd9b8;
-	--color-surface-hover: #f3e4cc;
-	--color-surface-alt: #fff8ee;
-	--color-surface-subtle: #f8efe2;
-	--color-surface-dark: #14110e; /* dark panel/inset surface (tablet, emulator, button editor) */
-	--color-app-bg: #f3e6d0; /* main content area background */
-	--color-app-frame-bg: #000; /* outer app frame behind the sidebar/header/body */
-	--color-body-bg: #000; /* <body> element backing, behind the app chrome */
+	/* Surfaces. Light is the Control Center light palette: white panels on a cool grey page. */
+	--color-surface: #ffffff;
+	--color-surface-muted: #e8edf3;
+	--color-surface-muted-hover: #dde3ea;
+	--color-surface-hover: #eef1f5;
+	--color-surface-alt: #f7f9fb;
+	--color-surface-subtle: #f3f5f7;
+	--color-surface-dark: #14181d; /* dark panel/inset surface (tablet, emulator, button editor) */
+	--color-app-bg: #f3f5f7; /* main content area background */
+	--color-app-frame-bg: #14181d; /* outer app frame behind the sidebar/header/body */
+	--color-body-bg: #14181d; /* <body> element backing, behind the app chrome */
 	--color-loading-track: #3c4b64;
 
 	/* Borders */
-	--color-border: #e2c79a;
-	--color-border-alt: #e2c79a; /* legacy .cui-border colour, kept pending reconciliation with --color-border */
-	--color-border-subtle: #edd9b8; /* faint divider (lighter than --color-border) */
+	--color-border: #c5ccd6;
+	--color-border-alt: #c5ccd6; /* legacy .cui-border colour, kept pending reconciliation with --color-border */
+	--color-border-subtle: #dde3ea; /* faint divider (lighter than --color-border) */
 	--color-border-translucent: color-mix(in srgb, var(--color-shadow) 17.5%, transparent); /* translucent hairline that darkens against its backdrop (modals, toasts, separators) */
-	--color-border-muted: #d7bc90;
-	--color-border-medium: #c9a36a; /* stronger than --color-border (e.g. tab bar underline) */
-	--color-border-strong: #8a6a3b;
-	--color-border-hover: #b45309; /* hovered drag/resize handle border */
-	--color-line: #d7bc90; /* thin neutral line: tree/nesting guides, tab-panel borders, thin scrollbars */
+	--color-border-muted: #c5ccd6;
+	--color-border-medium: #9aa4b1; /* stronger than --color-border (e.g. tab bar underline) */
+	--color-border-strong: #5a6570;
+	--color-border-hover: #1563d6; /* hovered drag/resize handle border */
+	--color-line: #c5ccd6; /* thin neutral line: tree/nesting guides, tab-panel borders, thin scrollbars */
 
 	/* Text */
-	--color-text: #1a120c;
-	--color-body-text: rgba(28, 20, 14, 0.95); /* inherited <body> default text colour */
-	--color-code: #9a3412; /* inline <code> text */
+	--color-text: #1a1f26;
+	--color-body-text: rgba(26, 31, 38, 0.95); /* inherited <body> default text colour */
+	--color-code: #9b1c24; /* inline <code> text */
 	--color-text-strong: #000;
-	--color-icon: #3a2a14;
-	--color-text-secondary: #5c4318;
-	--color-muted: #7a5b32; /* deliberately un-prefixed (not --color-text-muted) so the utility reads `text-muted` */
-	--color-text-faint: #a08050; /* fainter than -muted: dropdown group headings, empty/placeholder labels */
-	--color-text-disabled: #c9b08a;
+	--color-icon: #3a4450;
+	--color-text-secondary: #3a4450;
+	--color-muted: #5a6570; /* deliberately un-prefixed (not --color-text-muted) so the utility reads `text-muted` */
+	--color-text-faint: #7d8794; /* fainter than -muted: dropdown group headings, empty/placeholder labels */
+	--color-text-disabled: #a7b0bb;
 
 	/* Row interaction states (dark mode overrides these to light overlays) */
 	--color-row-hover: rgba(0, 0, 0, 0.05);
@@ -152,25 +152,25 @@
 	--color-drop-hover-bg: #daffab; /* button drop target, with a drag hovering over it */
 
 	/* Toolbars - the layered button editor's quick actions and the button grid's tool palette */
-	--color-canvas-workspace: #e7d7be; /* darker fill behind the layer canvas */
-	--color-toolbar-bg: #f8efe2; /* quick-actions / canvas footer strips */
-	--color-toolbar-fg: #3a2a14; /* toolbar icon & label text */
-	--color-toolbar-accent: #b45309; /* active aspect / quick-action */
-	--color-toolbar-accent-hover: #7c2d12;
+	--color-canvas-workspace: #dde3ea; /* darker fill behind the layer canvas */
+	--color-toolbar-bg: #f3f5f7; /* quick-actions / canvas footer strips */
+	--color-toolbar-fg: #1a1f26; /* toolbar icon & label text */
+	--color-toolbar-accent: #1563d6; /* active aspect / quick-action */
+	--color-toolbar-accent-hover: #0d3f8a;
 	--color-resize-bar-bg-hover: #dedede; /* panel resize bar hover (base is --color-surface-muted-hover) */
 	--color-mode-toggle-bg: #ececec;
 	--color-mode-toggle-border: #c8c8c8;
 
 	/* Selected list item (button editor element pickers) */
-	--color-selected-item-bg: #ffe0b0;
-	--color-selected-accent: #b45309;
+	--color-selected-item-bg: #f7e7c2;
+	--color-selected-accent: #c48400;
 	--color-step-highlight: #2eb85c; /* green glow pulsing on the current step selector */
 
 	/* Dropdown / select field popups */
-	--color-dropdown-item-hover-bg: #ffe0b0; /* highlighted (hovered/keyboard-active) option */
-	--color-dropdown-item-selected-bg: #ffcc99; /* selected option */
-	--color-pill-bg: #ffcc99; /* multi-select value pill */
-	--color-pill-remove-bg: #ff9966; /* pill remove button */
+	--color-dropdown-item-hover-bg: #e3ecfb; /* highlighted (hovered/keyboard-active) option */
+	--color-dropdown-item-selected-bg: #c9dbf7; /* selected option */
+	--color-pill-bg: #e8edf3; /* multi-select value pill */
+	--color-pill-remove-bg: #c5ccd6; /* pill remove button */
 
 	/* Drag & drop / grid tiles */
 	--color-drop-target: rgb(0, 123, 255); /* blue "drop here"/active accent */
@@ -189,10 +189,10 @@
 	--color-on-dark-muted: rgba(255, 255, 255, 0.75);
 
 	/* Primary tints */
-	--color-primary-soft: #ff9900;
-	--color-link: #8a3e00; /* body links; brighter than this fails on the daylight readout */
-	--color-link-hover: #7c2d12;
-	--color-primary-softer: #ffcc99;
+	--color-primary-soft: #3b8cff;
+	--color-link: #1563d6; /* body links (Control Center accent) */
+	--color-link-hover: #0d3f8a;
+	--color-primary-softer: #c9dbf7;
 	--color-focus-ring: color-mix(in srgb, var(--color-primary) 25%, transparent);
 
 	/* Drop-shadow / dark-tint scale. The alpha for each weight lives here (one place to retune when
@@ -210,21 +210,21 @@
 	--color-shadow-50: color-mix(in srgb, var(--color-shadow) 50%, transparent);
 
 	/* Tabs (tab-area, and the secondary-panel tabs in layout) */
-	--color-tab-bg: #ffcc99; /* inactive tab background */
-	--color-tab-fg: #1a120c; /* inactive tab text */
+	--color-tab-bg: #ffffff; /* inactive tab background */
+	--color-tab-fg: #5a6570; /* inactive tab text */
 
-	/* Header bar. The frame is black; colour lives in the end caps and the name pill (Layout/Lcars.css). */
-	--color-header-bg: #000;
-	--color-header-text: #ffcc99;
-	--color-header-hover: #2a2118;
-	--color-header-text-muted: #ffcc66;
-	--color-header-notification-bg: #cc99cc;
+	/* Header bar, like Control Center's top bar: a panel with a hairline under it (Layout/ControlCenter.css). */
+	--color-header-bg: #ffffff;
+	--color-header-text: #1a1f26;
+	--color-header-hover: #e8edf3;
+	--color-header-text-muted: #5a6570;
+	--color-header-notification-bg: #f7e7c2;
 
 	/* Panel headers & dropdown menus (layout) */
-	--color-panel-header-bg: #ff9900;
-	--color-panel-header-fg: #000; /* panel title text */
-	--color-panel-header-btn: #1a120c; /* the round context-help / close button chrome */
-	--color-menu-bg: #fff8ee; /* context-menu popover background */
+	--color-panel-header-bg: #e8edf3;
+	--color-panel-header-fg: #1a1f26; /* panel title text */
+	--color-panel-header-btn: #1a1f26; /* the round context-help / close button chrome */
+	--color-menu-bg: #ffffff; /* context-menu popover background */
 
 	/* Modal / sidebar backdrop (dimmed behind an overlay; paired with an opacity) */
 	--color-backdrop: #080a0c;
@@ -270,141 +270,145 @@
 }
 
 /*
- * Command appearance (Settings → General → Appearance → LCARS command).
- * Black readouts, amber and lilac bars, peach text. Hardware button canvases stay black via
- * --color-button-bg, which is not overridden here. The sidebar has its own frame tokens.
+ * Dark appearance (Settings → General → Appearance → Dark), the Performance Video Control Center
+ * palette: near-black background, slate panels, blue accent, amber selection, red PGM / green PVW.
+ * Hardware button canvases stay black via --color-button-bg, which is not overridden here.
  */
 html[data-theme='dark'] {
 	color-scheme: dark;
 	--close-btn-filter: invert(1);
 
-	--color-primary: #ff9900;
-	--color-secondary: #cc99cc;
-	--color-light: #ffcc99;
-	--color-dark: #ffcc99;
-	--color-info: #99ccff;
-	--color-warning: #ffcc66;
-	--color-success: #99cc99;
-	--color-danger: #cc6666;
+	--color-primary: #3b8cff;
+	--color-secondary: #7d8794;
+	--color-light: #d9dee5;
+	--color-dark: #2a313b;
+	--color-info: #5aa9e6;
+	--color-warning: #f0a500;
+	--color-success: #18c35a;
+	--color-danger: #e5262e;
 
-	--color-primary-bg-subtle: #3a2508;
-	--color-primary-border-subtle: #ff9900;
-	--color-primary-text-emphasis: #ffcc99;
-	--color-secondary-bg-subtle: #2a2030;
-	--color-secondary-border-subtle: #cc99cc;
-	--color-secondary-text-emphasis: #e6c6e6;
-	--color-success-bg-subtle: #14301c;
-	--color-success-border-subtle: #99cc99;
-	--color-success-text-emphasis: #c8ecc8;
-	--color-info-bg-subtle: #102030;
-	--color-info-border-subtle: #99ccff;
-	--color-info-text-emphasis: #cce6ff;
-	--color-warning-bg-subtle: #3a2a08;
-	--color-warning-border-subtle: #ffcc66;
-	--color-warning-text-emphasis: #ffe0a0;
-	--color-danger-bg-subtle: #3a1515;
-	--color-danger-border-subtle: #cc6666;
-	--color-danger-text-emphasis: #ffc0c0;
-	--color-light-bg-subtle: #241c14;
-	--color-light-border-subtle: #5c3d12;
-	--color-light-text-emphasis: #ffcc99;
-	--color-dark-bg-subtle: #100e0c;
-	--color-dark-border-subtle: #5c3d12;
-	--color-dark-text-emphasis: #ffcc99;
+	--color-primary-bg-subtle: #10233f;
+	--color-primary-border-subtle: #3b8cff;
+	--color-primary-text-emphasis: #9cc4ff;
+	--color-secondary-bg-subtle: #1b2027;
+	--color-secondary-border-subtle: #2a313b;
+	--color-secondary-text-emphasis: #d9dee5;
+	--color-success-bg-subtle: #0b3019;
+	--color-success-border-subtle: #18c35a;
+	--color-success-text-emphasis: #6fe39b;
+	--color-info-bg-subtle: #0f2233;
+	--color-info-border-subtle: #5aa9e6;
+	--color-info-text-emphasis: #bfe0ff;
+	--color-warning-bg-subtle: #3a2a05;
+	--color-warning-border-subtle: #f0a500;
+	--color-warning-text-emphasis: #ffd35c;
+	--color-danger-bg-subtle: #3a0d10;
+	--color-danger-border-subtle: #e5262e;
+	--color-danger-text-emphasis: #ff8a8f;
+	--color-light-bg-subtle: #1b2027;
+	--color-light-border-subtle: #2a313b;
+	--color-light-text-emphasis: #d9dee5;
+	--color-dark-bg-subtle: #0b0d10;
+	--color-dark-border-subtle: #2a313b;
+	--color-dark-text-emphasis: #d9dee5;
 
-	--color-status-ok-bg: #14301c;
-	--color-status-warn-bg: #3a3008;
-	--color-status-error-bg: #3a1515;
+	--color-status-ok-bg: #0e2a17;
+	--color-status-warn-bg: #4b3a00;
+	--color-status-error-bg: #2a0e10;
 
-	--color-input-bg: #000;
-	--color-input-readonly-bg: #14110e;
-	--color-input-invalid: #ff6666;
+	--color-input-bg: #171c23;
+	--color-input-readonly-bg: #14181d;
+	--color-input-invalid: #ff6b6b;
 	--color-syntax-error: #ff6688;
 
-	--color-surface: #070707;
-	--color-surface-muted: #14110e;
-	--color-surface-muted-hover: #241c14;
-	--color-surface-hover: #1c1610;
-	--color-surface-alt: #0c0c0c;
-	--color-surface-subtle: #100e0c;
-	--color-surface-dark: #000;
-	--color-app-bg: #000;
-	--color-app-frame-bg: #000;
-	--color-body-bg: #000;
+	--color-surface: #14181d;
+	--color-surface-muted: #1b2027;
+	--color-surface-muted-hover: #232a33;
+	--color-surface-hover: #1b2027;
+	--color-surface-alt: #101317;
+	--color-surface-subtle: #11151a;
+	--color-surface-dark: #0b0d10;
+	--color-app-bg: #0b0d10;
+	--color-app-frame-bg: #0b0d10;
+	--color-body-bg: #0b0d10;
 
-	--color-border: #5c3d12;
-	--color-border-alt: #5c3d12;
-	--color-border-subtle: #3a2a14;
-	--color-border-muted: #4a3414;
-	--color-border-medium: #ff9900;
-	--color-border-strong: #ffcc99;
-	--color-border-hover: #ffcc66;
-	--color-line: #6b4a1e;
+	--color-border: #2a313b;
+	--color-border-alt: #2a313b;
+	--color-border-subtle: #20262e;
+	--color-border-muted: #252c35;
+	--color-border-medium: #3a4350;
+	--color-border-strong: #7d8794;
+	--color-border-hover: #3b8cff;
+	--color-line: #2a313b;
 
-	--color-text: #ffcc99;
-	--color-body-text: #f6d7a8;
-	--color-code: #ff9966;
-	--color-text-strong: #fff3d6;
-	--color-icon: #ffcc66;
-	--color-text-secondary: #e0b070;
-	--color-muted: #cc9966;
-	--color-text-faint: #a07840;
-	--color-text-disabled: #6b5430;
+	--color-text: #d9dee5;
+	--color-body-text: #d9dee5;
+	--color-code: #ffd35c;
+	--color-text-strong: #ffffff;
+	--color-icon: #aab3bf;
+	--color-text-secondary: #aab3bf;
+	--color-muted: #7d8794;
+	--color-text-faint: #5f6875;
+	--color-text-disabled: #4a525d;
 
-	--color-row-hover: rgba(255, 204, 153, 0.08);
-	--color-row-overlay: #ffcc99;
+	--color-row-hover: rgba(217, 222, 229, 0.06);
+	--color-row-overlay: #d9dee5;
 
-	--color-drop-border: #ff9900;
-	--color-drop-neutral-bg: #14110e;
-	--color-drop-hover-bg: #2d4a22;
+	--color-drop-border: #3b8cff;
+	--color-drop-neutral-bg: #14181d;
+	--color-drop-hover-bg: #0b3019;
 
-	--color-canvas-workspace: #000;
-	--color-toolbar-bg: #100e0c;
-	--color-toolbar-fg: #ffcc99;
-	--color-toolbar-accent: #ff9900;
-	--color-toolbar-accent-hover: #ffcc66;
-	--color-resize-bar-bg-hover: #3a2a14;
-	--color-mode-toggle-bg: #14110e;
-	--color-mode-toggle-border: #5c3d12;
+	--color-canvas-workspace: #0b0d10;
+	--color-toolbar-bg: #14181d;
+	--color-toolbar-fg: #d9dee5;
+	--color-toolbar-accent: #3b8cff;
+	--color-toolbar-accent-hover: #9cc4ff;
+	--color-resize-bar-bg-hover: #2a313b;
+	--color-mode-toggle-bg: #14181d;
+	--color-mode-toggle-border: #2a313b;
 
-	--color-selected-item-bg: #3a2a14;
-	--color-selected-accent: #ff9900;
+	--color-selected-item-bg: #3a2a05;
+	--color-selected-accent: #f0a500;
 
-	--color-dropdown-item-hover-bg: #3a2a14;
-	--color-dropdown-item-selected-bg: #5c3d12;
-	--color-pill-bg: #3a2a14;
-	--color-pill-remove-bg: #ff9966;
+	--color-dropdown-item-hover-bg: #1b2027;
+	--color-dropdown-item-selected-bg: #10233f;
+	--color-pill-bg: #252c35;
+	--color-pill-remove-bg: #3a4350;
 
-	--color-drag-row-bg: #241c14;
-	--color-dropzone-border: #ff9900;
-	--color-tile-border: #5c3d12;
-	--color-tile-handle-bg: #241c14;
-	--color-tile-handle-bg-hover: #5c3d12;
-	--color-tile-handle-bg-active: #ff9900;
+	--color-drag-row-bg: #1b2027;
+	--color-dropzone-border: #3b8cff;
+	--color-tile-border: #2a313b;
+	--color-tile-handle-bg: #1b2027;
+	--color-tile-handle-bg-hover: #2a313b;
+	--color-tile-handle-bg-active: #3b8cff;
 
-	--color-link: #99ccff;
-	--color-link-hover: #ffcc99;
-	--color-primary-soft: #ffcc66;
+	--color-link: #9cc4ff;
+	--color-link-hover: #ffffff;
+	--color-primary-soft: #3b8cff;
 
-	--color-tab-bg: #3a2a14;
-	--color-tab-fg: #ffcc99;
+	--color-tab-bg: #14181d;
+	--color-tab-fg: #7d8794;
 
-	--color-header-notification-bg: #cc99cc;
-	--color-panel-header-bg: #ff9900;
-	--color-panel-header-fg: #000;
-	--color-panel-header-btn: #000;
-	--color-menu-bg: #100e0c;
+	--color-header-bg: #14181d;
+	--color-header-text: #d9dee5;
+	--color-header-hover: #1b2027;
+	--color-header-text-muted: #7d8794;
+	--color-header-notification-bg: #4b3a00;
+	--color-panel-header-bg: #1b2027;
+	--color-panel-header-fg: #d9dee5;
+	--color-panel-header-btn: #d9dee5;
+	--color-menu-bg: #14181d;
 
-	--color-scrollbar-thumb: #ff9900;
-	--color-text-emphasis: #ffcc99;
-	--color-image-empty-text: #a07840;
-	--color-preview-error-bg: #3a1515;
-	--color-preview-error-text: #ffc0c0;
+	--color-scrollbar-thumb: #3a4350;
+	--color-text-emphasis: #d9dee5;
+	--color-image-empty-text: #5f6875;
+	--color-preview-error-bg: #2a0e10;
+	--color-preview-error-text: #ff8a8f;
 
-	--color-log-error-text: #ff6666;
-	--color-log-info: #99ccff;
-	--color-log-info-text: #cce6ff;
-	--color-log-debug-text: rgba(255, 204, 153, 0.7);
+	--color-log-error-text: #ff6b6b;
+	--color-log-info: #5aa9e6;
+	--color-log-info-text: #bfe0ff;
+	--color-log-debug-text: rgba(217, 222, 229, 0.6);
 }
 
 html[data-theme='dark'] .modal2-header .btn-close {

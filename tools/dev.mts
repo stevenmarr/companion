@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { ChildProcess } from 'child_process'
 import fs from 'fs'
+import os from 'os'
 import path from 'path'
 import semver from 'semver'
 import { $, argv, usePowerShell } from 'zx'
@@ -61,7 +62,28 @@ if (process.env.COMPANION_TRUSTED_PROXIES === undefined) {
 if (process.env.COMPANION_CONFIG_BASEDIR) {
 	const configBaseDir = path.resolve(repoRoot, process.env.COMPANION_CONFIG_BASEDIR)
 	process.argv.push(`--config-dir=${configBaseDir}`)
+} else if (!process.argv.some((arg) => arg === '--config-dir' || arg.startsWith('--config-dir='))) {
+	// Performance Video fork: keep dev config OUT of the checkout. Without --config-dir, Companion
+	// uses ~/companion when that folder exists (its pre-3.0 location). With the checkout cloned to
+	// ~/companion that put the config (v5.1/, machid, README.txt) inside the repo.
+	const configBaseDir = path.join(os.homedir(), 'companion-config')
+	process.argv.push(`--config-dir=${configBaseDir}`)
+	console.log(`Config dir: ${configBaseDir} (set COMPANION_CONFIG_BASEDIR or --config-dir to change it)`)
 }
+const configDirArg = process.argv.find((arg) => arg.startsWith('--config-dir='))
+const configDirAbs = configDirArg ? path.resolve(configDirArg.slice('--config-dir='.length)) : null
+if (configDirAbs && (configDirAbs + path.sep).startsWith(repoRoot + path.sep)) {
+	console.warn(
+		`Warning: the config dir ${configDirAbs} is inside the repo. Saving config can look like a source change.`
+	)
+}
+
+// `yarn start:local` (COMPANION_DEV_NO_WATCH=1): run once without tsx watch, so nothing restarts
+// Companion behind your back; rebuild the webui first so the UI matches the checkout.
+const noWatch = process.env.COMPANION_DEV_NO_WATCH === '1'
+const rebuildWebui = noWatch || process.argv.includes('--rebuild-webui')
+const rebuildIndex = process.argv.indexOf('--rebuild-webui')
+if (rebuildIndex !== -1) process.argv.splice(rebuildIndex, 1)
 
 const inspectIndex = process.argv.findIndex((arg) => arg.startsWith('--inspect'))
 if (inspectIndex !== -1) {
@@ -94,12 +116,25 @@ await $`git submodule update`
 // The backend and shared-lib run directly from their TypeScript sources via tsx (below), so there
 // is no `tsc` emit to perform first. Only the webui needs a build up-front, since the backend
 // serves `webui/build`.
-if (!fs.existsSync('../webui/build')) {
-	await $`yarn workspace @companion-app/webui build`.catch((e) => {
-		console.error(e)
-	})
+// Performance Video fork: also rebuild when the build is from another commit. A stale webui/build
+// is why a pulled checkout can still show old UI (e.g. the Bitfocus logo or the experimental banner).
+const webuiStamp = path.join(repoRoot, 'webui', 'build', '.source-rev')
+const headRev = (await $`git -C ${repoRoot} rev-parse HEAD`.nothrow().quiet()).stdout.trim()
+const builtRev = fs.existsSync(webuiStamp) ? fs.readFileSync(webuiStamp, 'utf8').trim() : ''
+if (rebuildWebui || !fs.existsSync('../webui/build') || !headRev || builtRev !== headRev) {
+	console.log(
+		`Building the webui (${builtRev ? `built from ${builtRev.slice(0, 9)}, ` : ''}checkout is ${headRev.slice(0, 9) || 'unknown'})`
+	)
+	await $`yarn workspace @companion-app/webui build`.then(
+		() => {
+			if (headRev) fs.writeFileSync(webuiStamp, headRev + '\n')
+		},
+		(e) => {
+			console.error(e)
+		}
+	)
 } else {
-	console.warn('Skipping webui build, you may need to run `yarn dist:webui` if changes have been made recently')
+	console.warn('Skipping webui build (it matches this commit); run `yarn dist:webui` after local webui edits')
 }
 
 // Bundle the worker-thread / module-subprocess entrypoints with esbuild (watched). These cannot run
@@ -123,9 +158,23 @@ function start() {
 	// would rebuild the bundle but never restart the backend that spawns those threads. The glob is
 	// passed interpolated so zx quotes it (the shell must not expand it - tsx expands it itself).
 	const threadBundleGlob = path.join(devThreadOutDir, '*.js')
+	// stdin is not passed on: `tsx watch` restarts the app on ANY Return key in this terminal
+	// ("[tsx] Return key Restarting..."), which looked like the UI reloading to Connections.
+	const watchArgs = noWatch
+		? []
+		: [
+				'watch',
+				'--clear-screen=false',
+				'--include',
+				threadBundleGlob,
+				'--exclude',
+				'../v*/**',
+				'--exclude',
+				'../config/**',
+			]
 	const proc = $({
 		cwd: path.join(import.meta.dirname, '../companion'),
-		stdio: 'inherit',
+		stdio: ['ignore', 'inherit', 'inherit'],
 		env: {
 			...process.env,
 
@@ -134,7 +183,7 @@ function start() {
 			COMPANION_DEV_MODULES_PATH: devModulesPath ?? '',
 			COMPANION_DEV_THREAD_DIR: devThreadOutDir,
 		},
-	})`tsx watch --clear-screen=false --include ${threadBundleGlob} ${nodeArgs} lib/main-dev.ts ${process.argv.slice(2)}`
+	})`tsx ${watchArgs} ${nodeArgs} ${noWatch ? 'lib/main.ts' : 'lib/main-dev.ts'} ${process.argv.slice(2)}`
 
 	node = proc.child ?? null
 

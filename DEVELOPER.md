@@ -15,6 +15,16 @@ yarn dev
 
 Connect to it at http://localhost:8000/
 
+Performance Video fork notes:
+
+- Config lives in `~/companion-config` (override with `COMPANION_CONFIG_BASEDIR` or `--config-dir`), never inside
+  the checkout. Older runs from a checkout at `~/companion` wrote `~/companion/v5.1`; move it with
+  `mkdir -p ~/companion-config && mv ~/companion/v5.1 ~/companion/machid ~/companion-config/`.
+- `yarn dev` no longer reads the terminal, so pressing Return there no longer restarts Companion
+  (`[tsx] Return key Restarting...`). It rebuilds the webui when `webui/build` is from a different commit.
+- `yarn start:local` runs Companion once, without the file watcher, after rebuilding the webui. Use it to
+  just run the app; use `yarn dev` while editing backend code.
+
 Optionally, in another terminal:
 
 ```bash

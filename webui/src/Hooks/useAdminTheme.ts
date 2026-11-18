@@ -8,11 +8,11 @@ export function isAdminTheme(value: unknown): value is AdminTheme {
 	return value === 'light' || value === 'dark' || value === 'system'
 }
 
-/** `system` follows this computer. Anything else, including a setting that has not loaded yet, stays light. */
+/** `system` follows this computer. Anything else, including a setting that has not loaded yet, is dark (the Control Center default). */
 export function resolveAdminTheme(preference: string | undefined, systemDark: boolean): 'light' | 'dark' {
-	if (preference === 'dark') return 'dark'
+	if (preference === 'light') return 'light'
 	if (preference === 'system') return systemDark ? 'dark' : 'light'
-	return 'light'
+	return 'dark'
 }
 
 export function applyAdminTheme(resolved: 'light' | 'dark', preference: AdminTheme | undefined): void {

@@ -17,8 +17,8 @@ function RouteComponent() {
 
 	useDocumentTitle(
 		emulatorPageConfig.data?.installName && emulatorPageConfig.data.installName.length > 0
-			? `${emulatorPageConfig.data.installName} - Emulator (Bitfocus Companion)`
-			: 'Bitfocus Companion - Emulator'
+			? `${emulatorPageConfig.data.installName} - Emulator (PV Companion)`
+			: 'PV Companion - Emulator'
 	)
 
 	const doRetry = useCallback(() => window.location.reload(), [])

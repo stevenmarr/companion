@@ -121,7 +121,7 @@ export class DataUserConfig extends EventEmitter<DataUserConfigEvents> {
 		gridSizePromptGrow: true,
 
 		installName: '',
-		admin_theme: 'light',
+		admin_theme: 'dark',
 		mdns_announcements_enabled: true,
 		default_export_filename: '$(internal:hostname)_$(internal:date_iso)-$(internal:time_h)$(internal:time_m)',
 		default_export_format: ExportFormatDefault,
