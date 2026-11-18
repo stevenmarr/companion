@@ -97,3 +97,15 @@ yarn dev:docs
 ```
 
 Connect to it at http://localhost:4000/
+
+## Built-in connection modules (PV fork)
+
+`modules/` holds the connection modules PV Companion ships with: `pvllc-atem-dials` (source, built by
+`modules/pvllc-atem-dials/build.mjs`) and `pvllc-control-center` (the Control Center module's built package; see its
+README to update it). In development Companion loads them from `modules/`, in packaged builds from
+`dist/builtin-modules` (`tools/build/package.mts`).
+
+A built-in module that lists another id in `legacyIds` replaces it: any other built-in module with that id (an old copy
+left in `modules/`, e.g. `modules/rs6-presets`) is ignored with a warning, and connections on the old id are moved to
+the built-in module at start-up ("Moving connection ... to built-in pvllc-control-center" in the log). Check
+`git status modules/` for untracked folders; anything there loads as a built-in module.

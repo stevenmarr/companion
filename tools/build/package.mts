@@ -85,6 +85,16 @@ if (platformInfo.runtimePlatform === 'linux') {
 	await $({ cwd: dest })`npm install --omit=dev --no-audit --no-fund`
 }
 
+// Bundle the Control Center connection module (pvllc-control-center, replaces the legacy rs6-presets id). It is
+// committed as built output (one bundled main.js, no dependencies), so it is copied as-is.
+{
+	const src = path.resolve('modules/pvllc-control-center')
+	const dest = path.resolve('dist/builtin-modules/pvllc-control-center')
+	console.log('Bundling Control Center module')
+	await fs.remove(dest)
+	await fs.copy(src, dest, { filter: (f) => !f.endsWith('README.md') })
+}
+
 // Install dependencies
 $.cwd = 'dist'
 // await fs.writeFile(`dist/yarn.lock`, '')

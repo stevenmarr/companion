@@ -70,6 +70,11 @@ export class InstanceModules {
 	readonly #modulesDirs: AppInfo['modulesDirs']
 	readonly #builtinModuleDirs: AppInfo['builtinModuleDirs']
 
+	/**
+	 * PV fork: `${moduleType}:${legacyId}` -> id of the built-in module that lists legacyId in its legacyIds
+	 */
+	readonly #builtinReplacements = new Map<string, string>()
+
 	readonly #events = new EventEmitter<InstanceModulesEvents>()
 
 	constructor(instance: InstanceController, apiRouter: express.Router, appInfo: AppInfo) {
@@ -201,7 +206,38 @@ export class InstanceModules {
 					isPackaged: true,
 				}
 			}
+
+			// PV fork: a built-in module that lists another id in its legacyIds replaces that id. Drop any other built-in
+			// module with the old id (an untracked old copy left in modules/, e.g. rs6-presets next to
+			// pvllc-control-center) so it cannot be picked, and remember the replacement so connections on the old id
+			// are moved at start-up (see InstanceController #queueUpdateInstanceState).
+			const knownModules = this.#getModuleMapForType(moduleType)
+			for (const candidate of builtinModules) {
+				if (candidate.type !== moduleType || !('legacyIds' in candidate.manifest)) continue
+				for (const legacyId of candidate.manifest.legacyIds ?? []) {
+					if (legacyId === candidate.manifest.id) continue
+					this.#builtinReplacements.set(`${moduleType}:${legacyId}`, candidate.manifest.id)
+
+					const old = knownModules.get(legacyId)
+					if (old?.builtinModule) {
+						this.#logger.warn(
+							`Ignoring built-in module ${legacyId} (${old.builtinModule.basePath}): replaced by built-in ${candidate.manifest.id}. Delete that folder.`
+						)
+						old.builtinModule = null
+						if (!old.devModule && Object.keys(old.installedVersions).length === 0) knownModules.delete(legacyId)
+					}
+				}
+			}
 		}
+	}
+
+	/**
+	 * PV fork: the built-in module that replaces a legacy module id (it lists that id in its legacyIds), if any
+	 */
+	getBuiltinReplacement(moduleType: ModuleInstanceType, moduleId: string): string | null {
+		const replacement = this.#builtinReplacements.get(`${moduleType}:${moduleId}`)
+		if (!replacement) return null
+		return this.#getModuleMapForType(moduleType).get(replacement)?.builtinModule ? replacement : null
 	}
 
 	/**
@@ -460,7 +496,8 @@ export class InstanceModules {
 		// Next, push the latest installed versions of each module
 		for (const [knownModuleId, knownModuleInfo] of this.#getModuleMapForType(moduleType)) {
 			if (knownModuleId === moduleId) continue
-			const latestVersion = knownModuleInfo.getLatestVersion(false)
+			// PV fork: a built-in module (no store or imported version) is a candidate too
+			const latestVersion = knownModuleInfo.getLatestVersion(false) ?? knownModuleInfo.builtinModule
 			if (!latestVersion) continue
 
 			if ('legacyIds' in latestVersion.manifest && latestVersion.manifest.legacyIds.includes(moduleId)) {
