@@ -21,6 +21,23 @@ push / touch) and a knob delta (variables allowed). The app runs the button's ow
 An edit in the app, or **SYNC TO COMPANION** on the app's COMPANION tab, republishes the presets within a few
 seconds. The COMPANION tab can also download a page as a `.companionconfig` for Companion's Import / Export.
 
+### Control Center deck pages and touch-strip displays (new in 0.12.0, needs Control Center app 0.32.0)
+
+The HOME, PTZ, ATEM and CONSOLE pages Control Center draws on a Stream Deck, live, with the + / + XL knobs.
+
+- **Presets → CC deck: Stream Deck + XL (whole deck, follows HOME and page keys)**: every key, strip cell and knob of
+  one Control Center deck. Put them on one Companion page in the same rows and columns (strip cells on the row under
+  the keys, knobs on the row under that). Pressing HOME, PTZ, a page key or SHIFT works like on a USB deck.
+- **CC deck: Stream Deck + XL · <page> [ptz.0]**: one page that stays put. Easiest: Control Center → COMPANION →
+  DECK PAGES → download the page's `.companionconfig`, then Import / Export → Import here and map "cc" to this connection.
+- **CC deck: touch-strip displays and knobs**: each PTZ dial (R / B gain, R / B pedestal, iris, master pedestal, detail,
+  gamma, chroma, knee, zoom, focus, speeds) on its own, for the selected camera. Put the display in a strip cell and
+  the knob in the cell under it. A knob push switches a pair (R ↔ B); a long push resets.
+- Variables: `$(pvcc:cc_strip_plusxl_3)` (a knob's readout), `$(pvcc:cc_dial_gainRb)`, `$(pvcc:cc_deck_plusxl_page)`.
+- Config **Control Center deck pages for** picks the deck sizes (default Stream Deck + XL).
+
+Companion has no separate encoder screen: on a + / + XL the strip is a row of buttons, each cell drawn from its button.
+
 ### Stream Deck pages and knobs (new in 0.7.0)
 
 The Control Center app (0.9.0+, SYSTEMS › COMPANION PAGES) makes ready-made pages for Stream Deck XL, MK.2,
