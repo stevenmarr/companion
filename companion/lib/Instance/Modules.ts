@@ -232,6 +232,20 @@ export class InstanceModules {
 	}
 
 	/**
+	 * PV fork: is a connection pinned to `versionId` of `moduleId` running an installed copy older than the built-in
+	 * copy of the same module? (An old imported pvllc-control-center 0.11.0 next to the built-in 0.12.0.)
+	 */
+	isSupersededByBuiltin(
+		moduleType: ModuleInstanceType,
+		moduleId: string,
+		versionId: string | null | undefined
+	): boolean {
+		if (moduleType !== ModuleInstanceType.Connection) return false
+		const info = this.#getModuleMapForType(moduleType).get(moduleId)
+		return !!info && info.isSupersededByBuiltin(versionId)
+	}
+
+	/**
 	 * PV fork: the built-in module that replaces a legacy module id (it lists that id in its legacyIds), if any
 	 */
 	getBuiltinReplacement(moduleType: ModuleInstanceType, moduleId: string): string | null {
@@ -396,6 +410,9 @@ export class InstanceModules {
 		if (!moduleInfo) return null
 
 		if (moduleInfo.devModule && allowDev) return 'dev'
+
+		// PV fork: a built-in connection module at least as new as every installed copy is the latest
+		if (moduleType === ModuleInstanceType.Connection && moduleInfo.builtinSupersedesInstalled()) return 'builtin'
 
 		const latest = moduleInfo.getLatestVersion(false)?.versionId
 		if (latest) return latest

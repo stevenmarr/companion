@@ -663,6 +663,8 @@ export class ServiceHttpApi {
 				id,
 				label: config.label,
 				moduleId: config.moduleId,
+				// PV fork: which copy runs (a version, "builtin" or "dev"), so Control Center can spot an old import
+				moduleVersionId: config.moduleVersionId ?? null,
 				enabled: config.enabled,
 				status: status ?? null,
 			}

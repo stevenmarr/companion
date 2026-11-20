@@ -14,3 +14,8 @@ cp -r pkg/. <companion>/modules/pvllc-control-center/
 
 Because this module lists `rs6-presets` in `legacyIds`, Companion ignores any other built-in module with that id
 (an old copy left in `modules/`) and moves `rs6-presets` connections to `pvllc-control-center` at start-up.
+
+An imported (Modules → Import) copy of this module that is older than this built-in one does not shadow it: new
+connections use the built-in copy, Manage Modules lists the built-in version, and a connection pinned to the older
+import moves to the built-in copy at start-up (log: "Moving connection ... to the newer built-in copy"). A newer import
+is left alone. You can then remove the old import under Modules.

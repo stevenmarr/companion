@@ -35,6 +35,10 @@ The HOME, PTZ, ATEM and CONSOLE pages Control Center draws on a Stream Deck, liv
   the knob in the cell under it. A knob push switches a pair (R ↔ B); a long push resets.
 - Variables: `$(pvcc:cc_strip_plusxl_3)` (a knob's readout), `$(pvcc:cc_dial_gainRb)`, `$(pvcc:cc_deck_plusxl_page)`.
 - Config **Control Center deck pages for** picks the deck sizes (default Stream Deck + XL).
+- Since 0.13.0 the **CC deck:** and **CC:** presets are listed first. Config **Older per-system presets** → Hide removes
+  the older per-system and RS6 sections. Connections made before 0.12.0 get Stream Deck + XL deck pages switched on
+  automatically. If Control Center's COMPANION tab says "0 deck presets", open this connection, set **Control Center deck
+  pages for** (for example Stream Deck + XL), Save, then press SYNC on the COMPANION tab.
 
 Companion has no separate encoder screen: on a + / + XL the strip is a row of buttons, each cell drawn from its button.
 

@@ -1434,6 +1434,16 @@ export class InstanceController extends EventEmitter<InstanceControllerEvents> {
 				config.moduleId = replacement
 				config.moduleVersionId = 'builtin'
 				changed = true
+			} else if (
+				this.modules.isSupersededByBuiltin(config.moduleInstanceType, config.moduleId, config.moduleVersionId)
+			) {
+				// PV fork: an imported copy older than the built-in one (pvllc-control-center 0.11.0 imported by hand,
+				// built-in 0.12.0 in modules/) must not keep the connection on the old code
+				this.#logger.info(
+					`Moving connection "${config.label}" from ${config.moduleId}@${config.moduleVersionId} to the newer built-in copy`
+				)
+				config.moduleVersionId = 'builtin'
+				changed = true
 			}
 		}
 

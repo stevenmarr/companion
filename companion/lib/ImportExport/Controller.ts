@@ -304,6 +304,22 @@ export class ImportExportController {
 		return this.#exportController.exportPageSnapshot(pageNumber)
 	}
 
+	/** PV fork: the export file version this Companion writes (so a page saved elsewhere is upgraded correctly later). */
+	get fileVersion(): number {
+		return FILE_VERSION
+	}
+
+	/**
+	 * PV fork: run a single-page export (such as a Control Center page) through the normal import upgrades.
+	 * Returns null when it is not a page export.
+	 */
+	upgradePageImport(raw: unknown): { page: ExportPageContentv6; instances: ExportInstancesv6 } | null {
+		if (!raw || typeof raw !== 'object' || (raw as { type?: unknown }).type !== 'page') return null
+		const data = upgradeImport(structuredClone(raw), this.#userConfigController.getAll())
+		if (data.type !== 'page' || !data.page) return null
+		return { page: data.page, instances: data.instances ?? {} }
+	}
+
 	/** Copy a captured page onto an existing page, remapping connections the same way an import does. */
 	async importPageForClass(
 		instances: ExportInstancesv6 | undefined,

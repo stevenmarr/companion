@@ -45,11 +45,21 @@ async function writeOldRs6(dir: string): Promise<void> {
 	})
 }
 
-async function makeModules(withReplacement: boolean): Promise<InstanceModules> {
+// an imported (user / store) copy of the Control Center module at `version`, next to the built-in one
+async function writeImportedCc(dir: string, version: string): Promise<void> {
+	const mod = path.join(dir, `pvllc-control-center-${version}`)
+	await fs.copy(repoBuiltin, mod)
+	const manifest = await fs.readJson(path.join(mod, 'companion/manifest.json'))
+	await fs.writeJson(path.join(mod, 'companion/manifest.json'), { ...manifest, version })
+	await fs.writeJson(path.join(mod, 'package.json'), { name: 'pvllc-control-center', version, dependencies: {} })
+}
+
+async function makeModules(withReplacement: boolean, importedCc?: string): Promise<InstanceModules> {
 	const builtinDir = await tmp()
 	const installedDir = await tmp()
 	await writeOldRs6(builtinDir)
 	if (withReplacement) await fs.copy(repoBuiltin, path.join(builtinDir, 'pvllc-control-center'))
+	if (importedCc) await writeImportedCc(installedDir, importedCc)
 
 	const modules = new InstanceModules(fakeController(), fakeRouter(), {
 		modulesDirs: {
@@ -83,6 +93,24 @@ describe('built-in module replacing a legacy id', () => {
 		expect(modules.getBuiltinReplacement(ModuleInstanceType.Connection, 'rs6-presets')).toBe('pvllc-control-center')
 		expect(modules.getBuiltinReplacement(ModuleInstanceType.Connection, 'pvllc-control-center')).toBeNull()
 		expect(modules.getBuiltinReplacement(ModuleInstanceType.Surface, 'rs6-presets')).toBeNull()
+	})
+
+	test('an older imported pvllc-control-center (0.11.0) does not shadow the built-in copy', async () => {
+		const modules = await makeModules(true, '0.11.0')
+		expect(modules.getModuleManifest(ModuleInstanceType.Connection, 'pvllc-control-center', '0.11.0')).toBeTruthy()
+		// new connections and "latest" get the built-in copy
+		expect(modules.getLatestVersionOfModule(ModuleInstanceType.Connection, 'pvllc-control-center', false)).toBe('builtin')
+		// a connection pinned to the old import is moved at start-up (InstanceController #queueUpdateInstanceState)
+		expect(modules.isSupersededByBuiltin(ModuleInstanceType.Connection, 'pvllc-control-center', '0.11.0')).toBe(true)
+		expect(modules.isSupersededByBuiltin(ModuleInstanceType.Connection, 'pvllc-control-center', 'builtin')).toBe(false)
+		expect(modules.isSupersededByBuiltin(ModuleInstanceType.Connection, 'pvllc-control-center', 'dev')).toBe(false)
+		expect(modules.isSupersededByBuiltin(ModuleInstanceType.Connection, 'other-module', '0.1.0')).toBe(false)
+	})
+
+	test('a newer imported copy is left alone (testing a release before it is built in)', async () => {
+		const modules = await makeModules(true, '9.0.0')
+		expect(modules.getLatestVersionOfModule(ModuleInstanceType.Connection, 'pvllc-control-center', false)).toBe('9.0.0')
+		expect(modules.isSupersededByBuiltin(ModuleInstanceType.Connection, 'pvllc-control-center', '9.0.0')).toBe(false)
 	})
 
 	test('without the replacement the old built-in still loads (stock behaviour)', async () => {
