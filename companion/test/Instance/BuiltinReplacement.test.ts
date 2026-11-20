@@ -66,11 +66,11 @@ async function makeModules(withReplacement: boolean): Promise<InstanceModules> {
 }
 
 describe('built-in module replacing a legacy id', () => {
-	test('repo modules/pvllc-control-center is the built 0.11.x module with legacy id rs6-presets', async () => {
+	test('repo modules/pvllc-control-center is the built module (0.11 or later) with legacy id rs6-presets', async () => {
 		const manifest = await fs.readJson(path.join(repoBuiltin, 'companion/manifest.json'))
 		expect(manifest.id).toBe('pvllc-control-center')
 		expect(manifest.legacyIds).toContain('rs6-presets')
-		expect(manifest.version).toMatch(/^0\.11\./)
+		expect(manifest.version).toMatch(/^0\.(1[1-9]|[2-9]\d)\./)
 		expect(manifest.runtime.entrypoint).toBe('../main.js')
 		expect(await fs.pathExists(path.join(repoBuiltin, 'main.js'))).toBe(true)
 	})
