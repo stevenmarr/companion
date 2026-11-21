@@ -3,6 +3,11 @@
 export interface ControlCenterPagesCatalogPage {
 	id: string
 	title: string
+	/** Control Center 0.36.0: the whole-deck entry (follows Control Center's HOME and page keys) */
+	whole?: boolean
+	/** Control Center 0.36.0: the system a deck page drives, and that system's name ("PTZ 2") */
+	system?: string
+	instance?: string
 }
 
 export interface ControlCenterUserPage {

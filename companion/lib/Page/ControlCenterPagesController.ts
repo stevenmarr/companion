@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import z from 'zod'
 import type {
 	ControlCenterPagesCatalog,
@@ -19,10 +20,20 @@ import { publicProcedure, router } from '../UI/TRPC.js'
  * Control Center is found through the first Performance Video Control Center connection (its host and port), so
  * there is nothing extra to set up. It talks to Control Center 0.33.0+ over HTTP:
  * GET /api/companion/catalog, GET /api/companion/catalog/export?id=, POST/DELETE /api/companion/user-pages[/:id].
+ *
+ * Round 2 (Control Center 0.36.0+): a picture of each page (GET /api/companion/catalog/preview.png, fetched here so the
+ * browser never needs Control Center's address), "Place every page" of a deck with its HOME / page keys turned into
+ * Companion page jumps, and "My own look" (catalog/export?look=0) for a copy restyled in Companion.
  */
 
 export const CC_MODULE_IDS = ['pvllc-control-center', 'rs6-presets']
 const FETCH_TIMEOUT_MS = 8000
+/** Deck pages show live values, so a picture is fetched again after this long */
+const PREVIEW_TTL_MS = 10000
+const PREVIEW_CACHE_MAX = 200
+const PREVIEW_MAX_BYTES = 2_000_000
+/** "Place every page" places at most this many pages in one go */
+const PLACE_DECK_MAX = 99
 
 /** Where a placed page came from (keyed by Companion page id), so "Save to User pages" can say and update it */
 export interface ControlCenterPageOrigin {
@@ -71,10 +82,62 @@ export type CcFetch = (
 	ok: boolean
 	status: number
 	json(): Promise<unknown>
+	arrayBuffer?(): Promise<ArrayBuffer>
 }>
 
 function errorOf(e: unknown): string {
 	return e instanceof Error ? e.message : String(e)
+}
+
+function optionValue(raw: unknown): unknown {
+	return raw && typeof raw === 'object' && 'value' in raw ? raw.value : raw
+}
+
+/**
+ * Control Center 0.36.0 marks the press action of a pinned deck page's HOME / page / system keys with the page it opens
+ * (`go`: "home.0", "ptz.3"). For each such key whose page is placed here too (pageIdOf gives its Companion page id),
+ * the key becomes a Companion page jump on the deck it is pressed on (internal "Surface: Set to page", surface self).
+ * Its picture (the deck look feedback) stays. Returns how many keys were turned into jumps.
+ */
+export function wireDeckNav(page: ExportPageContentv6, pageIdOf: (pin: string) => string | undefined): number {
+	let wired = 0
+	for (const byCol of Object.values(page.controls ?? {})) {
+		for (const control of Object.values((byCol ?? {}) as Record<string, unknown>)) {
+			const steps = (control as { steps?: Record<string, { action_sets?: Record<string, unknown> }> } | undefined)
+				?.steps
+			const sets = steps?.['0']?.action_sets
+			if (!sets) continue
+			const down = Array.isArray(sets.down)
+				? (sets.down as { definitionId?: string; options?: Record<string, unknown> }[])
+				: []
+			const cc = down.find((a) => a?.definitionId === 'cc_deck_key' && optionValue(a.options?.go))
+			if (!cc) continue
+			const target = pageIdOf(String(optionValue(cc.options?.go)))
+			if (!target) continue
+			sets.down = [
+				{
+					type: 'action',
+					id: nanoid(),
+					definitionId: 'set_page',
+					connectionId: 'internal',
+					options: {
+						surfaceId: { isExpression: false, value: 'self' },
+						page: { isExpression: false, value: target },
+					},
+					upgradeIndex: undefined,
+				},
+			]
+			sets.up = []
+			wired++
+		}
+	}
+	return wired
+}
+
+/** "deck:plusxl:ptz.3" -> { surface: "plusxl", pin: "ptz.3" } (pin "" for the whole deck) */
+export function deckPin(catalogId: string): { surface: string; pin: string } | null {
+	const m = /^deck:([\w-]+):([\w.-]*)$/.exec(catalogId)
+	return m ? { surface: m[1], pin: m[2] } : null
 }
 
 /** Keep only what a page needs to find its connections again: never a connection's config or secrets */
@@ -106,6 +169,7 @@ export class ControlCenterPagesController {
 	readonly #pages: CcPagesPages
 	readonly #importExport: CcPagesImportExport
 	readonly #fetch: CcFetch
+	readonly #previews = new Map<string, { at: number; url: string | null }>()
 
 	constructor(
 		origins: OriginTable,
@@ -132,9 +196,21 @@ export class ControlCenterPagesController {
 						pageName: z.string().max(60).optional(),
 						/** Replace this page (its buttons go) instead of adding a new page at the end */
 						targetPage: z.number().int().min(1).optional(),
+						/** false: leave out Control Center's deck look, so text and colours edited here show */
+						look: z.boolean().optional(),
 					})
 				)
-				.mutation(async ({ input }) => this.place(input.id, input.pageName ?? '', input.targetPage)),
+				.mutation(async ({ input }) =>
+					this.place(input.id, input.pageName ?? '', input.targetPage, input.look ?? true)
+				),
+
+			placeDeck: publicProcedure
+				.input(z.object({ surface: z.string().regex(/^[\w-]{1,20}$/), look: z.boolean().optional() }))
+				.mutation(async ({ input }) => this.placeDeck(input.surface, input.look ?? true)),
+
+			preview: publicProcedure
+				.input(z.object({ id: z.string().min(1).max(200) }))
+				.query(async ({ input }) => this.preview(input.id)),
 
 			saveUserPage: publicProcedure
 				.input(
@@ -241,15 +317,12 @@ export class ControlCenterPagesController {
 	async place(
 		catalogId: string,
 		pageNameInput: string,
-		targetPage?: number
+		targetPage?: number,
+		look = true
 	): Promise<{ pageNumber: number; name: string; replaced: boolean }> {
 		const conn = this.connection()
 		if (!conn) throw new Error('Add a Performance Video Control Center connection first (Connections → Add)')
-		const res = (await this.#call(
-			`/api/companion/catalog/export?id=${encodeURIComponent(catalogId)}&label=${encodeURIComponent(conn.label)}`
-		)) as { name?: string; export?: unknown }
-		const upgraded = this.#importExport.upgradePageImport(res?.export)
-		if (!upgraded) throw new Error('Control Center sent something that is not a page')
+		const upgraded = await this.#fetchPage(catalogId, conn.label, look)
 		const remap = this.#remap(upgraded.instances, conn.id)
 
 		const pageName = pageNameInput.trim() || upgraded.page.name?.trim() || 'Control Center page'
@@ -260,6 +333,7 @@ export class ControlCenterPagesController {
 		if (targetPage !== undefined) {
 			const targetId = this.#pages.store.getPageId(targetPage)
 			if (!targetId) throw new Error(`There is no page ${targetPage}`)
+			this.#wireToPlaced(page, catalogId, targetId)
 			// importSinglePage clears the page first, then lays out the Control Center page and names it
 			await this.#importExport.importPageForClass(upgraded.instances, remap, page, targetPage)
 			this.#origins.set(targetId, {
@@ -275,6 +349,7 @@ export class ControlCenterPagesController {
 		const pageNumber = this.#pages.store.getPageCount() + 1
 		const ids = this.#pages.insertPages(pageNumber, [pageName])
 		if (ids.length === 0) throw new Error('Failed to create a page')
+		this.#wireToPlaced(page, catalogId, ids[0])
 		try {
 			await this.#importExport.importPageForClass(upgraded.instances, remap, page, pageNumber)
 		} catch (e) {
@@ -288,6 +363,129 @@ export class ControlCenterPagesController {
 		this.#origins.set(ids[0], { pageId: ids[0], catalogId, title: pageName, ...(userPageId ? { userPageId } : {}) })
 		this.#logger.info(`Placed Control Center page ${catalogId} as page ${pageNumber} (${pageName}), a copy`)
 		return { pageNumber, name: pageName, replaced: false }
+	}
+
+	async #fetchPage(
+		catalogId: string,
+		label: string,
+		look: boolean
+	): Promise<{ page: ExportPageContentv6; instances: ExportInstancesv6 }> {
+		const res = (await this.#call(
+			`/api/companion/catalog/export?id=${encodeURIComponent(catalogId)}&label=${encodeURIComponent(label)}${look ? '' : '&look=0'}`
+		)) as { name?: string; export?: unknown }
+		const upgraded = this.#importExport.upgradePageImport(res?.export)
+		if (!upgraded) throw new Error('Control Center sent something that is not a page')
+		return upgraded
+	}
+
+	/**
+	 * A single deck page placed on its own: its HOME / page keys jump to the pages of the same deck already placed here
+	 * (the newest copy of each), and to itself. Keys whose page is not placed keep running Control Center.
+	 */
+	#wireToPlaced(page: ExportPageContentv6, catalogId: string, ownPageId: string): number {
+		const own = deckPin(catalogId)
+		if (!own || !own.pin) return 0
+		const byPin = new Map<string, string>()
+		for (const o of Object.values(this.#origins.all())) {
+			const at = o && deckPin(o.catalogId)
+			if (!at || at.surface !== own.surface || !at.pin || o.pageId === ownPageId) continue
+			if (this.#pages.store.getPageNumber(o.pageId) === null) continue
+			byPin.set(at.pin, o.pageId)
+		}
+		byPin.set(own.pin, ownPageId)
+		return wireDeckNav(page, (pin) => byPin.get(pin))
+	}
+
+	/**
+	 * "Place every page": HOME and every system page of one deck size, as new pages in a row at the end, with their
+	 * HOME / page / system keys turned into Companion page jumps between them. The Stream Deck then moves between
+	 * Control Center's pages by itself: put it on the first of them once (its page buttons or Surfaces).
+	 */
+	async placeDeck(surface: string, look = true): Promise<{ firstPage: number; count: number; wired: number }> {
+		const conn = this.connection()
+		if (!conn) throw new Error('Add a Performance Video Control Center connection first (Connections → Add)')
+		const catalog = (await this.#call('/api/companion/catalog')) as ControlCenterPagesCatalog
+		const deck = catalog?.deck?.find((d) => d.surface === surface)
+		if (!deck) throw new Error(`Control Center has no ${surface} deck pages`)
+		const list = deck.pages.filter((p) => deckPin(p.id)?.pin).slice(0, PLACE_DECK_MAX)
+		if (list.length === 0) throw new Error(`Control Center has no ${deck.label} pages to place`)
+
+		// Everything is fetched and checked before any page is made
+		const prepared: {
+			id: string
+			pin: string
+			name: string
+			upgraded: { page: ExportPageContentv6; instances: ExportInstancesv6 }
+			remap: Record<string, string | undefined>
+		}[] = []
+		for (const p of list) {
+			const upgraded = await this.#fetchPage(p.id, conn.label, look)
+			prepared.push({
+				id: p.id,
+				pin: deckPin(p.id)?.pin ?? '',
+				name: p.title.slice(0, 60) || 'Control Center page',
+				upgraded,
+				remap: this.#remap(upgraded.instances, conn.id),
+			})
+		}
+
+		const firstPage = this.#pages.store.getPageCount() + 1
+		const ids = this.#pages.insertPages(
+			firstPage,
+			prepared.map((x) => x.name)
+		)
+		if (ids.length !== prepared.length) throw new Error('Failed to create the pages')
+		const byPin = new Map(prepared.map((x, i) => [x.pin, ids[i]]))
+		let wired = 0
+		for (let i = 0; i < prepared.length; i++) {
+			const x = prepared[i]
+			const page = structuredClone(x.upgraded.page)
+			page.name = x.name
+			wired += wireDeckNav(page, (pin) => byPin.get(pin))
+			await this.#importExport.importPageForClass(x.upgraded.instances, x.remap, page, firstPage + i)
+			this.#origins.set(ids[i], { pageId: ids[i], catalogId: x.id, title: x.name })
+		}
+		this.#logger.info(
+			`Placed every ${deck.label} page from Control Center: pages ${firstPage}-${firstPage + ids.length - 1}, ${wired} page keys`
+		)
+		return { firstPage, count: ids.length, wired }
+	}
+
+	/**
+	 * A small PNG of one Control Center page as a data URL (null when Control Center has no picture, e.g. older than
+	 * 0.36.0). Fetched here, not in the browser: Control Center's address is as this server sees it (often 127.0.0.1).
+	 */
+	async preview(catalogId: string): Promise<string | null> {
+		const hit = this.#previews.get(catalogId)
+		if (hit && Date.now() - hit.at < PREVIEW_TTL_MS) return hit.url
+		const conn = this.connection()
+		if (!conn) return null
+		const ctrl = new AbortController()
+		const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS)
+		let url: string | null = null
+		try {
+			const res = await this.#fetch(
+				`${conn.baseUrl}/api/companion/catalog/preview.png?id=${encodeURIComponent(catalogId)}`,
+				{ signal: ctrl.signal }
+			)
+			if (res.ok && typeof res.arrayBuffer === 'function') {
+				const buf = Buffer.from(await res.arrayBuffer())
+				if (buf.length > 8 && buf.length <= PREVIEW_MAX_BYTES && buf.subarray(1, 4).toString('latin1') === 'PNG') {
+					url = `data:image/png;base64,${buf.toString('base64')}`
+				}
+			}
+		} catch {
+			url = null
+		} finally {
+			clearTimeout(timer)
+		}
+		this.#previews.delete(catalogId)
+		this.#previews.set(catalogId, { at: Date.now(), url })
+		if (this.#previews.size > PREVIEW_CACHE_MAX) {
+			const oldest = this.#previews.keys().next().value
+			if (oldest !== undefined) this.#previews.delete(oldest)
+		}
+		return url
 	}
 
 	originOf(pageNumber: number): ControlCenterPageOrigin | null {

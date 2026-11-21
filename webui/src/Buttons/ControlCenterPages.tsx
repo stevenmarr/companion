@@ -1,4 +1,4 @@
-import { faDownload, faFloppyDisk, faRotate, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faDownload, faFloppyDisk, faLayerGroup, faRotate, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useQuery } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
@@ -19,6 +19,11 @@ import './Pages.css'
  *
  * Shown two ways: its own screen (left menu, BUILD → Control Center pages, `standalone`) and at the bottom of
  * Buttons → Pages tab.
+ *
+ * Round 2: each page shows a picture of its keys (fetched by the Companion server from Control Center 0.36.0+, only
+ * once the row scrolls into view), "Place every page" puts a deck's HOME and system pages in a row with their HOME /
+ * page keys turned into Companion page jumps, and "My own look" places copies without Control Center's deck look so
+ * text and colours edited here show.
  */
 
 interface ControlCenterPagesSectionProps {
@@ -33,6 +38,54 @@ interface ControlCenterPagesSectionProps {
 function refresh(): void {
 	void queryClient.invalidateQueries({ queryKey: trpc.controlCenterPages.state.queryKey() })
 	void queryClient.invalidateQueries({ queryKey: trpc.controlCenterPages.originOf.queryKey() })
+	void queryClient.invalidateQueries({ queryKey: trpc.controlCenterPages.preview.queryKey() })
+}
+
+/** True once the element has been near the screen (pictures load only for rows that are looked at) */
+function useSeen<T extends Element>(): [React.RefObject<T | null>, boolean] {
+	const ref = useRef<T>(null)
+	const [seen, setSeen] = useState(false)
+	useEffect(() => {
+		const el = ref.current
+		if (!el || seen) return
+		if (typeof IntersectionObserver === 'undefined') {
+			setSeen(true)
+			return
+		}
+		const io = new IntersectionObserver(
+			(entries) => {
+				if (entries.some((e) => e.isIntersecting)) {
+					setSeen(true)
+					io.disconnect()
+				}
+			},
+			{ rootMargin: '200px' }
+		)
+		io.observe(el)
+		return () => io.disconnect()
+	}, [seen])
+	return [ref, seen]
+}
+
+/** A small picture of one Control Center page (its keys; strip and knobs too on a + / + XL) */
+function CcPagePreview({ id, title }: { id: string; title: string }): React.JSX.Element {
+	const [ref, seen] = useSeen<HTMLDivElement>()
+	const query = useQuery({
+		...trpc.controlCenterPages.preview.queryOptions({ id }),
+		enabled: seen,
+		staleTime: 10000,
+	})
+	return (
+		<div className="cc-pages-preview" ref={ref}>
+			{query.data ? (
+				<img src={query.data} alt={`Keys of ${title}`} loading="lazy" />
+			) : (
+				<span className="cc-pages-preview-empty">
+					{!seen || query.isPending ? 'Loading picture...' : 'No picture (Control Center 0.36.0 or newer shows one)'}
+				</span>
+			)}
+		</div>
+	)
 }
 
 function errorText(e: unknown): string {
@@ -51,6 +104,9 @@ export const ControlCenterPagesSection = observer(function ControlCenterPagesSec
 	const placeMutation = useMutationExt(trpc.controlCenterPages.place.mutationOptions())
 	const saveMutation = useMutationExt(trpc.controlCenterPages.saveUserPage.mutationOptions())
 	const removeMutation = useMutationExt(trpc.controlCenterPages.removeUserPage.mutationOptions())
+	const placeDeckMutation = useMutationExt(trpc.controlCenterPages.placeDeck.mutationOptions())
+	/** Place copies without Control Center's deck look, so text and colours edited in Companion show */
+	const [ownLook, setOwnLook] = useState(false)
 	const confirmRef = useRef<GenericConfirmModalRef>(null)
 
 	const state = stateQuery.data
@@ -69,7 +125,7 @@ export const ControlCenterPagesSection = observer(function ControlCenterPagesSec
 		(page: ControlCenterPagesCatalogPage, targetPage?: number) => {
 			setBusy(true)
 			placeMutation
-				.mutateAsync({ id: page.id, pageName: page.title.slice(0, 60), targetPage })
+				.mutateAsync({ id: page.id, pageName: page.title.slice(0, 60), targetPage, look: !ownLook })
 				.then((res) => {
 					refresh()
 					notifier.show(
@@ -84,7 +140,27 @@ export const ControlCenterPagesSection = observer(function ControlCenterPagesSec
 				.catch((e) => notifier.show('Control Center pages', errorText(e)))
 				.finally(() => setBusy(false))
 		},
-		[notifier, onPlaced, placeMutation, setPageNumber]
+		[notifier, onPlaced, ownLook, placeMutation, setPageNumber]
+	)
+	const placeDeck = useCallback(
+		(surface: string, label: string) => {
+			setBusy(true)
+			placeDeckMutation
+				.mutateAsync({ surface, look: !ownLook })
+				.then((res) => {
+					refresh()
+					const last = res.firstPage + res.count - 1
+					notifier.show(
+						'Control Center pages',
+						`Placed every ${label} page as pages ${res.firstPage}-${last}. Their HOME and page keys now move between them (${res.wired} keys). Put the Stream Deck on page ${res.firstPage} once.`
+					)
+					setPageNumber(res.firstPage)
+					onPlaced?.(res.firstPage)
+				})
+				.catch((e) => notifier.show('Control Center pages', errorText(e)))
+				.finally(() => setBusy(false))
+		},
+		[notifier, onPlaced, ownLook, placeDeckMutation, setPageNumber]
 	)
 	const place = useCallback((page: ControlCenterPagesCatalogPage) => doPlace(page), [doPlace])
 	const placeOn = useCallback(
@@ -160,8 +236,10 @@ export const ControlCenterPagesSection = observer(function ControlCenterPagesSec
 			<p>
 				Pages straight from Control Center, laid out key for key like Control Center (strip and knobs included).{' '}
 				<b>New page</b> adds your own copy as a new page; <b>On page {pageNumber}</b> lays it out on page {pageNumber}{' '}
-				instead, replacing what is there. Edit the copy like any page, the Control Center original never changes. Then
-				show it on a deck from that deck&apos;s page buttons, or save your edited copy to User pages.
+				instead, replacing what is there. Edit the copy like any page, the Control Center original never changes, and
+				nothing from Control Center overwrites it later. To move between pages on the Stream Deck: place{' '}
+				<b>Whole deck</b> once on the page the deck shows (Control Center&apos;s HOME and page keys change it), or use{' '}
+				<b>Place every page</b>, which turns each page&apos;s HOME and page keys into Companion page jumps.
 				{state?.connection && (
 					<>
 						{' '}
@@ -190,6 +268,15 @@ export const ControlCenterPagesSection = observer(function ControlCenterPagesSec
 				</div>
 			)}
 
+			<label className="cc-pages-look flex items-center gap-2">
+				<input type="checkbox" checked={ownLook} onChange={(e) => setOwnLook(e.target.checked)} />
+				<span>
+					<b>My own look</b>: place copies without Control Center&apos;s key pictures, so text and colours you edit here
+					show (the keys still run Control Center). Without it, Control Center&apos;s picture is drawn over the key; to
+					restyle one key only, remove its &quot;Control Center deck look&quot; feedback.
+				</span>
+			</label>
+
 			{stateQuery.isPending && <p>Loading Control Center pages...</p>}
 			{state?.error && <p className="text-warning">{state.error}</p>}
 
@@ -199,12 +286,23 @@ export const ControlCenterPagesSection = observer(function ControlCenterPagesSec
 						<CcPageGroup
 							key={`deck-${deck.surface}`}
 							title={`Live deck pages · ${deck.label}`}
-							note="The PTZ / ATEM / HOME / CONSOLE pages Control Center is driving right now."
+							note="The PTZ / ATEM / HOME / CONSOLE pages Control Center is driving right now. With two systems of one kind (PTZ 1, PTZ 2) each page title starts with its system's name."
 							pages={deck.pages}
 							busy={busy}
 							pageNumber={pageNumber}
 							onPlace={place}
 							onPlaceOn={placeOn}
+							extra={
+								<Button
+									color="primary"
+									size="sm"
+									disabled={busy}
+									onClick={() => placeDeck(deck.surface, deck.label)}
+									title="HOME and every system page as new pages in a row; their HOME and page keys jump between them"
+								>
+									<FontAwesomeIcon icon={faLayerGroup} /> Place every page
+								</Button>
+							}
 						/>
 					))}
 					<CcPageGroup
@@ -281,6 +379,8 @@ interface CcPageGroupProps {
 	onPlace: (page: ControlCenterPagesCatalogPage) => void
 	onPlaceOn: (page: ControlCenterPagesCatalogPage) => void
 	onRemove?: (page: ControlCenterPagesCatalogPage) => void
+	/** Shown next to the group heading (e.g. "Place every page") */
+	extra?: React.ReactNode
 }
 
 function CcPageGroup({
@@ -293,18 +393,31 @@ function CcPageGroup({
 	onPlace,
 	onPlaceOn,
 	onRemove,
+	extra,
 }: CcPageGroupProps): React.JSX.Element {
 	return (
 		<div className="cc-pages-group">
-			<h6>{title}</h6>
+			<h6 className="flex items-center gap-2">
+				<span>{title}</span>
+				{extra}
+			</h6>
 			<div className="page-class-meta">{note}</div>
 			{pages.length === 0 && empty && <p>{empty}</p>}
 			<div className="collections-nesting-table page-class-list">
 				{pages.map((page) => (
 					<div className="collections-nesting-table-row-item" key={page.id}>
 						<div className="collections-nesting-table-row-item-grid">
-							<div className="grow flex items-center gap-2">
-								<div className="grow">{page.title}</div>
+							<div className="grow flex items-center gap-2 cc-pages-row">
+								<CcPagePreview id={page.id} title={page.title} />
+								<div className="grow">
+									<div>{page.title}</div>
+									{isWholeDeck(page) && (
+										<div className="page-class-meta">
+											Recommended: one page that follows Control Center&apos;s HOME and page keys, so the Stream Deck
+											moves between Control Center pages with no Surfaces change.
+										</div>
+									)}
+								</div>
 								<ButtonGroup className="page-class-actions ms-auto">
 									<Button
 										color="primary"
@@ -337,4 +450,8 @@ function CcPageGroup({
 			</div>
 		</div>
 	)
+}
+
+function isWholeDeck(page: ControlCenterPagesCatalogPage): boolean {
+	return page.whole === true || /^deck:[\w-]+:$/.test(page.id)
 }
