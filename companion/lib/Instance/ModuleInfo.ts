@@ -45,8 +45,35 @@ export class InstanceModuleInfo {
 		return latest
 	}
 
+	/**
+	 * PV fork: the built-in copy of a connection module (repo modules/, e.g. pvllc-control-center) wins over an
+	 * imported or store copy of the same module that is not newer. Otherwise an old imported package (0.11.0) shadows
+	 * the built-in (0.12.0): new connections get it, and Manage Modules shows its name and help.
+	 */
+	builtinSupersedesInstalled(): boolean {
+		const builtinVersion = this.#builtinVersion()
+		if (!builtinVersion) return false
+		const latest = this.getLatestVersion(false)
+		return !latest || semver.gte(builtinVersion, semver.coerce(latest.versionId)?.version ?? latest.versionId)
+	}
+
+	/** PV fork: is this installed version older than the built-in copy of the same module? */
+	isSupersededByBuiltin(versionId: string | null | undefined): boolean {
+		if (!versionId || versionId === 'builtin' || versionId === 'dev') return false
+		const builtinVersion = this.#builtinVersion()
+		const installed = semver.valid(semver.coerce(versionId))
+		if (!builtinVersion || !installed) return false
+		return semver.lt(installed, builtinVersion)
+	}
+
+	#builtinVersion(): string | null {
+		if (!this.builtinModule || this.builtinModule.manifest.type !== 'connection') return null
+		return semver.valid(semver.coerce(this.builtinModule.manifest.version)) ?? null
+	}
+
 	toClientJson(): ClientModuleInfo | null {
-		const stableVersion = this.getLatestVersion(false)
+		const builtinWins = this.builtinSupersedesInstalled()
+		const stableVersion = builtinWins ? this.builtinModule : this.getLatestVersion(false)
 		const betaVersion = this.getLatestVersion(true)
 
 		const baseVersion =

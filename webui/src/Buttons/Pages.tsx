@@ -14,6 +14,7 @@ import { TextInputFieldSimple } from '~/Components/TextInputField.js'
 import { trpc, useMutationExt } from '~/Resources/TRPC.js'
 import type { PagesStoreModel } from '~/Stores/PagesStore.js'
 import { RootAppStoreContext } from '~/Stores/RootAppStore.js'
+import { ControlCenterPagesSection } from './ControlCenterPages.js'
 import { EditPagePropertiesModal, type EditPagePropertiesModalRef } from './EditPageProperties.js'
 import { PageClassesSection } from './PageClasses.js'
 
@@ -240,6 +241,7 @@ export const PagesList = observer(function PagesList({ pageNumber, setPageNumber
 						))}
 					</div>
 					<PageClassesSection pageNumber={pageNumber} setPageNumber={setPageNumber} />
+					<ControlCenterPagesSection pageNumber={pageNumber} setPageNumber={setPageNumber} />
 				</Grid.Col>
 			</Grid.Row>
 		</div>

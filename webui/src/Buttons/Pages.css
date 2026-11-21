@@ -73,3 +73,17 @@
 	width: 100%;
 	max-width: 100%;
 }
+
+/* PV fork: Control Center pages */
+.cc-pages {
+	margin-top: 1rem;
+}
+.cc-pages-group {
+	margin-top: 0.75rem;
+}
+.cc-pages-group h6 {
+	margin-bottom: 0.15rem;
+}
+.cc-pages-save {
+	margin-top: 0.75rem;
+}

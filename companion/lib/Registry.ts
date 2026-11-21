@@ -24,6 +24,7 @@ import { ImportExportController } from './ImportExport/Controller.js'
 import { InstanceController } from './Instance/Controller.js'
 import { InternalController } from './Internal/Controller.js'
 import LogController, { type Logger } from './Log/Controller.js'
+import { ControlCenterPagesController } from './Page/ControlCenterPagesController.js'
 import { PageController } from './Page/Controller.js'
 import { PageClassController } from './Page/PageClassController.js'
 import { PageStore } from './Page/Store.js'
@@ -122,6 +123,7 @@ export class Registry {
 	 * Saved page snapshots that can be stamped out onto a new connection.
 	 */
 	readonly pageClasses: PageClassController
+	readonly controlCenterPages: ControlCenterPagesController
 
 	/**
 	 * Saved buttons that can be dropped from the presets list.
@@ -343,6 +345,13 @@ export class Registry {
 			this.db.getTableView('page_classes'),
 			this.page,
 			this.instance,
+			this.importExport
+		)
+
+		this.controlCenterPages = new ControlCenterPagesController(
+			this.db.getTableView('cc_page_origins'),
+			this.instance,
+			this.page,
 			this.importExport
 		)
 
