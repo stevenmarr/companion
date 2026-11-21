@@ -81,7 +81,11 @@ if (configDirAbs && (configDirAbs + path.sep).startsWith(repoRoot + path.sep)) {
 // `yarn start:local` (COMPANION_DEV_NO_WATCH=1): run once without tsx watch, so nothing restarts
 // Companion behind your back; rebuild the webui first so the UI matches the checkout.
 const noWatch = process.env.COMPANION_DEV_NO_WATCH === '1'
-const rebuildWebui = noWatch || process.argv.includes('--rebuild-webui')
+// Performance Video fork: COMPANION_DEV_REBUILD_WEBUI=auto (set by Control Center when it runs Companion) skips
+// the forced rebuild when webui/build already matches this commit (the .source-rev stamp below), so a restart
+// after a crash is quick. A pulled checkout still rebuilds because its stamp no longer matches.
+const rebuildAuto = process.env.COMPANION_DEV_REBUILD_WEBUI === 'auto'
+const rebuildWebui = (noWatch && !rebuildAuto) || process.argv.includes('--rebuild-webui')
 const rebuildIndex = process.argv.indexOf('--rebuild-webui')
 if (rebuildIndex !== -1) process.argv.splice(rebuildIndex, 1)
 
