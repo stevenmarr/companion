@@ -99,7 +99,9 @@ describe('built-in module replacing a legacy id', () => {
 		const modules = await makeModules(true, '0.11.0')
 		expect(modules.getModuleManifest(ModuleInstanceType.Connection, 'pvllc-control-center', '0.11.0')).toBeTruthy()
 		// new connections and "latest" get the built-in copy
-		expect(modules.getLatestVersionOfModule(ModuleInstanceType.Connection, 'pvllc-control-center', false)).toBe('builtin')
+		expect(modules.getLatestVersionOfModule(ModuleInstanceType.Connection, 'pvllc-control-center', false)).toBe(
+			'builtin'
+		)
 		// a connection pinned to the old import is moved at start-up (InstanceController #queueUpdateInstanceState)
 		expect(modules.isSupersededByBuiltin(ModuleInstanceType.Connection, 'pvllc-control-center', '0.11.0')).toBe(true)
 		expect(modules.isSupersededByBuiltin(ModuleInstanceType.Connection, 'pvllc-control-center', 'builtin')).toBe(false)

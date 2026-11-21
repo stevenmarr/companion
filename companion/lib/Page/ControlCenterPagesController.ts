@@ -85,10 +85,12 @@ export function minimalInstances(
 	for (const [id, raw] of Object.entries(instances ?? {})) {
 		const c = raw as Record<string, unknown> | undefined
 		if (!c) continue
-		const moduleId = String(c.moduleId ?? c.instance_type ?? '')
+		const moduleRaw = c.moduleId ?? c.instance_type
+		const moduleId = typeof moduleRaw === 'string' ? moduleRaw : ''
 		if (!moduleId) continue
+		const labelRaw = c.label
 		out[id] = {
-			label: String(c.label ?? id),
+			label: typeof labelRaw === 'string' ? labelRaw : id,
 			moduleId,
 			lastUpgradeIndex: typeof c.lastUpgradeIndex === 'number' ? c.lastUpgradeIndex : -1,
 		}
@@ -116,7 +118,7 @@ export class ControlCenterPagesController {
 		this.#instances = instances
 		this.#pages = pages
 		this.#importExport = importExport
-		this.#fetch = fetchImpl ?? (globalThis.fetch as unknown as CcFetch)
+		this.#fetch = fetchImpl ?? globalThis.fetch
 	}
 
 	createTrpcRouter() {

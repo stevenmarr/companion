@@ -36,7 +36,7 @@ const connections: Record<string, { moduleId: string; label: string; config: unk
 function ccPage(name = 'CC PTZ'): { page: ExportPageContentv6; instances: ExportInstancesv6 } {
 	return {
 		page: { id: 'p', name, controls: {}, gridSize: { minColumn: 0, maxColumn: 7, minRow: 0, maxRow: 3 } },
-		instances: { ccmod: { label: 'rs6presets', moduleId: 'pvllc-control-center', lastUpgradeIndex: -1 } as any },
+		instances: { ccmod: { label: 'rs6presets', moduleId: 'pvllc-control-center', lastUpgradeIndex: -1 } },
 	}
 }
 
