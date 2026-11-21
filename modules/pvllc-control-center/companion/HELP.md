@@ -99,6 +99,9 @@ boxes; PTZ `ptz_<id>_…` and `ptz_sel_…` (name, model, power, tally, pan / ti
 Import the new package, then click the pencil next to the version on the connection and pick the new version. The
 connection and its buttons are kept.
 
+**0.15.0**: with Control Center 0.35.0 the **CC deck** buttons draw Control Center's own picture for each key, strip
+cell and knob (the same as its DECKS page), live. An older Control Center keeps the text look.
+
 **0.14.0** is Control Center only: the older per-system preset sections and their setting are gone. Every action,
 feedback and variable is unchanged, so buttons you already placed keep working; drag new ones from the **CC deck** and
 **CC** presets, or download pages from Control Center's COMPANION tab.
