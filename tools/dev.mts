@@ -135,6 +135,11 @@ if (rebuildWebui || !fs.existsSync('../webui/build') || !headRev || builtRev !==
 		},
 		(e) => {
 			console.error(e)
+			// Performance Video fork: say it plainly. Companion still starts, but its web page is the old build, so new
+			// screens (e.g. Control Center pages) are missing until the build succeeds.
+			console.error(
+				`WEBUI BUILD FAILED: the web page is still the old build${builtRev ? ` (${builtRev.slice(0, 9)})` : ''}, not this checkout (${headRev.slice(0, 9) || 'unknown'}). Run \`yarn install\` then \`yarn dist:webui\` in the Companion folder and restart Companion.`
+			)
 		}
 	)
 } else {

@@ -26,6 +26,7 @@ import { Route as AppSplatRouteImport } from './routes/_app/$.tsx'
 import { Route as AppButtonsRouteImport } from './routes/_app/buttons.tsx'
 import { Route as AppCloudRouteImport } from './routes/_app/cloud.tsx'
 import { Route as AppConnectionsRouteImport } from './routes/_app/connections.tsx'
+import { Route as AppControlCenterPagesRouteImport } from './routes/_app/control-center-pages.tsx'
 import { Route as AppImageLibraryRouteImport } from './routes/_app/image-library.tsx'
 import { Route as AppImportExportRouteImport } from './routes/_app/import-export.tsx'
 import { Route as AppLogRouteImport } from './routes/_app/log.tsx'
@@ -155,6 +156,11 @@ const AppCloudRoute = AppCloudRouteImport.update({
 const AppConnectionsRoute = AppConnectionsRouteImport.update({
   id: '/connections',
   path: '/connections',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppControlCenterPagesRoute = AppControlCenterPagesRouteImport.update({
+  id: '/control-center-pages',
+  path: '/control-center-pages',
   getParentRoute: () => AppRoute,
 } as any)
 const AppImageLibraryRoute = AppImageLibraryRouteImport.update({
@@ -450,6 +456,7 @@ export interface FileRoutesByFullPath {
   '/buttons': typeof AppButtonsRouteWithChildren
   '/cloud': typeof AppCloudRoute
   '/connections': typeof AppConnectionsRouteWithChildren
+  '/control-center-pages': typeof AppControlCenterPagesRoute
   '/image-library': typeof AppImageLibraryRouteWithChildren
   '/import-export': typeof AppImportExportRoute
   '/log': typeof AppLogRoute
@@ -515,6 +522,7 @@ export interface FileRoutesByTo {
   '/$': typeof AppSplatRoute
   '/buttons': typeof AppButtonsRouteWithChildren
   '/cloud': typeof AppCloudRoute
+  '/control-center-pages': typeof AppControlCenterPagesRoute
   '/import-export': typeof AppImportExportRoute
   '/log': typeof AppLogRoute
   '/pages': typeof AppPagesRoute
@@ -576,6 +584,7 @@ export interface FileRoutesById {
   '/_app/buttons': typeof AppButtonsRouteWithChildren
   '/_app/cloud': typeof AppCloudRoute
   '/_app/connections': typeof AppConnectionsRouteWithChildren
+  '/_app/control-center-pages': typeof AppControlCenterPagesRoute
   '/_app/image-library': typeof AppImageLibraryRouteWithChildren
   '/_app/import-export': typeof AppImportExportRoute
   '/_app/log': typeof AppLogRoute
@@ -646,6 +655,7 @@ export interface FileRouteTypes {
     | '/buttons'
     | '/cloud'
     | '/connections'
+    | '/control-center-pages'
     | '/image-library'
     | '/import-export'
     | '/log'
@@ -711,6 +721,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/buttons'
     | '/cloud'
+    | '/control-center-pages'
     | '/import-export'
     | '/log'
     | '/pages'
@@ -771,6 +782,7 @@ export interface FileRouteTypes {
     | '/_app/buttons'
     | '/_app/cloud'
     | '/_app/connections'
+    | '/_app/control-center-pages'
     | '/_app/image-library'
     | '/_app/import-export'
     | '/_app/log'
@@ -947,6 +959,13 @@ declare module '@tanstack/react-router' {
       path: '/connections'
       fullPath: '/connections'
       preLoaderRoute: typeof AppConnectionsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/control-center-pages': {
+      id: '/_app/control-center-pages'
+      path: '/control-center-pages'
+      fullPath: '/control-center-pages'
+      preLoaderRoute: typeof AppControlCenterPagesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/image-library': {
@@ -1468,6 +1487,7 @@ interface AppRouteChildren {
   AppButtonsRoute: typeof AppButtonsRouteWithChildren
   AppCloudRoute: typeof AppCloudRoute
   AppConnectionsRoute: typeof AppConnectionsRouteWithChildren
+  AppControlCenterPagesRoute: typeof AppControlCenterPagesRoute
   AppImageLibraryRoute: typeof AppImageLibraryRouteWithChildren
   AppImportExportRoute: typeof AppImportExportRoute
   AppLogRoute: typeof AppLogRoute
@@ -1495,6 +1515,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppButtonsRoute: AppButtonsRouteWithChildren,
   AppCloudRoute: AppCloudRoute,
   AppConnectionsRoute: AppConnectionsRouteWithChildren,
+  AppControlCenterPagesRoute: AppControlCenterPagesRoute,
   AppImageLibraryRoute: AppImageLibraryRouteWithChildren,
   AppImportExportRoute: AppImportExportRoute,
   AppLogRoute: AppLogRoute,

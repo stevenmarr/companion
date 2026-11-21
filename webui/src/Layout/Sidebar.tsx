@@ -31,6 +31,7 @@ import {
 	faTableCells,
 	faTabletScreenButton,
 	faToolbox,
+	faTowerBroadcast,
 	type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -413,6 +414,8 @@ export const MySidebar = memo(function MySidebar() {
 					/>
 					<SidebarMenuItem name="Buttons" icon={faTableCells} path="/buttons" />
 					<SidebarMenuItem name="Pages" icon={faLayerGroup} path="/pages" />
+					{/* PV fork: pages Control Center outputs (PTZ, ATEM, HOME, CONSOLE, library, User pages) */}
+					<SidebarMenuItem name="Control Center pages" icon={faTowerBroadcast} path="/control-center-pages" />
 					<SidebarMenuItemGroup
 						name="Surfaces"
 						icon={faGamepad}

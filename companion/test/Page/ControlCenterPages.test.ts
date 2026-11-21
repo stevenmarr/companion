@@ -115,7 +115,7 @@ describe('ControlCenterPagesController', () => {
 			'GET /api/companion/catalog/export': { body: { name: 'x', export: { version: 6, type: 'page', ...ccPage() } } },
 		})
 		const res = await ctrl.place('deck:plusxl:ptz.0', 'PTZ copy')
-		expect(res).toEqual({ pageNumber: 4, name: 'PTZ copy' })
+		expect(res).toEqual({ pageNumber: 4, name: 'PTZ copy', replaced: false })
 		expect(calls[0].url).toContain('id=deck%3Aplusxl%3Aptz.0&label=rs6presets')
 		expect(importExport.importPageForClass).toHaveBeenCalledWith(
 			expect.anything(),
@@ -124,6 +124,23 @@ describe('ControlCenterPagesController', () => {
 			4
 		)
 		expect(origins.get('new-4')).toMatchObject({ catalogId: 'deck:plusxl:ptz.0', title: 'PTZ copy' })
+	})
+
+	it('places a page on an existing page N (replacing it), without adding a page', async () => {
+		const { ctrl, pages, importExport, origins } = setup({
+			'GET /api/companion/catalog/export': { body: { export: { version: 6, type: 'page', ...ccPage('CC PTZ') } } },
+		})
+		const res = await ctrl.place('deck:plusxl:ptz.0', '', 2)
+		expect(res).toEqual({ pageNumber: 2, name: 'CC PTZ', replaced: true })
+		expect(pages.insertPages).not.toHaveBeenCalled()
+		expect(importExport.importPageForClass).toHaveBeenCalledWith(
+			expect.anything(),
+			{ ccmod: 'conn-cc' },
+			expect.objectContaining({ name: 'CC PTZ' }),
+			2
+		)
+		expect(origins.get('b')).toMatchObject({ catalogId: 'deck:plusxl:ptz.0' })
+		await expect(ctrl.place('deck:plusxl:ptz.0', '', 9)).rejects.toThrow(/no page 9/)
 	})
 
 	it('refuses a page that needs a connection that is not here, without leaving an empty page', async () => {

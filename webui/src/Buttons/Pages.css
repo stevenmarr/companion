@@ -87,3 +87,17 @@
 .cc-pages-save {
 	margin-top: 0.75rem;
 }
+
+/* PV fork: the Control Center pages screen (left menu, BUILD) */
+.cc-pages-screen {
+	padding: 1rem 1.25rem;
+	max-width: 960px;
+}
+.cc-pages-standalone h4 {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+.cc-pages-target {
+	margin: 0.5rem 0 1rem;
+}

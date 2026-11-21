@@ -126,8 +126,15 @@ export class ControlCenterPagesController {
 			state: publicProcedure.query(async () => this.state()),
 
 			place: publicProcedure
-				.input(z.object({ id: z.string().min(1).max(200), pageName: z.string().max(60).optional() }))
-				.mutation(async ({ input }) => this.place(input.id, input.pageName ?? '')),
+				.input(
+					z.object({
+						id: z.string().min(1).max(200),
+						pageName: z.string().max(60).optional(),
+						/** Replace this page (its buttons go) instead of adding a new page at the end */
+						targetPage: z.number().int().min(1).optional(),
+					})
+				)
+				.mutation(async ({ input }) => this.place(input.id, input.pageName ?? '', input.targetPage)),
 
 			saveUserPage: publicProcedure
 				.input(
@@ -227,7 +234,15 @@ export class ControlCenterPagesController {
 		return remap
 	}
 
-	async place(catalogId: string, pageNameInput: string): Promise<{ pageNumber: number; name: string }> {
+	/**
+	 * Place a Control Center page as a copy: a new page at the end, or (targetPage) on an existing page, replacing what
+	 * is there. Either way the layout is Control Center's, key for key, strip and knobs included.
+	 */
+	async place(
+		catalogId: string,
+		pageNameInput: string,
+		targetPage?: number
+	): Promise<{ pageNumber: number; name: string; replaced: boolean }> {
 		const conn = this.connection()
 		if (!conn) throw new Error('Add a Performance Video Control Center connection first (Connections → Add)')
 		const res = (await this.#call(
@@ -238,11 +253,28 @@ export class ControlCenterPagesController {
 		const remap = this.#remap(upgraded.instances, conn.id)
 
 		const pageName = pageNameInput.trim() || upgraded.page.name?.trim() || 'Control Center page'
+		const page = structuredClone(upgraded.page)
+		page.name = pageName
+		const userPageId = catalogId.startsWith('user:') ? catalogId.slice(5) : undefined
+
+		if (targetPage !== undefined) {
+			const targetId = this.#pages.store.getPageId(targetPage)
+			if (!targetId) throw new Error(`There is no page ${targetPage}`)
+			// importSinglePage clears the page first, then lays out the Control Center page and names it
+			await this.#importExport.importPageForClass(upgraded.instances, remap, page, targetPage)
+			this.#origins.set(targetId, {
+				pageId: targetId,
+				catalogId,
+				title: pageName,
+				...(userPageId ? { userPageId } : {}),
+			})
+			this.#logger.info(`Placed Control Center page ${catalogId} on page ${targetPage} (${pageName}), a copy`)
+			return { pageNumber: targetPage, name: pageName, replaced: true }
+		}
+
 		const pageNumber = this.#pages.store.getPageCount() + 1
 		const ids = this.#pages.insertPages(pageNumber, [pageName])
 		if (ids.length === 0) throw new Error('Failed to create a page')
-		const page = structuredClone(upgraded.page)
-		page.name = pageName
 		try {
 			await this.#importExport.importPageForClass(upgraded.instances, remap, page, pageNumber)
 		} catch (e) {
@@ -253,10 +285,9 @@ export class ControlCenterPagesController {
 			}
 			throw e
 		}
-		const userPageId = catalogId.startsWith('user:') ? catalogId.slice(5) : undefined
 		this.#origins.set(ids[0], { pageId: ids[0], catalogId, title: pageName, ...(userPageId ? { userPageId } : {}) })
 		this.#logger.info(`Placed Control Center page ${catalogId} as page ${pageNumber} (${pageName}), a copy`)
-		return { pageNumber, name: pageName }
+		return { pageNumber, name: pageName, replaced: false }
 	}
 
 	originOf(pageNumber: number): ControlCenterPageOrigin | null {

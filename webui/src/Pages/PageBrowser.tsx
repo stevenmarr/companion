@@ -1,7 +1,7 @@
 import { faCopy, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { observer } from 'mobx-react-lite'
 import { useContext, useEffect, useId, useRef, useState } from 'react'
 import type { ControlLocation } from '@companion-app/shared/Model/Common.js'
@@ -168,6 +168,11 @@ export const PageBrowser = observer(function PageBrowser(): React.JSX.Element {
 					<p>
 						A picture of each page. Tick several to delete them together. Choose one to edit it. Duplicate copies the
 						buttons and lets you point them at different connections.
+					</p>
+					{/* PV fork: Control Center's own pages live on their own screen */}
+					<p className="page-browser-cc-link">
+						Pages from Control Center (PTZ, ATEM, HOME, CONSOLE, library and User pages):{' '}
+						<Link to="/control-center-pages">Control Center pages</Link>
 					</p>
 				</div>
 				<div className="page-browser-create">
